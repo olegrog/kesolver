@@ -1,0 +1,106 @@
+#include <iostream>
+#include <fstream>
+
+#include "section.hpp"
+
+LJSection::LJSection(const std::vector<double>& ds,
+                     const std::vector<double>& es,
+                     const std::string& filename) : ds(ds), es(es)
+{
+    std::ifstream fd(filename.c_str());
+    size_t m, n;
+    fd >> m >> n;
+    gs.reserve(m);
+    ths.reserve(n);
+    sigma.reserve(m*n);
+    for (size_t i = 0; i < m; ++i) {
+        double x;
+        fd >> x;
+        gs.push_back(x);
+    }
+    for (size_t i = 0; i < n; ++i) {
+        double x;
+        fd >> x;
+        ths.push_back(x);
+    }
+    for (size_t i = 0; i < m; ++i) 
+        for (size_t j = 0; j < n; ++j) {
+            double x;
+            fd >> x;
+            sigma.push_back(x);
+        }
+    fd.close();
+}
+
+int bin_search(const double x, const std::vector<double>& xs)
+{
+    if (x < xs[0]) return 0;
+    if (xs[xs.size()-1] < x) return xs.size() - 1;
+
+    size_t l = 0;
+    size_t r = xs.size() - 1;
+
+    size_t i = 0;
+    while (true) {
+        i = (l + r) / 2;
+        if (xs[i] > x)
+            r = i;
+        else if (xs[i+1] < x)
+            l = i + 1;
+        else
+            break;
+    }
+
+    if (x - xs[i] < xs[i+1] - x) return i;
+    else return i + 1;
+}
+
+double LJSection::ker(const double g, const double cth) const
+{
+    int i = bin_search(g, gs);
+    double th = std::acos(cth);
+    int j = bin_search(th, ths);
+/*
+    std::cout << "g, i = " << g << ' ' << i << std::endl;
+    std::cout << "th, j = " << th << ' ' << j << std::endl;
+    std::cout << "sigma = " << sigma[i * ths.size() + j] << std::endl;
+*/
+    return sigma[i * ths.size() + j] / M_PI;
+}
+
+
+
+
+
+MaSection::MaSection(const std::vector<double>& as,
+                     const std::string& filename) : as(as)
+{
+    std::ifstream fd(filename.c_str());
+    size_t n;
+    fd >> n;
+    ths.reserve(n);
+    sigma.reserve(n);
+    for (size_t i = 0; i < n; ++i) {
+        double x;
+        fd >> x;
+        ths.push_back(x);
+    }
+    for (size_t j = 0; j < n; ++j) {
+        double x;
+        fd >> x;
+        sigma.push_back(x);
+    }
+    fd.close();
+}
+
+
+double MaSection::ker(const double g, const double cth) const
+{
+    if (std::abs(g) < 1e-12)
+        return 0;
+    double th = std::acos(cth);
+    int j = bin_search(th, ths);
+//    std::cout << "th, g, sigma = " << th << ' ' << g << ' ' << sigma[j] << ' ' << sigma[j] / M_PI / g << std::endl;
+    return sigma[j] / M_PI / g;
+}
+
