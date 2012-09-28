@@ -73,12 +73,16 @@ void MirrorFacet::doTransfer2(std::vector<Polygon*>& spacemesh, const Gas& gas)
 
     for (size_t i = 0; i < size; ++i) {
 		double sppr = gas.dot(i, n);
-		if (sppr < 0.0) 
-			f2_in[i] += (f1_in[i] + dot(df_in[i], d_in)*phi_in[i])*sppr*mult_in;
-		else 
+		if (sppr < 0.0) {
+            double dd = - 0.5 * dt * gas.dot(i, df_in[i]);
+			f2_in[i] += (f1_in[i] + (dot(df_in[i], d_in)+dd)*phi_in[i])*sppr*mult_in;
+        }
+		else {
+            double dd = - 0.5 * dt * gas.dot(i, df_in[gas.mirror(i, symm)]);
 			f2_in[i] += (f1_in[gas.mirror(i, symm)] + 
-					 dot(df_in[gas.mirror(i, symm)], d_in) * 
+					(dot(df_in[gas.mirror(i, symm)], d_in) + dd) * 
 					    phi_in[gas.mirror(i, symm)]) * sppr * mult_in;
+        }
 	}
 }
 

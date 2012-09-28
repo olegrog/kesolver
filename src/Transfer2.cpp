@@ -24,7 +24,7 @@ void Transfer2::move(const std::vector <PhysicalFacet*>& facets, std::vector<Pol
         spacemesh[i]->findGradient();
     }
     for (size_t i = 0; i < facets.size(); i++) {
-        facets[i]->findPhi(spacemesh);
+        facets[i]->findPhi(spacemesh, gas);
     }
     for (size_t i = 0; i < facets.size(); i++) {
         facets[i]->transfer2(spacemesh, gas);

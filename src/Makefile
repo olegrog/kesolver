@@ -1,5 +1,5 @@
 CC = mpic++
-CCFLAGS = -O3 -I $(INCLUDE) -Wall -g
+CCFLAGS = -O3 -I $(INCLUDE) -Wall -g -msse2
 LIBXMLFLAGS = `xml2-config --cflags --libs`
 
 PROGRAM_DIR = ./

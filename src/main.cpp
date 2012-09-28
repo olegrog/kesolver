@@ -70,22 +70,35 @@ int main(int argc, char** argv)
 
     Integral integral = IntegralConstructor(loader);
 
+    int rep;
+    try {
+        rep = loader.getData<int>("transfer", "rep");
+    }
+    catch (std::invalid_argument) {
+        std::cout << "catch" << std::endl;
+        rep = 1;
+    }
+    std::cout << "rep = " << rep << std::endl;
+
     Printer printer(loader);
     for (int i = 0; i < 2000000; i++) {
-//    for (int i = 0; i < 10; i++) {
 
         std::cout << i << std::endl;
 
         printer.print(i, spacemesh, mypolys, gas, size, rank);
 
-        std::cout << "transfer" << std::endl;
-        transfer->move(facets, spacemesh, mypolys, gas);
+        for (int j = 0; j < rep; ++j) {
+            std::cout << "transfer" << std::endl;
+            transfer->move(facets, spacemesh, mypolys, gas);
+        }
 
         std::cout << "integral" << std::endl;
-        integral.collide(time_step, spacemesh, mypolys, gas);
+        integral.collide(rep*time_step, spacemesh, mypolys, gas);
 
-        std::cout << "transfer" << std::endl;
-        transfer->move(facets, spacemesh, mypolys, gas);
+        for (int j = 0; j < rep; ++j) {
+            std::cout << "transfer" << std::endl;
+            transfer->move(facets, spacemesh, mypolys, gas);
+        }
         
     }
 

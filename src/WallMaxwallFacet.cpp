@@ -87,8 +87,10 @@ void WallMaxwellFacet::doTransfer2(std::vector<Polygon*>& spacemesh,
     const DistributionFunction3& df_in = f1.getGradient();
     const DistributionFunction& phi_in = f1.getPhi();
 
-	for (size_t i = 0; i < size; i++)
-        f_in2[i] = f1_in[i] + dot(df_in[i], d_in) * phi_in[i];
+	for (size_t i = 0; i < size; i++) {
+        double dd = - 0.5 * dt * gas.dot(i, df_in[i]);
+        f_in2[i] = f1_in[i] + (dot(df_in[i], d_in) + dd) * phi_in[i];
+    }
 
     gas.equateStreams(f, f_in2, n);
 

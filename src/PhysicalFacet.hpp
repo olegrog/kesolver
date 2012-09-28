@@ -13,8 +13,8 @@ class PhysicalFacet {
 		double S;
 		V3d n, center;
 
-		double sppr;
 		double mult_in, mult_out;
+        double dt;
 
 		int numberOfVertex;
 		std::vector<V3d> vertex;
@@ -39,8 +39,8 @@ class PhysicalFacet {
 		virtual void doTransfer2(std::vector<Polygon*>& spacemesh,
 				const Gas& gas) = 0;
 
-		void findPhi(const std::vector<Polygon*>& spacemesh);
-		void doFindPhi(const std::vector<Polygon*>& spacemesh);
+		void findPhi(const std::vector<Polygon*>& spacemesh, const Gas& gas);
+		void doFindPhi(const std::vector<Polygon*>& spacemesh, const Gas& gas);
 
 		virtual void calculateDistance(std::vector<Polygon*>& spacemesh) = 0;
 

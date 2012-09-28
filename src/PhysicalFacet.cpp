@@ -46,20 +46,22 @@ void PhysicalFacet::setVertex(const std::vector<V3d>& vertex_)
 }
 
 void PhysicalFacet::findMultInOut(double t, const std::vector<Polygon*>& spacemesh) {
+    dt = t;
     mult_in = t * S / spacemesh[polygon[0]]->getVolume();
     if (polygon.size() > 1)
         mult_out = t * S / spacemesh[polygon[1]]->getVolume();
 }
 
-void PhysicalFacet::findPhi(const std::vector<Polygon*>& spacemesh)
+void PhysicalFacet::findPhi(const std::vector<Polygon*>& spacemesh, const Gas& gas)
 {
     if (is_active)
-        doFindPhi(spacemesh);
+        doFindPhi(spacemesh, gas);
 }
 void PhysicalFacet::transfer(std::vector<Polygon*>& spacemesh,
         const Gas& gas) 
 {
     if (is_active) {
+/*
         for (size_t j = 0; j < polygon.size(); ++j) {
             double f = spacemesh[polygon[j]]->f().g()[0];
             if (f != f) {
@@ -69,9 +71,9 @@ void PhysicalFacet::transfer(std::vector<Polygon*>& spacemesh,
                 exit(-1);
             }
         }
-
+*/
         doTransfer(spacemesh, gas);
-
+/*
         for (size_t j = 0; j < polygon.size(); ++j) {
             double f = spacemesh[polygon[j]]->f().g()[0];
             if (f != f) {
@@ -81,6 +83,7 @@ void PhysicalFacet::transfer(std::vector<Polygon*>& spacemesh,
                 exit(-1);
             }
         }
+*/
     }
 }
 void PhysicalFacet::transfer2(std::vector<Polygon*>& spacemesh,
@@ -96,18 +99,19 @@ void PhysicalFacet::findGradient(const std::vector<Polygon*>& spacemesh,
         doFindGradient(spacemesh, gas);
 }
 
-void PhysicalFacet::doFindPhi(const std::vector<Polygon*>& spacemesh)
+void PhysicalFacet::doFindPhi(const std::vector<Polygon*>& spacemesh, const Gas& gas)
 {
     for (size_t j = 0; j < polygon.size(); ++j) {
         Polygon* poly = spacemesh[polygon[j]];
         SpeedFunction& function = poly->f();
+        V3d cc = getCenter() - poly->getCenter();
         for(size_t i = 0; i < function.size(); i++) {
             double f = function.f()[i];
-            double p = f + dot(function.getGradient()[i], 
-                    getCenter() - poly->getCenter());
+            V3d df = function.getGradient()[i];
+            double dd = - 0.5 * dt * gas.dot(i, df);
+            double dl = dot(function.getGradient()[i], cc + dd);
             double d1 = function.getFMax()[i] - f;
             double d2 = function.getFMin()[i] - f;
-            double dl = p - f;
             double phi;
             if (std::abs(dl) < 1e-10) phi = 0.;
             else {
