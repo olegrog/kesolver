@@ -58,7 +58,7 @@ enum CollisionType {
 };
 
 template <Symmetry symmetry, template <Symmetry symmetry> class XiMeshType, typename Nodes>
-void ciGen(const double time_step, const int p,
+void ciGen(const double time_step, int p,
            const XiMeshType<symmetry>& ximesh, Nodes& nc, 
            const SimpleSection* section)
 {
@@ -66,15 +66,15 @@ void ciGen(const double time_step, const int p,
     for (int i = 0; i < 9; ++i)
         ss[i] = 0;
 
-    typedef typename Korobov<symmetry>::type KorobovGrid;
-    KorobovGrid korobov_grid;
-    korobov_grid.resize(p);
-    std::cout << korobov_grid.size() << std::endl;
+    typedef typename Korobov<symmetry>::type IntGrid;
+    IntGrid int_grid;
+    p = int_grid.resize(p);
+    std::cout << p << std::endl;
 
     nc.clear();
     int n_nu = 0;
-    for (typename KorobovGrid::iterator iter = korobov_grid.begin();
-            iter != korobov_grid.end(); ++iter) {
+    for (typename IntGrid::iterator iter = int_grid.begin();
+            iter != int_grid.end(); ++iter) {
         const korobov::Point& point = *iter;
 
         CollisionType type;

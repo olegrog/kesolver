@@ -85,12 +85,13 @@ namespace korobov {
 		public:
 			Grid(int size = 0) { resize(size); update(); }
 
-			void resize(int size) {
+			int resize(int size) {
 //      		std::cout << "korobov_size = " << size << ' ';
 	        	for (line = 0; kor<s>(line)[0] < size; ++line) {}
                 sz = kor<s>(line)[0];
 //	        	std::cout << "sz = " << sz << ' ' << std::endl;
                 update();
+                return sz;
 	        }
 
 			int size() const { return sz; }
