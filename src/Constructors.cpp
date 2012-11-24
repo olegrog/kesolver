@@ -13,6 +13,7 @@
 #include "MirrorFacet.hpp"
 #include "WallMaxwellFacet.hpp"
 #include "MaxwellFacet.hpp"
+#include "AlphaFacet.hpp"
 
 #include "ximesh.hpp"
 #include "ximesh_mixture.hpp"
@@ -73,6 +74,15 @@ PhysicalFacet* createFacet(const std::vector<std::string>& data, const Gas& gas)
         std::vector<std::string> newdata;
         std::copy(++data.begin(), data.end(), std::back_inserter(newdata));
         return new WallMaxwellFacet(gas.maxwell(newdata));
+    }
+    else if (data[0] == "a")  {
+        std::vector<std::string> newdata;
+        std::vector<std::string>::const_iterator begin = data.begin();
+        begin += 3;
+        std::copy(begin, data.end(), std::back_inserter(newdata));
+        return new AlphaFacet( strTo<double>(data[1]),
+                               (Axis)strTo<int>(data[2]),
+                               gas.maxwell(newdata) );
     }
     else if (data[0] == "l")  {
         std::vector<std::string> newdata;

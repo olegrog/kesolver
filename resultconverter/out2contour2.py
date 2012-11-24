@@ -94,9 +94,9 @@ x, y = numpy.array(x), numpy.array(y)
 #trs = tri.Triangulation(x, y)
 trs = []
 
-#for cell, macro in zip(cells, numpy.array(data[i])):
+for cell, macro in zip(cells, numpy.array(data[i])):
 #for cell, macro in zip(cells, numpy.array(data[i]) * numpy.array(data[i+4])):
-for cell, macro in zip(cells, numpy.array(data[i+8])/numpy.array(data[i])):
+#for cell, macro in zip(cells, numpy.array(data[i+8])/numpy.array(data[i])):
 #for cell, macro in zip(cells, numpy.array(data[i])*numpy.array(data[i+4])/numpy.array(data[i+8])/numpy.array(data[i+12])):
     if cell.points:
         trs += out2.triangles(cell.points, points)
@@ -120,7 +120,7 @@ cm = make_cmap()
 ax.autoscale_view( tight=True )
 #co = ax.tricontourf(-numpy.array(x), 1 - numpy.array(y), trs, colors, 20)
 #co = ax.tricontourf(13-numpy.array(x), numpy.array(y), trs, colors, 20)
-co = ax.tricontourf(numpy.array(x), numpy.array(y), trs, colors, 20, cmap = cm)
+co = ax.tricontourf(numpy.array(x), numpy.array(y), trs, colors, 20)#, cmap = cm)
 
 bar = pylab.colorbar(co, orientation='horizontal')
 
@@ -130,8 +130,8 @@ ax.xaxis.set_major_locator(xmajorLocator)
 ymajorLocator   = MaxNLocator(5)
 ax.yaxis.set_major_locator(ymajorLocator)
 
-barmajorLocator   = MaxNLocator(5)
-bar.ax.xaxis.set_major_locator(barmajorLocator)
+#barmajorLocator   = MaxNLocator(5)
+#bar.ax.xaxis.set_major_locator(barmajorLocator)
 
 pylab.savefig("field.eps")
 pylab.show()

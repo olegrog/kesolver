@@ -191,8 +191,8 @@ with open(sys.argv[-1], 'wb') as kinfile:
 
     print "mult = %f\n" % mult
 
-    facetsymbols = set(['m', 'w', 'l', 'f'])
-    exceptions = set(['m', 'w', 'l', 'f', '(', ')', '[', ']'])
+    facetsymbols = set(['m', 'w', 'l', 'f', 'a'])
+    exceptions = set(['m', 'w', 'l', 'f', 'a', '(', ')', '[', ']'])
     print facetsymbols, exceptions
 
     j = 0

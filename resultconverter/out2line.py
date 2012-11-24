@@ -1,15 +1,18 @@
 #!/usr/bin/env python
 
 import sys, math, numpy, os
-import pylab
 
 from out2 import *
 
 O = numpy.array( [0.012, 0.011, 0.01] )
 u = numpy.array( [1.,  0.,    0.] )
 
-show = True
+show = True #False
 save = True
+
+if show:
+    import pylab
+    fig = pylab.figure()
 
 nodes, cells = readNodesCells(sys.argv[1])
 
@@ -28,8 +31,6 @@ points, inds = zip(*sorted(zip(points, inds), key = lambda pair: pair[0]))
 
 at = lambda array, indexes : [array[i] for i in indexes] 
 
-fig = pylab.figure()
-
 reads = {'.txt': readMacros, '.bin': readF}
 
 for filename in sys.argv[2:]:
@@ -47,7 +48,8 @@ for filename in sys.argv[2:]:
     atdata = [at(macro, inds) for macro in data]
 
     for i, macro in enumerate(atdata):
-        pylab.plot(points, macro, label=str(i))
+        if show:
+            pylab.plot(points, macro, label=str(i))
         toprint.append(macro)
 
     if save:

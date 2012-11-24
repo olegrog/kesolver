@@ -3,7 +3,7 @@ CCFLAGS = -O3 -I $(INCLUDE) -Wall -g -msse2
 LIBXMLFLAGS = `xml2-config --cflags --libs`
 
 PROGRAM_DIR = ./
-SOURCE = main.o Constructors.o DataExchanger.o GateFacet.o Hexahedron.o Integral.o Loader.o MirrorFacet.o PhysicalFacet.o Polygon.o Printer.o Prism.o SpeedFunction.o Tetrahedron.o Transfer2.o Transfer1.o WallMaxwallFacet.o MaxwellFacet.o section.o
+SOURCE = main.o Constructors.o DataExchanger.o GateFacet.o Hexahedron.o Integral.o Loader.o MirrorFacet.o PhysicalFacet.o Polygon.o Printer.o Prism.o SpeedFunction.o Tetrahedron.o Transfer2.o Transfer1.o WallMaxwallFacet.o MaxwellFacet.o AlphaFacet.o section.o
 
 INCLUDE =  $(PROGRAM_DIR)
 
@@ -35,6 +35,8 @@ WallMaxwallFacet.o : WallMaxwallFacet.cpp
 	$(CC) -c WallMaxwallFacet.cpp $(CCFLAGS)
 MaxwellFacet.o : MaxwellFacet.cpp
 	$(CC) -c MaxwellFacet.cpp $(CCFLAGS)
+AlphaFacet.o : AlphaFacet.cpp
+	$(CC) -c AlphaFacet.cpp $(CCFLAGS)
 
 Polygon.o : Polygon.cpp
 	$(CC) -c Polygon.cpp $(CCFLAGS)
