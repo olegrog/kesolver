@@ -1,0 +1,4 @@
+1. download tar.gz archive of JsonCpp
+2. run extract.sh, the first arg $1 should be the downloaded archive
+   $ bash extract.sh jsoncpp-src-x.x.x.tar.bz2
+3. $ make 
