@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-import sys, string
-import numpy
+import sys
+import string
 import json
 from array import array
 from base64 import b64encode
@@ -108,7 +108,7 @@ if __name__ == "__main__":
                 n = int( mshfile.readline() )
                 for i in range(n):
                     i, x1, x2, x3 = read_msh_node(mshfile)
-                    nodes.append( numpy.array( [x1, x2, x3] ) )
+                    nodes.append( (x1, x2, x3) )
                 mshfile.readline() # EndNodes
 
             elif line == "$Elements\n":
@@ -195,15 +195,12 @@ if __name__ == "__main__":
     # dump data to in json file    
     meshdata = {}
 
-    write_nodes(nodes,   meshdata)
+    write_nodes(nodes, meshdata)
     meshdata['cells']  = write_elements(cells,  physical_names)
     meshdata['facets'] = write_elements(facets, physical_names)
     meshdata['type'] = 'unstructured'
 
-    data = {}  
-    data['mesh'] = meshdata
-
     with open(sys.argv[-1], 'wb') as fd: 
-        json.dump(data, fd)
-#        json.dump(data, fd, indent=2, sort_keys=True)
+        json.dump(meshdata, fd)
+#        json.dump(meshdata, fd, indent=2, sort_keys=True)
 
