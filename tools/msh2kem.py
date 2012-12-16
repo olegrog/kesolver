@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, struct, string
+import sys, string
 import numpy
 import json
 from array import array
@@ -60,8 +60,18 @@ def write_nodes(nodes, data):
     nodes_base64 = b64encode(nodes_array.tostring())
     data['nodes'] = nodes_base64
 
-def write_elements(cells):
-    return [cell.__dict__ for cell in cells]
+def cell_to_dict(cell, phys_names):
+    data = cell.__dict__
+    phys_name = phys_names[data['phys_index']]
+    # remove unnecessary quotes
+    if phys_name[0] == '"' and phys_name[-1] == '"':
+        phys_name = phys_name[1:-1]
+    data['phys_name'] = phys_name
+    del data['phys_index']
+    return data
+
+def write_elements(cells, phys_names):
+    return [cell_to_dict(cell, phys_names) for cell in cells]
 
 def read_nodes(data):
     nodes_array = array('d', b64dencode(data['nodes']))
@@ -182,19 +192,18 @@ if __name__ == "__main__":
     for i, f in enumerate(facets):
         f.ord_index = i
 
-
     # dump data to in json file    
     meshdata = {}
 
     write_nodes(nodes,   meshdata)
-    meshdata['cells'] = write_elements(cells)
-    meshdata['facets'] = write_elements(facets)
-    meshdata['physical_names'] = physical_names
+    meshdata['cells']  = write_elements(cells,  physical_names)
+    meshdata['facets'] = write_elements(facets, physical_names)
     meshdata['type'] = 'unstructured'
 
     data = {}  
     data['mesh'] = meshdata
 
     with open(sys.argv[-1], 'wb') as fd: 
-        json.dump(data, fd, indent=2, sort_keys=True)
+        json.dump(data, fd)
+#        json.dump(data, fd, indent=2, sort_keys=True)
 
