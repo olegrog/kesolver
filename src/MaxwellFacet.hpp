@@ -7,9 +7,11 @@
 
 class MaxwellFacet : public PhysicalFacet {
 	public:
-        template <typename F>
-		MaxwellFacet(const F& f_)
-                { copy(f_, f); }
+		MaxwellFacet(const PropertyTree& tree, const Gas& gas)
+        {
+            DistributionFunction fm = gas.maxwell(tree);
+            copy(fm, f);
+        }
 
 		void doTransfer(std::vector<Polygon*>& spacemesh, const Gas& gas);
 		void doTransfer2(std::vector<Polygon*>& spacemesh, const Gas& gas);

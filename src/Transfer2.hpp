@@ -10,7 +10,7 @@ class Transfer2 : public Transfer {
 		void move(const std::vector <PhysicalFacet*>& facets,
 				std::vector<Polygon*>& spacemesh, const std::vector<int>& mypolys,
 				const Gas& gas);
-		void init(const Loader& ldr, const Gas& gas, 
+		void init(const PropertyTree& tree, const Gas& gas, 
 				const std::vector <PhysicalFacet*>& facets,	
 				std::vector<Polygon*>& spacemesh, const std::vector<int>& mypolys, int rank);
 };

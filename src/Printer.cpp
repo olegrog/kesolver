@@ -9,31 +9,25 @@
 
 #include "Printer.hpp"
 
-Printer::Printer(const Loader& loader)
+Printer::Printer(const PropertyTree& tree)
 {
-	try {
-		save_func = (loader.getData("printer", "savefunc") == "True");
-	}
-	catch (std::invalid_argument) {
-		save_func = false;
-	}
+    save_func = tree.isMember("savefunc") ? tree["savefunc"].asBool() : false;
 
-	save_func_freq = std::numeric_limits<int>::max();
-	if (save_func) {
-		functionfilename = loader.getData("printer", "savefuncfilename");
-		save_func_freq = loader.getData<int>("printer", "savefuncfreq");
-	}	
+    save_func_freq = std::numeric_limits<int>::max();
+    if (save_func) {
+        functionfilename = tree["savefuncfilename"].asString();
+        save_func_freq   = tree["savefuncfreq"].asInt();
+    }   
 
-	dirname = loader.getData("printer", "dir");
-    filename = loader.getData("printer", "file");
+    dirname =  tree["dir"].asString();
+    filename = tree["file"].asString();
 
-	save_macro_point = loader.getData<int>("savemacropoint", "value");
+    save_macro_point = tree["savemacro"].asInt();
 
-	int status;
-	status = mkdir( dirname.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH );
+    int status;
+    status = mkdir( dirname.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH );
 
     std::cout << "dirname = " << dirname << ' ' << status << std::endl;
-
 }
 
 void Printer::saveMacroParams(int i, const std::vector<Polygon*>& spacemesh,
@@ -96,7 +90,7 @@ void Printer::saveSpeedFunction(int i, const std::vector<Polygon*>& spacemesh,
 }
 
 void Printer::print(int i, const std::vector<Polygon*>& spacemesh,
-		const std::vector<int>& mypolys, const Gas& gas, int size, int rank)
+        const std::vector<int>& mypolys, const Gas& gas, int size, int rank)
 {
     if ( i % save_macro_point == 0 ) { 
         std::cout << "save_macro" << std::endl;

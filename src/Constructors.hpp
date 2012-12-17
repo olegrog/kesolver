@@ -11,9 +11,7 @@
 
 #include "PhysicalFacet.hpp"
 
-/*
 #include "Integral.hpp"
-*/
 
 void GasConstructor(const PropertyTree& tree, Gas** gas_pp);
 
@@ -30,13 +28,9 @@ double findTimeStep(const std::vector<Polygon*>& spacemesh,
                     const Gas& gas, 
                     double curnt);
 
-/*
+void GivePolygonMemoryAndInit(const PropertyTree& tree, const Gas& gas, Polygon* polygon); 
 
-void GivePolygonMemoryAndInit(const Loader& loader, const Gas& gas, Polygon* polygon); 
-
-Integral IntegralConstructor(const Loader& loader);
-
-*/
+Integral IntegralConstructor(const PropertyTree& tree);
 
 #endif // _CONSTRUCTORS_HPP_
 

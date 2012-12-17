@@ -1,6 +1,8 @@
 #ifndef WALLMAXWELLFACET_H
 #define WALLMAXWELLFACET_H
 
+#include "property_tree/property_tree.hpp"
+
 #include "Gas.hpp"
 #include "PhysicalFacet.hpp"
 #include "distribution_function.hpp"
@@ -8,9 +10,12 @@
 
 class WallMaxwellFacet : public PhysicalFacet {
 	public:
-        template <typename F>
-		WallMaxwellFacet(const F& f_)
-                { copy(f_, f); copy(f_, f_in2); }
+		WallMaxwellFacet(const PropertyTree& tree, const Gas& gas)
+        {
+            DistributionFunction fm = gas.maxwell(tree);
+            copy(fm, f);
+            copy(fm, f_in2);
+        }
 
 		void doTransfer(std::vector<Polygon*>& spacemesh, const Gas& gas);
 		void doTransfer2(std::vector<Polygon*>& spacemesh, const Gas& gas);

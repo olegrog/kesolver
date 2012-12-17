@@ -11,8 +11,8 @@ class Maxwell {
     public:
         typedef std::vector<std::string> Data;
 
-        template <typename XiMeshType> 
-        Maxwell(const Data& data,
+        template <typename PropertyTree, typename XiMeshType> 
+        Maxwell(const PropertyTree& data,
                 const XiMeshType& ximesh);
         
         size_t size() const { return f.size(); }
@@ -68,24 +68,22 @@ void setMaxwell(F& f, const typename XiMeshRot<symmetry>::Vm v, const double tem
 {
     const typename XiMesh<symmetry>::Vd u = vm2vd(v);
     for (size_t i = 0; i < mesh.size(); ++i)
-        f[i] = std::exp( - 0.5 * ( sqr(mesh[i] - u) + mesh.erot(i) ) / temp) * mesh.vol(i);
+        f[i] = std::exp( - 0.5 * ( sqr(mesh[i] - u) + mesh.erot(i) ) / temp ) * mesh.vol(i);
 }
 
-template <typename XiMeshType> 
-Maxwell::Maxwell(const Data& data,
+template <typename PropertyTree, typename XiMeshType> 
+Maxwell::Maxwell(const PropertyTree& data,
                  const XiMeshType& ximesh)
     : f(ximesh.size()) 
 {
-    std::string str;
-    for (size_t i = 0; i < data.size(); ++i)
-        str += data[i] + ' ';
-	std::istringstream ss(str);
-    typename XiMeshType::Vm v;
-    double temp;
-	ss >> v >> temp;
+    typename XiMeshType::Vm v(strTo<typename XiMeshType::Vm>(data["u"].asString()));
+    double temp = strTo<double>(data["T"].asString());
 
     setMaxwell(f, v, temp, ximesh);
-    equateN(f, ss, ximesh);
+    if (data.isMember("n")) {
+        std::istringstream ss(data["n"].asString());
+        equateN(f, ss, ximesh);
+    }
 }
     
 

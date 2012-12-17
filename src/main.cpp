@@ -32,19 +32,14 @@ int main(int argc, char** argv)
 
     double time_step = findTimeStep(spacemesh, gas, curnt);
     std::cout << "time_step = " << time_step << std::endl;
-
+    
     for (std::vector<PhysicalFacet*>::iterator pp = facets.begin();
             pp != facets.end(); ++pp)
-    {
-        (*pp)->findNormalAndSquare();
         (*pp)->findMultInOut(time_step, spacemesh);
-    }
 
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-/*
 
     std::vector<int> mypolys;  
     MypolysConstructor(rank, spacemesh, mypolys);
@@ -53,34 +48,21 @@ int main(int argc, char** argv)
         " mypolys.size() = " << mypolys.size() << std::endl;
 
     Transfer* transfer;
-    int order;
-    try {
-        order = loader.getData<int>("transfer", "order");
-    }
-    catch (std::invalid_argument) {
-        std::cout << "catch" << std::endl;
-        order = 1;
-    }
+    int order = tree.isMemeber("order") ? tree["order"].asInt() : 1;
     std::cout << "order = " << order << std::endl;
+
     if (order == 2)
         transfer = new Transfer2(facets, spacemesh, mypolys);
     else
         transfer = new Transfer1();
-    transfer->init(loader, gas, facets, spacemesh, mypolys, rank);
+    transfer->init(tree, gas, facets, spacemesh, mypolys, rank);
 
-    Integral integral = IntegralConstructor(loader);
+    Integral integral = IntegralConstructor(tree);
 
-    int rep;
-    try {
-        rep = loader.getData<int>("transfer", "rep");
-    }
-    catch (std::invalid_argument) {
-        std::cout << "catch" << std::endl;
-        rep = 1;
-    }
+    int rep = tree.isMemeber("rep") ? tree["rep"].asInt() : 1;
     std::cout << "rep = " << rep << std::endl;
 
-    Printer printer(loader);
+    Printer printer(tree);
     for (int i = 0; i < 2000000; i++) {
 
         std::cout << i << std::endl;
@@ -101,8 +83,6 @@ int main(int argc, char** argv)
         }
         
     }
-
-*/
 
     MPI_Finalize();
 

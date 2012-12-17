@@ -13,17 +13,17 @@ void Transfer1::move(const std::vector <PhysicalFacet*>& facets, std::vector<Pol
 
 }
 
-void Transfer1::init(const Loader& ldr, const Gas& gas,
+void Transfer1::init(const PropertyTree& tree, const Gas& gas,
 				const std::vector <PhysicalFacet*>& facets,	
 				std::vector<Polygon*>& spacemesh, const std::vector<int>& mypolys, int rank)
 {
 	data_exchanger.init(spacemesh, mypolys, rank);
 	for (size_t i = 0; i < mypolys.size(); ++i) {
-		GivePolygonMemoryAndInit(ldr, gas, spacemesh[mypolys[i]]);
+		GivePolygonMemoryAndInit(tree, gas, spacemesh[mypolys[i]]);
 	}
 	const std::vector<int>& toAllocPolygons = data_exchanger.getToAllocPolygons();
 	for (size_t i = 0; i < toAllocPolygons.size(); ++i) {
-		GivePolygonMemoryAndInit(ldr, gas, spacemesh[toAllocPolygons[i]]);
+		GivePolygonMemoryAndInit(tree, gas, spacemesh[toAllocPolygons[i]]);
 	}
 	for (size_t i = 0; i < facets.size(); ++i) {
 		facets[i]->activation(spacemesh);

@@ -9,6 +9,7 @@ class PropertyTree_jsoncpp {
     public:
         explicit PropertyTree_jsoncpp(const char* conffilename);
 
+        int    asBool()   const { return jsonvalue.asBool();   }
         int    asInt()    const { return jsonvalue.asInt();    }
         double asDouble() const { return jsonvalue.asDouble(); }
         std::string asString() const { return jsonvalue.asString(); }

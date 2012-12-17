@@ -6,6 +6,8 @@
 #include "Gas.hpp"
 #include "Polygon.hpp"
 
+#include "property_tree/property_tree.hpp"
+
 class Printer {
 	public:
 		void print(int i, const std::vector<Polygon*>& spacemesh,
@@ -13,7 +15,7 @@ class Printer {
 				const Gas& gas,
 				int size, int rank);
 
-		Printer(const Loader& loader);
+		Printer(const PropertyTree& tree);
 
 	private:
 		std::string dirname, filename, functionfilename;

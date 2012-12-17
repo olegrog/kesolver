@@ -168,23 +168,25 @@ Polygon* createPolygon(const PropertyTree& celldata) {
     else return 0;
 }
 
-PhysicalFacet* createFacet(const PropertyTree& facetdata, const Gas& gas) {
-    std::string type = facetdata["type"].asString();
+PhysicalFacet* createFacet(const std::string& type,
+                           const PropertyTree& physdata, 
+                           const Gas& gas)
+{
     if (type == "diffusion")  {
-        std::vector<std::string> newdata;
-        std::copy(++data.begin(), data.end(), std::back_inserter(newdata));
-        return new WallMaxwellFacet(gas.maxwell(newdata));
+        return new WallMaxwellFacet(physdata, gas);
     }
     else if (type == "constant")  {
-        std::vector<std::string> newdata;
-        std::copy(++data.begin(), data.end(), std::back_inserter(newdata));
-        return new MaxwellFacet(gas.maxwell(newdata));
+        return new MaxwellFacet(physdata, gas);
     }
     else if (type == "mirror") {
-        return new MirrorFacet((Axis)strTo<int>(data[1]));
+        return new MirrorFacet((Axis)physdata["axis"].asInt());
+    }
+    else if (type == "gate") {
+        return new GateFacet();
     }
     else {
-        return new GateFacet();
+        // TODO: raise exception
+        return 0;
     }
 }
 
@@ -233,9 +235,14 @@ PhysicalFacet* constructFacet(const PropertyTree& facetdata,
                               const Gas& gas)
 {
     std::string phys_name = facetdata["phys_name"].asString();
-    PhysicalFacet* facet = createFacet(bcsdata[phys_name], gas);
+    PhysicalFacet* facet = bcsdata.isMember(phys_name) ? 
+                           createFacet(bcsdata[phys_name]["type"].asString(),
+                                       bcsdata[phys_name], gas) :
+                           createFacet("gate", facetdata, gas);
     constructElement(facetdata, nodes, facet);
     facet->setType(facetdata["type"].asInt());
+    facet->findNormalAndSquare();
+
     return facet;
 }
 
@@ -305,40 +312,37 @@ double findTimeStep(const std::vector<Polygon*>& spacemesh,
     return curnt * h / gas.cut();
 }
 
-/*
 
-void GivePolygonMemoryAndInit(const Loader& loader, const Gas& gas, Polygon* polygon)
+void GivePolygonMemoryAndInit(const PropertyTree& tree, const Gas& gas, Polygon* polygon)
 {
-    int index = polygon->getPhysicalIndex();
-    const std::vector<std::string>& data = loader.getPhysicalData(index);
+    const std::string name = polygon->getPhysicalName();
+    const PropertyTree& data = tree["initial_conditions"][name];
     polygon->f().f(gas.maxwell(data));
 }
 
-
-Integral IntegralConstructor(const Loader& loader)
+Integral IntegralConstructor(const PropertyTree& tree)
 {
     int intorder;
-    try {
-        intorder = loader.getData<int>("integral", "order");
-    }
-    catch (std::invalid_argument) {
+    if (tree.isMember("order"))
+        intorder = tree["order"].asInt();
+    else
         intorder = 1;
-    }
     std::cout << "intorder = " << intorder << std::endl;
 
-    bool is_free_molecular = !(loader.getData("integral", "value") == "True");
+    bool is_free_molecular = !(tree["enable"].asBool());
 
-    int power = loader.getData<int>("integral", "power");
+    int power = tree["power"].asInt();
 
     SimpleSection* section;
-    try {
-        std::string str = loader.getData("integral", "section");
+    if (tree.isMember("section"))
+    {
+        std::string str = tree["section"].asString();
         if (str == "Simple") {
             throw std::invalid_argument("Simple section");
         }
         else if (str == "HS") {
             std::vector<double> ds;
-            std::istringstream ss(loader.getData("integral", "ds"));
+            std::istringstream ss(tree["ds"].asString());
             double d;
             while (ss >> d)
                 ds.push_back(d);
@@ -348,37 +352,35 @@ Integral IntegralConstructor(const Loader& loader)
         }
         else if (str == "LJ") {
             std::vector<double> ds, es;
-            std::istringstream ss(loader.getData("integral", "ds"));
+            std::istringstream ss(tree["ds"].asString());
             double x;
             while (ss >> x)
                 ds.push_back(x);
-            std::istringstream ss2(loader.getData("integral", "es"));
+            std::istringstream ss2(tree["es"].asString());
             while (ss2 >> x)
                 es.push_back(x);
-            std::string filename = loader.getData("integral", "file");
+            std::string filename = tree["file"].asString();
             section = new LJSection(ds, es, filename);
             std::cout << "LJSection" << std::endl;
         }
         else if (str == "Ma") {
             std::vector<double> as;
-            std::istringstream ss(loader.getData("integral", "as"));
+            std::istringstream ss(tree["ds"].asString());
             double x;
             while (ss >> x)
                 as.push_back(x);
-            std::string filename = loader.getData("integral", "file");
+            std::string filename = tree["file"].asString();
             section = new MaSection(as, filename);
             std::cout << "MaSection" << std::endl;
         }
         else
             throw std::invalid_argument("Unknown section");
     }
-    catch (std::invalid_argument) {
+    else {
         section = new SimpleSection;
         std::cout << "SimpleSection" << std::endl;
     }
 
     return Integral(power, intorder, is_free_molecular, section);
 }
-
-*/
 

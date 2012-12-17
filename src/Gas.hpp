@@ -1,6 +1,8 @@
 #ifndef _GAS_HPP_
 #define _GAS_HPP_
 
+#include "property_tree/property_tree.hpp"
+
 #include "macro.hpp"
 #include "maxwell.hpp"
 #include "distribution_function.hpp"
@@ -9,13 +11,11 @@
 
 class Gas {
     public:
-        typedef std::vector<std::string> Data;
-
         virtual size_t size() const = 0;
 
         virtual const std::string macro(const DistributionFunction& f) const = 0;
 
-        virtual const DistributionFunction maxwell(const Data& data) const = 0;
+        virtual const DistributionFunction maxwell(const PropertyTree& tree) const = 0;
 
         virtual double cut() const = 0;
         virtual double dot(const int i, const V3d n) const = 0;
@@ -47,8 +47,8 @@ class GasTemplate : public Gas {
             return toStr(::macro(f, ximesh));
         }
 
-        const DistributionFunction maxwell(const Data& data) const {
-            return Maxwell(data, ximesh).func();
+        const DistributionFunction maxwell(const PropertyTree& tree) const {
+            return Maxwell(tree, ximesh).func();
         }
 
         double cut() const {
