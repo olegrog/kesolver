@@ -13,13 +13,13 @@ def facets_of_elem(elm):
         yield element(facet[0], [elm.nodes[i-1] for i in facet[1:]])
 
 class element:
-    def __init__(self, t, ns, ord_index=0, phys_index=0, part_index=0, neighbors=None):
+    def __init__(self, t, ns, ord_index=0, phys_index=0, part_index=0, neigbors=None):
         self.type = t
         self.nodes = ns
         self.ord_index  = ord_index
         self.phys_index = phys_index
         self.part_index = part_index
-        self.neighbors  = neighbors if neighbors is not None else []
+        self.neigbors   = neigbors if neigbors is not None else []
 
 
     @staticmethod

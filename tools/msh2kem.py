@@ -87,7 +87,7 @@ def read_elements(data):
                     ord_index   =  c['ord_index'],
                     phys_index  =  c['phys_index'],
                     part_index  =  c['part_index'],
-                    neighbors   =  c['neighbors']) for c in data]
+                    neigbors    =  c['neigbors']) for c in data]
 
 if __name__ == "__main__":
 
@@ -161,7 +161,7 @@ if __name__ == "__main__":
             if not key in table:    # the facet is not on the list yet
                                     # put it  
                 table[key] = len(facets)
-                facet.neighbors = [i]
+                facet.neigbors = [i]
                 facet.phys_index = (key in bfk_to_physical_index) and \
                                    bfk_to_physical_index[key]     or  \
                                    cell.phys_index
@@ -171,20 +171,20 @@ if __name__ == "__main__":
             else:        # the facet is already in the list
                 index_of_facet = table[key] 
                 facet = facets[index_of_facet]
-                if len(facet.neighbors) != 1:
+                if len(facet.neigbors) != 1:
                     raise
-                neighbor_cell = facet.neighbors[0]
-                cell.neighbors.append(neighbor_cell)
-                cells[neighbor_cell].neighbors.append(i)
-                facet.neighbors.append(i)
+                neigbor_cell = facet.neigbors[0]
+                cell.neigbors.append(neigbor_cell)
+                cells[neigbor_cell].neigbors.append(i)
+                facet.neigbors.append(i)
                 if  facet.part_index[0] != cell.part_index:
                     facet.part_index.append(cell.part_index)
 
-    # remove facets with only one neighbor having no boundary conditions on them
-    facets = [ f for f in facets if ( len(f.neighbors) == 2 ) 
+    # remove facets with only one neigbor having no boundary conditions on them
+    facets = [ f for f in facets if ( len(f.neigbors) == 2 ) 
                                 or bfk_to_physical_index.has_key(elem_to_key(f, len(nodes))) ]
 
-    # TODO split boundary facets neighboring two cells
+    # TODO split boundary facets neigboring two cells
 
     # number cells and facets
     for i, c in enumerate(cells):
