@@ -1,6 +1,9 @@
 #include <algorithm>
 #include <stdexcept>
-#include "Loader.hpp"
+#include <sstream>
+
+#include "base64/base64.hpp"
+
 #include "Constructors.hpp"
 
 #include "auxiliary.hpp"
@@ -23,63 +26,209 @@
 #include "ci_mixture.hpp"
 #include "ci_mix.hpp"
 
-Polygon* createPolygon(const std::vector<int>& data) {
-    if      (data[0] == 4) return new Tetrahedron();
-    else if (data[0] == 5) return new Hexahedron();
-    else if (data[0] == 6) return new Prism();
+const std::vector<double> readMasses(const PropertyTree& tree) {
+    std::vector<double> masses;
+    if (tree.isMember("mass_ratio")) {
+        const double m1   = 1;
+        const double m2   = tree["mass_ratio"].asDouble();
+        const double m0   = 0.5 * (m1 + m2);
+        masses.push_back(m1 / m0);
+        masses.push_back(m2 / m0);
+    }
+    else {
+        std::istringstream ss(tree["masses"].asString());
+        double mass;
+        while (ss >> mass)
+            masses.push_back(mass);
+    }
+    return masses;
+}
+
+template <Symmetry symmetry, Volume volume, TimeScheme scheme>
+Gas* gasMixScheme(const PropertyTree& tree, 
+                  const int rad, const double cut,
+                  const std::vector<double>& masses)
+{
+    typedef typename SymmetryTrait<symmetry>::Vm Vm;
+    Vm v;
+    if (tree.isMember("v")) 
+        v = strTo<Vm>(tree["v"].asString());
+    else 
+        v = 0.;
+    std::vector<double> adds;
+    if (tree.isMember("adds")) {
+        std::istringstream ss(tree["adds"].asString());
+        double add;
+        while (ss >> add)
+            adds.push_back(add);
+    }
+    else {
+        for (size_t i = 0; i < masses.size(); ++i)
+            adds.push_back(0.0);
+    }
+    typedef GasTemplate<symmetry, XiMeshMix, ColliderMix<symmetry, volume, scheme> > GasType;
+    return new GasType(XiMeshMix<symmetry>(rad, cut, masses, v, adds));
+}
+
+template <Symmetry symmetry, Volume volume>
+Gas* gasMixVolume(const PropertyTree& tree, 
+                  const int rad, const double cut,
+                  const std::vector<double>& masses)
+{
+    std::string scheme;
+    if (tree.isMember("time_scheme")) 
+        scheme = tree["time_scheme"].asString();
+    else
+        scheme = "Continues";
+
+    if      (scheme == "Euler") 
+        return gasMixScheme<symmetry, volume, Euler>     (tree, rad, cut, masses);
+    else if (scheme == "Continues")
+        return gasMixScheme<symmetry, volume, Continues> (tree, rad, cut, masses);
+    else { return NULL; /* TODO raise */ }
+}
+
+template <Symmetry symmetry>
+Gas* gasSymmetry(const PropertyTree& tree, const std::string& type, 
+                 const int rad, const double cut)
+{
+    LABEL
+    if (type == "Simple") {
+        LABEL
+        typedef typename SymmetryTrait<symmetry>::Vm Vm;
+        Vm v;
+        if (tree.isMember("v")) 
+            v = strTo<Vm>(tree["v"].asString());
+        else 
+            v = 0.;
+        std::cout << "v = " << v << std::endl;
+        typedef GasTemplate<symmetry, XiMesh, ColliderSimple<symmetry> > GasType;
+        return new GasType(XiMesh<symmetry>(rad, cut, v));
+    }
+    else if (type == "Mixture") {
+        typedef GasTemplate<symmetry, XiMeshMixture, ColliderMixture<symmetry> > GasType;
+        const std::vector<double> masses = readMasses(tree);
+
+        const double a = cut / rad * std::sqrt(masses[0]);
+        std::vector<int> rads;
+        for (size_t i = 0; i < masses.size(); ++i)
+            rads.push_back(static_cast<int>(rad * std::sqrt(masses[i] / masses[0])));
+        return new GasType(XiMeshMixture<symmetry>(a, rads, masses));
+    }
+    else if (type == "Mix") {
+        const std::vector<double> masses = readMasses(tree);
+        const std::string volume = tree["volume"].asString();
+        if      (volume == "Wide") 
+            return gasMixVolume<symmetry, Wide>      (tree, rad, cut, masses);
+        else if (volume == "Symmetric")
+            return gasMixVolume<symmetry, Symmetric> (tree, rad, cut, masses);
+        else if (volume == "Tight")
+            return gasMixVolume<symmetry, Tight>     (tree, rad, cut, masses);
+        else if (volume == "Tight2")
+            return gasMixVolume<symmetry, Tight2>    (tree, rad, cut, masses);
+        else if (volume == "Grad")
+            return gasMixVolume<symmetry, Grad>      (tree, rad, cut, masses);
+        else { return NULL; /* TODO raise */ }
+    }
+    else { return NULL; /* TODO raise */ }
+}
+
+void GasConstructor(const PropertyTree& tree, Gas** gas_pp)
+{
+    const std::string type = tree["type"].asString();
+    std::cout << "type = " << type << std::endl;
+
+    int    rad = tree["rad"].asInt();
+    double cut = tree["cut"].asDouble();
+    std::cout << "rad, cut = " << rad << ' ' << cut << std::endl;
+
+    std::string symm;
+    if (tree.isMember("symmetry"))
+        symm = tree["symmetry"].asString();
+    else 
+        symm = "Cartesian";
+    std::cout << "symm = " << symm << std::endl;
+
+    Gas* gas_p;
+    if      (symm == "Cylindrical")
+        gas_p = gasSymmetry<Cylindrical>(tree, type, rad, cut);
+    else if (symm == "Cartesian")
+        gas_p = gasSymmetry<Cartesian>(tree, type, rad, cut);
+    else { gas_p = NULL; /* TODO raise */ }
+
+    *gas_pp = gas_p;
+}
+
+
+Polygon* createPolygon(const PropertyTree& celldata) {
+    int type = celldata["type"].asInt();
+    if      (type == 4) return new Tetrahedron();
+    else if (type == 5) return new Hexahedron();
+    else if (type == 6) return new Prism();
     else return 0;
 }
 
-void constructPolygon(const std::vector<int>& data, const std::vector<V3d>& nodes, 
-        const std::vector<Polygon*>& polygons, Polygon* polygon) {
-
-    std::vector<V3d> vertexes(polygon->getNumberOfVertexes());
-
-    std::vector<int>::const_iterator data_p = ++data.begin();
+template <typename Element>
+void constructElement(const PropertyTree& elemdata, 
+                      const std::vector<V3d>& nodes, 
+                      Element* elem)
+{
+    const PropertyTree& ns = elemdata["nodes"];
+    std::vector<V3d> vertexes(ns.size());
     for (size_t i = 0; i < vertexes.size(); ++i) 
-        vertexes[i] = nodes[*data_p++];
+        vertexes[i] = nodes[ns[i].asInt()];
 
-    std::vector<int> neigbors(*data_p++);
+    const PropertyTree& nb = elemdata["neigbors"];
+    std::vector<int> neigbors(nb.size());
     for (size_t i = 0; i < neigbors.size(); ++i) 
-        neigbors[i] = *data_p++;
+        neigbors[i] = nb[i].asInt();
     
-    int rank = *data_p++;
-    int physical_index = *data_p++;
+    int rank           = elemdata["part_index"].asInt();
+    int physical_index = elemdata["phys_index"].asInt();
+
+    elem->setType(type);
+    elem->setVertexes(vertexes);
+    elem->setNeigbors(neigbors);
+
+void constructPolygon(const PropertyTree& celldata, 
+                      const std::vector<V3d>& nodes, 
+                      Polygon* polygon)
+{
+    const PropertyTree& ns = celldata["nodes"];
+    std::vector<V3d> vertexes(ns.size());
+    for (size_t i = 0; i < vertexes.size(); ++i) 
+        vertexes[i] = nodes[ns[i].asInt()];
+
+    const PropertyTree& nb = celldata["nb"];
+    std::vector<int> neigbors(nb.size());
+    for (size_t i = 0; i < neigbors.size(); ++i) 
+        neigbors[i] = nb[i].asInt();
+    
+    int rank           = celldata["part_index"].asInt();
+    int physical_index = celldata["phys_index"].asInt();
 
     polygon->setVertexCoordinates(vertexes);
     polygon->calculateLength();
     polygon->calculateVolume();
     polygon->calculateCenter();
-//  std::cout << polygon->getVolume() << ' ' << polygon->getCenter() << std::endl;
     polygon->setNeigbors(neigbors);
     polygon->setRank(rank);
     polygon->setPhysicalIndex(physical_index);
-
 }
 
-void PolygonsConstructor(const Loader& loader, std::vector<Polygon*>& polygons) {
-
-    for (std::vector< std::vector<int> >::const_iterator p = loader.getCells().begin();
-            p != loader.getCells().end(); ++p) 
-        polygons.push_back(createPolygon(*p));
-    
-    std::vector< std::vector<int> >::const_iterator data_p = loader.getCells().begin();
-    for (std::vector<Polygon*>::iterator p = polygons.begin(); p != polygons.end(); ++p) 
-        constructPolygon(*data_p++, loader.getNodes(), polygons, *p);
-}
-
-PhysicalFacet* createFacet(const std::vector<std::string>& data, const Gas& gas) {
-    if (data[0] == "w")  {
+PhysicalFacet* createFacet(const PropertyTree& facetdata, const Gas& gas) {
+    std::string type = facetdata["type"].asString();
+    if (type == "diffusion")  {
         std::vector<std::string> newdata;
         std::copy(++data.begin(), data.end(), std::back_inserter(newdata));
         return new WallMaxwellFacet(gas.maxwell(newdata));
     }
-    else if (data[0] == "l")  {
+    else if (type == "constant")  {
         std::vector<std::string> newdata;
         std::copy(++data.begin(), data.end(), std::back_inserter(newdata));
         return new MaxwellFacet(gas.maxwell(newdata));
     }
-    else if (data[0] == "m") {
+    else if (type == "mirror") {
         return new MirrorFacet((Axis)strTo<int>(data[1]));
     }
     else {
@@ -91,14 +240,30 @@ bool lessFacet(PhysicalFacet* f1, PhysicalFacet* f2) {
     return f1->order() < f2->order();
 }
 
-void FacetsConstructor(const Loader& loader, 
-                       const std::vector<Polygon*>& spacemesh, 
-                       std::vector<PhysicalFacet*>& facets, 
-                       const Gas& gas,
-                       double time_step, int rank)
+void ElementsConstructor(const PropertyTree& tree,
+                         std::vector<Polygon*>& polygons,
+                         std::vector<PhysicalFacet*>& facets, 
+                         const Gas& gas)
 {
-    for (std::vector< std::vector<int> >::const_iterator pp = loader.getFacets().begin();
-            pp != loader.getFacets().end(); ++pp) {
+    const PropertyTree& cellsdata = tree["cells"];
+    for (size_t i = 0; i < cellsdata.size(); ++i) 
+        polygons.push_back(createPolygon(cellsdata[i]));
+
+    std::vector<unsigned char> nodesbytes = base64::decode(tree["nodes"].asString());
+    const double* nodesdoubles = reinterpret_cast<const double*>(&nodesbytes.front());
+    std::vector<V3d> nodes(tree["nodes_num"].asInt());
+    for (size_t i = 0, j = 0; i < nodes.size(); ++i) {
+        double x = nodesdoubles[j++];
+        double y = nodesdoubles[j++];
+        double z = nodesdoubles[j++];
+        nodes[i] = V3d(x, y, z);
+    }
+
+    for (size_t i = 0; i < cellsdata.size(); ++i) 
+        constructPolygon(cellsdata[i], nodes, polygons, polygons[i]);
+
+    const PropertyTree& facetsdata = tree["facets"];
+    for (size_t i = 0; i < facetsdata.size(); ++i) {
 
         std::vector<int>::const_iterator p = (*pp).begin();
         int type = *p++;
@@ -120,31 +285,27 @@ void FacetsConstructor(const Loader& loader,
         facet->setType(type);
         facet->setVertex(vertexes);
         facet->setPolygonNumbers(neigbors);
-        facet->findNormalAndSquare();
-//      std::cout << facet->getSquare() << ' ' << facet->getCenter() << std::endl;
-        facet->findMultInOut(time_step, spacemesh);
 
         facets.push_back(facet);
     }
     std::sort(facets.begin(), facets.end(), lessFacet);
+
 }
 
-void MypolysConstructor(int rank, const std::vector<Polygon*>& polygons, std::vector<int>& mypolys) {
+void MypolysConstructor(int rank,
+                        const std::vector<Polygon*>& polygons,
+                        std::vector<int>& mypolys)
+{
     for (size_t i = 0; i < polygons.size(); ++i) 
         if (polygons[i]->getRank() == rank) {
             mypolys.push_back(i);
         }
 }
 
-
-void GivePolygonMemoryAndInit(const Loader& loader, const Gas& gas, Polygon* polygon)
+double findTimeStep(const std::vector<Polygon*>& spacemesh,
+                    const Gas& gas,
+                    double curnt)
 {
-    int index = polygon->getPhysicalIndex();
-    const std::vector<std::string>& data = loader.getPhysicalData(index);
-    polygon->f().f(gas.maxwell(data));
-}
-
-double findTimeStep(const std::vector<Polygon*>& spacemesh, const Gas& gas, double curnt) {
     double h = std::numeric_limits<double>::max();
     for (size_t i = 0; i < spacemesh.size(); ++i) 
         if (spacemesh[i]->getLMin() < h) 
@@ -160,144 +321,15 @@ double findTimeStep(const std::vector<Polygon*>& spacemesh, const Gas& gas, doub
     return curnt * h / gas.cut();
 }
 
-const std::vector<double> readMasses(const Loader& loader) {
-    std::vector<double> masses;
-    try {
-        const double m1   = 1;
-        const double m2   = loader.getData<double>("gas", "mass_ratio");
-        const double m0   = 0.5 * (m1 + m2);
-        masses.push_back(m1 / m0);
-        masses.push_back(m2 / m0);
-    }
-    catch (std::invalid_argument) {
-        std::istringstream ss(loader.getData("gas", "masses"));
-        double mass;
-        while (ss >> mass)
-            masses.push_back(mass);
-    }
-    return masses;
-}
+/*
 
-template <Symmetry symmetry, Volume volume, TimeScheme scheme>
-Gas* gasMixScheme(const Loader& loader, 
-                  const int rad, const double cut,
-                  const std::vector<double>& masses)
+void GivePolygonMemoryAndInit(const Loader& loader, const Gas& gas, Polygon* polygon)
 {
-    typedef typename SymmetryTrait<symmetry>::Vm Vm;
-    Vm v;
-    try {
-        v = loader.getData<Vm>("gas", "v");
-    }
-    catch (std::invalid_argument) {
-        v = 0.;
-    }
-    std::vector<double> adds;
-    try {
-        std::istringstream ss(loader.getData("gas", "adds"));
-        double add;
-        while (ss >> add)
-            adds.push_back(add);
-    }
-    catch (std::invalid_argument) {
-        for (size_t i = 0; i < masses.size(); ++i)
-            adds.push_back(0.0);
-    }
-    typedef GasTemplate<symmetry, XiMeshMix, ColliderMix<symmetry, volume, scheme> > GasType;
-    return new GasType(XiMeshMix<symmetry>(rad, cut, masses, v, adds));
+    int index = polygon->getPhysicalIndex();
+    const std::vector<std::string>& data = loader.getPhysicalData(index);
+    polygon->f().f(gas.maxwell(data));
 }
 
-template <Symmetry symmetry, Volume volume>
-Gas* gasMixVolume(const Loader& loader, 
-                  const int rad, const double cut,
-                  const std::vector<double>& masses)
-{
-    std::string scheme;
-    try {
-        scheme = loader.getData("gas", "time_scheme");
-    }
-    catch (std::invalid_argument) {
-        scheme = "Continues";
-    }
-
-    if      (scheme == "Euler") 
-        return gasMixScheme<symmetry, volume, Euler>     (loader, rad, cut, masses);
-    else if (scheme == "Continues")
-        return gasMixScheme<symmetry, volume, Continues> (loader, rad, cut, masses);
-    else { return NULL; /* TODO raise */ }
-}
-
-template <Symmetry symmetry>
-Gas* gasSymmetry(const Loader& loader, const std::string& type, 
-                 const int rad, const double cut)
-{
-    LABEL
-    if      (type == "Simple") {
-        typedef typename SymmetryTrait<symmetry>::Vm Vm;
-        Vm v;
-        try {
-            v = loader.getData<Vm>("gas", "v");
-        }
-        catch (std::invalid_argument) {
-            v = 0.;
-        }
-        typedef GasTemplate<symmetry, XiMesh, ColliderSimple<symmetry> > GasType;
-        return new GasType(XiMesh<symmetry>(rad, cut, v));
-    }
-    else if (type == "Mixture") {
-        typedef GasTemplate<symmetry, XiMeshMixture, ColliderMixture<symmetry> > GasType;
-        const std::vector<double> masses = readMasses(loader);
-
-        const double a = cut / rad * std::sqrt(masses[0]);
-        std::vector<int> rads;
-        for (size_t i = 0; i < masses.size(); ++i)
-            rads.push_back(static_cast<int>(rad * std::sqrt(masses[i] / masses[0])));
-        return new GasType(XiMeshMixture<symmetry>(a, rads, masses));
-    }
-    else if (type == "Mix") {
-        const std::vector<double> masses = readMasses(loader);
-        const std::string volume = loader.getData("gas", "volume");
-        if      (volume == "Wide") 
-            return gasMixVolume<symmetry, Wide>      (loader, rad, cut, masses);
-        else if (volume == "Symmetric")
-            return gasMixVolume<symmetry, Symmetric> (loader, rad, cut, masses);
-        else if (volume == "Tight")
-            return gasMixVolume<symmetry, Tight>     (loader, rad, cut, masses);
-        else if (volume == "Tight2")
-            return gasMixVolume<symmetry, Tight2>    (loader, rad, cut, masses);
-        else if (volume == "Grad")
-            return gasMixVolume<symmetry, Grad>      (loader, rad, cut, masses);
-        else { return NULL; /* TODO raise */ }
-    }
-    else { return NULL; /* TODO raise */ }
-}
-
-void GasConstructor(const Loader& loader, Gas** gas_pp)
-{
-    const std::string type = loader.getData("gas", "type");
-    std::cout << "type = " << type << std::endl;
-
-    int    rad = loader.getData<int>("gas", "rad");
-    double cut = loader.getData<double>("gas", "cut");
-    std::cout << "rad, cut = " << rad << ' ' << cut << std::endl;
-
-    std::string symm;
-    try {
-        symm = loader.getData("gas", "symmetry");
-    }
-    catch (std::invalid_argument) {
-        symm = "Cartesian";
-    }
-    std::cout << "symm = " << symm << std::endl;
-
-    Gas* gas_p;
-    if      (symm == "Cylindrical")
-        gas_p = gasSymmetry<Cylindrical>(loader, type, rad, cut);
-    else if (symm == "Cartesian")
-        gas_p = gasSymmetry<Cartesian>(loader, type, rad, cut);
-    else { gas_p = NULL; /* TODO raise */ }
-
-    *gas_pp = gas_p;
-}
 
 Integral IntegralConstructor(const Loader& loader)
 {
@@ -363,4 +395,6 @@ Integral IntegralConstructor(const Loader& loader)
 
     return Integral(power, intorder, is_free_molecular, section);
 }
+
+*/
 

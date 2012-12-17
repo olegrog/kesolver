@@ -6,7 +6,6 @@
 #include "Gas.hpp"
 #include "PhysicalFacet.hpp"
 #include "DataExchanger.hpp"
-#include "Loader.hpp"
 
 class Transfer {
 	protected:

@@ -1,50 +1,50 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <limits>
-#include <stdexcept>
+
 #include "mpi.h"
 
-#include "Polygon.hpp"
-#include "Loader.hpp"
+#include "property_tree/property_tree.hpp"
+
 #include "Constructors.hpp"
-#include "Printer.hpp"
-#include "Integral.hpp"
-#include "Transfer.hpp"
-#include "Transfer1.hpp"
-#include "Transfer2.hpp"
-#include "DataExchanger.hpp"
-#include "Tetrahedron.hpp"
+#include "Polygon.hpp"
 #include "PhysicalFacet.hpp"
-#include "Gas.hpp"
 
 int main(int argc, char** argv)
 {
     MPI_Init(&argc, &argv);
 
-    std::string kinfile_name(argv[1]);
-    Loader loader(kinfile_name);                    
+    PropertyTree prop_tree(argv[1]);
 
     Gas* gas_p;
-    GasConstructor(loader, &gas_p);
-    LABEL
-    std::cout << "gas.size() = " << gas_p->size() << std::endl;
+    GasConstructor(prop_tree["gas"], &gas_p);
     Gas& gas = *gas_p;
 
-    std::vector<Polygon*> spacemesh;                   
-    PolygonsConstructor(loader, spacemesh);
+    LABEL
+    std::cout << "gas.size() = " << gas_p->size() << std::endl;
 
-    double curnt = loader.getData<double>("curnt", "value");
+    std::vector<Polygon*>        spacemesh;                   
+    std::vector<PhysicalFacet*>  facets;  
+    ElementsConstructor(prop_tree["mesh"], spacemesh, facets, gas);
+
+    double curnt = prop_tree["curnt_limit"].asDouble();
     std::cout << "curnt = " << curnt << std::endl;
+
     double time_step = findTimeStep(spacemesh, gas, curnt);
     std::cout << "time_step = " << time_step << std::endl;
+
+    for (std::vector<PhysicalFacet*>::iterator pp = facets.begin();
+            pp != facets.end(); ++pp)
+    {
+        (*pp)->findNormalAndSquare();
+        (*pp)->findMultInOut(time_step, spacemesh);
+    }
 
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    std::vector<PhysicalFacet*> facets;  
-    FacetsConstructor(loader, spacemesh, facets, gas, time_step, rank);
+/*
 
     std::vector<int> mypolys;  
     MypolysConstructor(rank, spacemesh, mypolys);
@@ -101,6 +101,8 @@ int main(int argc, char** argv)
         }
         
     }
+
+*/
 
     MPI_Finalize();
 

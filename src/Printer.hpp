@@ -5,7 +5,6 @@
 
 #include "Gas.hpp"
 #include "Polygon.hpp"
-#include "Loader.hpp"
 
 class Printer {
 	public:
