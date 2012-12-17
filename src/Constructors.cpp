@@ -207,20 +207,24 @@ void constructElement(const PropertyTree& elemdata,
     elem->setNeigbors(neigbors);
 }
 
-void constructPolygon(const PropertyTree& celldata, 
-                      const std::vector<V3d>& nodes, 
-                      Polygon* polygon)
+Polygon* constructPolygon(const PropertyTree& celldata, 
+                      const std::vector<V3d>& nodes)
 {
+    Polygon* polygon = createPolygon(celldata);
+
     constructElement(celldata, nodes, polygon);
-    
-    int         rank      = celldata["part_index"].asInt();
-    std::string phys_name = celldata["phys_name"].asString();
 
     polygon->calculateLength();
     polygon->calculateVolume();
-    polygon->calculateCenter();
+    polygon->calculateCenter();    
+
+    int rank = celldata["part_index"].asInt();
+    std::string phys_name = celldata["phys_name"].asString();
+
     polygon->setRank(rank);
     polygon->setPhysicalName(phys_name);
+
+    return polygon;
 }
 
 PhysicalFacet* constructFacet(const PropertyTree& facetdata, 
@@ -262,9 +266,7 @@ void ElementsConstructor(const PropertyTree& tree,
     // construct cells
     const PropertyTree& cellsdata = meshdata["cells"];
     for (size_t i = 0; i < cellsdata.size(); ++i) 
-        polygons.push_back(createPolygon(cellsdata[i]));
-    for (size_t i = 0; i < cellsdata.size(); ++i) 
-        constructPolygon(cellsdata[i], nodes, polygons[i]);
+        polygons.push_back(constructPolygon(cellsdata[i], nodes));
 
     // construct facets
     const PropertyTree& facetsdata = meshdata["facets"];

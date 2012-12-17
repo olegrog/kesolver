@@ -1,6 +1,9 @@
 #ifndef POLYGON_H_
 #define POLYGON_H_
 
+#include <string>
+#include <vector>
+
 #include "SpeedFunction.hpp"
 #include "v.hpp"
 
@@ -24,7 +27,7 @@ class Polygon {
 	public:
 
 		int rank;
-		int phys_name;
+        std::string phys_name;
 
 		void calculateLength();
 		virtual void calculateVolume() = 0;
@@ -41,8 +44,8 @@ class Polygon {
 		void setRank(int rank_) { rank = rank_; }
 		int getRank() const { return rank; }
 
-		void setPhysicalName(int name) { phys_name = name; }
-		const std::string getPhysicalName() const { return phys_name; }
+		void setPhysicalName(const std::string& name) { phys_name = name; }
+		const std::string& getPhysicalName() const { return phys_name; }
 
 		double getVolume() const { return V; }
 		V3d getCenter() const { return center; }
