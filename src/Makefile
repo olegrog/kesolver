@@ -18,7 +18,7 @@ SOURCE   += Polygon.o
 SOURCE   += Prism.o Tetrahedron.o Hexahedron.o 
 
 SOURCE   += PhysicalFacet.o
-SOURCE   += MirrorFacet.o GateFacet.o WallMaxwallFacet.o MaxwellFacet.o AlphaFacet.o
+SOURCE   += MirrorFacet.o GateFacet.o WallMaxwallFacet.o MaxwellFacet.o 
 
 SOURCE   += Printer.o 
 

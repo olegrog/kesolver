@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 
     std::vector<Polygon*>        spacemesh;                   
     std::vector<PhysicalFacet*>  facets;  
-    ElementsConstructor(prop_tree["mesh"], spacemesh, facets, gas);
+    ElementsConstructor(prop_tree, spacemesh, facets, gas);
 
     double curnt = prop_tree["curnt_limit"].asDouble();
     std::cout << "curnt = " << curnt << std::endl;
@@ -44,6 +44,8 @@ int main(int argc, char** argv)
     for (std::vector<PhysicalFacet*>::iterator pp = facets.begin();
             pp != facets.end(); ++pp)
         (*pp)->findMultInOut(time_step, spacemesh);
+
+    LABEL
 
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -65,13 +67,13 @@ int main(int argc, char** argv)
         transfer = new Transfer1();
     transfer->init(prop_tree, gas, facets, spacemesh, mypolys, rank);
 
-    Integral integral = IntegralConstructor(prop_tree);
+    Integral integral = IntegralConstructor(prop_tree["integral"]);
 
-    int rep = prop_tree.isMember("rep") ? prop_tree["rep"].asInt() : 1;
+    int rep = prop_tree["transfer"].isMember("rep") ? prop_tree["transfer"]["rep"].asInt() : 1;
     std::cout << "rep = " << rep << std::endl;
 
-    Printer printer(prop_tree);
-    for (int i = 0; i < 2000000; i++) {
+    Printer printer(prop_tree["printer"]);
+    for (int i = 0; i < 101; i++) {
 
         std::cout << i << std::endl;
 

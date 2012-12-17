@@ -79,6 +79,8 @@ Maxwell::Maxwell(const PropertyTree& data,
     typename XiMeshType::Vm v(strTo<typename XiMeshType::Vm>(data["u"].asString()));
     double temp = strTo<double>(data["T"].asString());
 
+    std::cout << "u = " << v << ", T = " << temp << std::endl;
+
     setMaxwell(f, v, temp, ximesh);
     if (data.isMember("n")) {
         std::istringstream ss(data["n"].asString());

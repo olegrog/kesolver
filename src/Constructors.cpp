@@ -235,6 +235,7 @@ PhysicalFacet* constructFacet(const PropertyTree& facetdata,
                               const Gas& gas)
 {
     std::string phys_name = facetdata["phys_name"].asString();
+    std::cout << "facet: phys_name = " << phys_name << std::endl;
     PhysicalFacet* facet = bcsdata.isMember(phys_name) ? 
                            createFacet(bcsdata[phys_name]["type"].asString(),
                                        bcsdata[phys_name], gas) :
@@ -262,11 +263,14 @@ void ElementsConstructor(const PropertyTree& tree,
     // construct nodes
     std::vector<unsigned char> nodesbytes = base64::decode(meshdata["nodes"].asString());
     const double* nodesdoubles = reinterpret_cast<const double*>(&nodesbytes.front());
-    std::vector<V3d> nodes(meshdata["nodes_num"].asInt());
+    size_t nodes_num = meshdata["nodes_num"].asInt();
+    std::cout << "nodes_num = " << nodes_num << std::endl;
+    std::vector<V3d> nodes(nodes_num);
     for (size_t i = 0, j = 0; i < nodes.size(); ++i) {
         double x = nodesdoubles[j++];
         double y = nodesdoubles[j++];
         double z = nodesdoubles[j++];
+//      std::cout << x << ' ' << y << ' ' << z << std::endl;
         nodes[i] = V3d(x, y, z);
     }
 
@@ -274,12 +278,14 @@ void ElementsConstructor(const PropertyTree& tree,
     const PropertyTree& cellsdata = meshdata["cells"];
     for (size_t i = 0; i < cellsdata.size(); ++i) 
         polygons.push_back(constructPolygon(cellsdata[i], nodes));
+    std::cout << "cells.size() = " << polygons.size() << std::endl;
 
     // construct facets
     const PropertyTree& facetsdata = meshdata["facets"];
     for (size_t i = 0; i < facetsdata.size(); ++i)
         facets.push_back(constructFacet(facetsdata[i], bcsdata, nodes, gas));
     std::sort(facets.begin(), facets.end(), lessFacet);
+    std::cout << "facets.size() = " << facets.size() << std::endl;
 
 }
 
@@ -316,6 +322,7 @@ double findTimeStep(const std::vector<Polygon*>& spacemesh,
 void GivePolygonMemoryAndInit(const PropertyTree& tree, const Gas& gas, Polygon* polygon)
 {
     const std::string name = polygon->getPhysicalName();
+    std::cout << "give and init: " << name << std::endl;
     const PropertyTree& data = tree["initial_conditions"][name];
     polygon->f().f(gas.maxwell(data));
 }
