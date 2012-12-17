@@ -34,14 +34,14 @@ void PhysicalFacet::setType(int type_)
     if(type == 3) numberOfVertex = 4;
 }
 
-void PhysicalFacet::setPolygonNumbers(const std::vector<int>& neigbors_)
+void PhysicalFacet::setNeigbors(const std::vector<int>& neigbors)
 {
-    polygon = neigbors_;
+    polygon = neigbors;
 }
 
-void PhysicalFacet::setVertex(const std::vector<V3d>& vertex_)
+void PhysicalFacet::setVertexes(const std::vector<V3d>& vertexes)
 {
-    vertex = vertex_;
+    vertex = vertexes;
     findNormalAndSquare();
 }
 

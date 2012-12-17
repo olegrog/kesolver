@@ -150,7 +150,7 @@ void GasConstructor(const PropertyTree& tree, Gas** gas_pp)
     std::cout << "symm = " << symm << std::endl;
 
     Gas* gas_p;
-    if      (symm == "Cylindrical")
+    if (symm == "Cylindrical")
         gas_p = gasSymmetry<Cylindrical>(tree, type, rad, cut);
     else if (symm == "Cartesian")
         gas_p = gasSymmetry<Cartesian>(tree, type, rad, cut);
@@ -166,54 +166,6 @@ Polygon* createPolygon(const PropertyTree& celldata) {
     else if (type == 5) return new Hexahedron();
     else if (type == 6) return new Prism();
     else return 0;
-}
-
-template <typename Element>
-void constructElement(const PropertyTree& elemdata, 
-                      const std::vector<V3d>& nodes, 
-                      Element* elem)
-{
-    const PropertyTree& ns = elemdata["nodes"];
-    std::vector<V3d> vertexes(ns.size());
-    for (size_t i = 0; i < vertexes.size(); ++i) 
-        vertexes[i] = nodes[ns[i].asInt()];
-
-    const PropertyTree& nb = elemdata["neigbors"];
-    std::vector<int> neigbors(nb.size());
-    for (size_t i = 0; i < neigbors.size(); ++i) 
-        neigbors[i] = nb[i].asInt();
-    
-    int rank           = elemdata["part_index"].asInt();
-    int physical_index = elemdata["phys_index"].asInt();
-
-    elem->setType(type);
-    elem->setVertexes(vertexes);
-    elem->setNeigbors(neigbors);
-
-void constructPolygon(const PropertyTree& celldata, 
-                      const std::vector<V3d>& nodes, 
-                      Polygon* polygon)
-{
-    const PropertyTree& ns = celldata["nodes"];
-    std::vector<V3d> vertexes(ns.size());
-    for (size_t i = 0; i < vertexes.size(); ++i) 
-        vertexes[i] = nodes[ns[i].asInt()];
-
-    const PropertyTree& nb = celldata["nb"];
-    std::vector<int> neigbors(nb.size());
-    for (size_t i = 0; i < neigbors.size(); ++i) 
-        neigbors[i] = nb[i].asInt();
-    
-    int rank           = celldata["part_index"].asInt();
-    int physical_index = celldata["phys_index"].asInt();
-
-    polygon->setVertexCoordinates(vertexes);
-    polygon->calculateLength();
-    polygon->calculateVolume();
-    polygon->calculateCenter();
-    polygon->setNeigbors(neigbors);
-    polygon->setRank(rank);
-    polygon->setPhysicalIndex(physical_index);
 }
 
 PhysicalFacet* createFacet(const PropertyTree& facetdata, const Gas& gas) {
@@ -235,6 +187,42 @@ PhysicalFacet* createFacet(const PropertyTree& facetdata, const Gas& gas) {
         return new GateFacet();
     }
 }
+
+template <typename Element>
+void constructElement(const PropertyTree& elemdata, 
+                      const std::vector<V3d>& nodes, 
+                      Element* elem)
+{
+    const PropertyTree& ns = elemdata["nodes"];
+    std::vector<V3d> vertexes(ns.size());
+    for (size_t i = 0; i < vertexes.size(); ++i) 
+        vertexes[i] = nodes[ns[i].asInt()];
+
+    const PropertyTree& nb = elemdata["neigbors"];
+    std::vector<int> neigbors(nb.size());
+    for (size_t i = 0; i < neigbors.size(); ++i) 
+        neigbors[i] = nb[i].asInt();
+
+    elem->setVertexes(vertexes);
+    elem->setNeigbors(neigbors);
+}
+
+void constructPolygon(const PropertyTree& celldata, 
+                      const std::vector<V3d>& nodes, 
+                      Polygon* polygon)
+{
+    constructElement(celldata, nodes, polygon);
+    
+    int rank           = celldata["part_index"].asInt();
+    int physical_index = celldata["phys_index"].asInt();
+
+    polygon->calculateLength();
+    polygon->calculateVolume();
+    polygon->calculateCenter();
+    polygon->setRank(rank);
+    polygon->setPhysicalIndex(physical_index);
+}
+
 
 bool lessFacet(PhysicalFacet* f1, PhysicalFacet* f2) {
     return f1->order() < f2->order();

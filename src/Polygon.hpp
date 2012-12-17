@@ -30,7 +30,7 @@ class Polygon {
 		virtual void calculateVolume() = 0;
 		virtual void calculateCenter() = 0;
 
-		void setVertexCoordinates(const std::vector<V3d>& vertex_) { vertex = vertex_; }
+		void setVertexes(const std::vector<V3d>& vertexes) { vertex = vertexes; }
 		void setNeigbors(const std::vector<int>& neigbors_) { neigbors = neigbors_; }
 
 		const std::vector<int>& getNeigbors() const { return neigbors; }

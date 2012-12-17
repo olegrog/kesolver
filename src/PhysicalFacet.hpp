@@ -25,8 +25,8 @@ class PhysicalFacet {
 
 	public:
 		void setType(int type_);
-		void setPolygonNumbers(const std::vector<int>& neigbors_);
-		void setVertex(const std::vector<V3d>& vertex_);
+		void setNeigbors(const std::vector<int>& neigbors_);
+		void setVertexes(const std::vector<V3d>& vertex_);
 		void findNormalAndSquare();
 		void findMultInOut(double t, const std::vector<Polygon*>& spacemesh);
 		double getSquare() const { return S; }
