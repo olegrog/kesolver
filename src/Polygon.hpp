@@ -24,7 +24,7 @@ class Polygon {
 	public:
 
 		int rank;
-		int physical_index;
+		int phys_name;
 
 		void calculateLength();
 		virtual void calculateVolume() = 0;
@@ -41,8 +41,8 @@ class Polygon {
 		void setRank(int rank_) { rank = rank_; }
 		int getRank() const { return rank; }
 
-		void setPhysicalIndex(int index) { physical_index = index; }
-		int getPhysicalIndex() const { return physical_index; }
+		void setPhysicalName(int name) { phys_name = name; }
+		const std::string getPhysicalName() const { return phys_name; }
 
 		double getVolume() const { return V; }
 		V3d getCenter() const { return center; }

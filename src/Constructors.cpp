@@ -213,14 +213,26 @@ void constructPolygon(const PropertyTree& celldata,
 {
     constructElement(celldata, nodes, polygon);
     
-    int rank           = celldata["part_index"].asInt();
-    int physical_index = celldata["phys_index"].asInt();
+    int         rank      = celldata["part_index"].asInt();
+    std::string phys_name = celldata["phys_name"].asString();
 
     polygon->calculateLength();
     polygon->calculateVolume();
     polygon->calculateCenter();
     polygon->setRank(rank);
-    polygon->setPhysicalIndex(physical_index);
+    polygon->setPhysicalName(phys_name);
+}
+
+PhysicalFacet* constructFacet(const PropertyTree& facetdata, 
+                              const PropertyTree& bcsdata, 
+                              const std::vector<V3d>& nodes, 
+                              const Gas& gas)
+{
+    std::string phys_name = facetdata["phys_name"].asString();
+    PhysicalFacet* facet = createFacet(bcsdata[phys_name], gas);
+    constructElement(facetdata, nodes, facet);
+    facet->setType(facetdata["type"].asInt());
+    return facet;
 }
 
 
@@ -233,13 +245,13 @@ void ElementsConstructor(const PropertyTree& tree,
                          std::vector<PhysicalFacet*>& facets, 
                          const Gas& gas)
 {
-    const PropertyTree& cellsdata = tree["cells"];
-    for (size_t i = 0; i < cellsdata.size(); ++i) 
-        polygons.push_back(createPolygon(cellsdata[i]));
+    const PropertyTree& meshdata = tree["mesh"];
+    const PropertyTree& bcsdata  = tree["boundary_conditions"];
 
-    std::vector<unsigned char> nodesbytes = base64::decode(tree["nodes"].asString());
+    // construct nodes
+    std::vector<unsigned char> nodesbytes = base64::decode(meshdata["nodes"].asString());
     const double* nodesdoubles = reinterpret_cast<const double*>(&nodesbytes.front());
-    std::vector<V3d> nodes(tree["nodes_num"].asInt());
+    std::vector<V3d> nodes(meshdata["nodes_num"].asInt());
     for (size_t i = 0, j = 0; i < nodes.size(); ++i) {
         double x = nodesdoubles[j++];
         double y = nodesdoubles[j++];
@@ -247,35 +259,17 @@ void ElementsConstructor(const PropertyTree& tree,
         nodes[i] = V3d(x, y, z);
     }
 
+    // construct cells
+    const PropertyTree& cellsdata = meshdata["cells"];
     for (size_t i = 0; i < cellsdata.size(); ++i) 
-        constructPolygon(cellsdata[i], nodes, polygons, polygons[i]);
+        polygons.push_back(createPolygon(cellsdata[i]));
+    for (size_t i = 0; i < cellsdata.size(); ++i) 
+        constructPolygon(cellsdata[i], nodes, polygons[i]);
 
-    const PropertyTree& facetsdata = tree["facets"];
-    for (size_t i = 0; i < facetsdata.size(); ++i) {
-
-        std::vector<int>::const_iterator p = (*pp).begin();
-        int type = *p++;
-        std::vector<V3d> vertexes(PhysicalFacet::getNumberOfVertexes(type));
-        for (size_t i = 0; i < vertexes.size(); ++i) 
-            vertexes[i] = loader.getNodes()[*p++];
-
-        std::vector<int> neigbors(*p++);
-        for (size_t i = 0; i < neigbors.size(); ++i) 
-            neigbors[i] = *p++;
-
-        int number_of_partitions = *p++;
-        for (int i = 0; i < number_of_partitions; ++i) 
-            p++;
-
-        int key = *p;
-        PhysicalFacet* facet = createFacet(loader.getPhysicalData(key), gas);
-                
-        facet->setType(type);
-        facet->setVertex(vertexes);
-        facet->setPolygonNumbers(neigbors);
-
-        facets.push_back(facet);
-    }
+    // construct facets
+    const PropertyTree& facetsdata = meshdata["facets"];
+    for (size_t i = 0; i < facetsdata.size(); ++i)
+        facets.push_back(constructFacet(facetsdata[i], bcsdata, nodes, gas));
     std::sort(facets.begin(), facets.end(), lessFacet);
 
 }
