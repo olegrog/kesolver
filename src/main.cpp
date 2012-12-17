@@ -10,6 +10,14 @@
 #include "Polygon.hpp"
 #include "PhysicalFacet.hpp"
 
+#include "Transfer.hpp"
+#include "Transfer1.hpp"
+#include "Transfer2.hpp"
+
+#include "Integral.hpp"
+
+#include "Printer.hpp"
+
 int main(int argc, char** argv)
 {
     MPI_Init(&argc, &argv);
@@ -48,21 +56,21 @@ int main(int argc, char** argv)
         " mypolys.size() = " << mypolys.size() << std::endl;
 
     Transfer* transfer;
-    int order = tree.isMemeber("order") ? tree["order"].asInt() : 1;
+    int order = prop_tree.isMember("order") ? prop_tree["order"].asInt() : 1;
     std::cout << "order = " << order << std::endl;
 
     if (order == 2)
         transfer = new Transfer2(facets, spacemesh, mypolys);
     else
         transfer = new Transfer1();
-    transfer->init(tree, gas, facets, spacemesh, mypolys, rank);
+    transfer->init(prop_tree, gas, facets, spacemesh, mypolys, rank);
 
-    Integral integral = IntegralConstructor(tree);
+    Integral integral = IntegralConstructor(prop_tree);
 
-    int rep = tree.isMemeber("rep") ? tree["rep"].asInt() : 1;
+    int rep = prop_tree.isMember("rep") ? prop_tree["rep"].asInt() : 1;
     std::cout << "rep = " << rep << std::endl;
 
-    Printer printer(tree);
+    Printer printer(prop_tree);
     for (int i = 0; i < 2000000; i++) {
 
         std::cout << i << std::endl;

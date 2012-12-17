@@ -4,6 +4,24 @@ CXXFLAGS  =  -O3 -Wall -Wchar-subscripts -g -msse2
 
 SOURCE    =  main.o
 SOURCE   +=  Constructors.o
+
+SOURCE   += SpeedFunction.o 
+
+SOURCE   += Integral.o section.o
+
+SOURCE   += Transfer2.o 
+SOURCE   += Transfer1.o 
+
+SOURCE   += DataExchanger.o 
+
+SOURCE   += Polygon.o 
+SOURCE   += Prism.o Tetrahedron.o Hexahedron.o 
+
+SOURCE   += PhysicalFacet.o
+SOURCE   += MirrorFacet.o GateFacet.o WallMaxwallFacet.o MaxwellFacet.o AlphaFacet.o
+
+SOURCE   += Printer.o 
+
 SOURCE   +=  property_tree/property_tree.o
 SOURCE   +=  base64/base64.o
 
@@ -14,6 +32,9 @@ all : $(SOURCE)
 	$(MPICXX) -o kes $(SOURCE) $(CXXFLAGS) $(LIBS)
 
 main.o : main.cpp
+	$(MPICXX) -c $< -o $@ $(CXXFLAGS) $(INCLUDES)
+
+DataExchanger.o : DataExchanger.cpp
 	$(MPICXX) -c $< -o $@ $(CXXFLAGS) $(INCLUDES)
 
 base64/base64.o: base64/base64.cpp
