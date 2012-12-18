@@ -175,7 +175,7 @@ PhysicalFacet* createFacet(const std::string& type,
     if (type == "diffusion")  {
         return new WallMaxwellFacet(physdata, gas);
     }
-    else if (type == "constant")  {
+    else if (type == "maxwell")  {
         return new MaxwellFacet(physdata, gas);
     }
     else if (type == "mirror") {

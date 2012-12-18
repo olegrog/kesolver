@@ -1,73 +1,44 @@
-import numpy, re, math, array, struct, itertools
+import numpy, re, math, itertools
+
+from array import array
+
+import json
+from base64 import b64decode
 
 from scipy import integrate
 from scipy.ndimage import map_coordinates
 
-def readNode(line):
-    xs = [float(word) for word in line.split()]
-    return numpy.array( tuple(xs) )
+from kepy.element import element
 
-class Element:
-    number_of_nodes = [-1, 2, 3, 4, 4, 8, 6, 5, 3, 6, 9, 10, 27, 18, 14, 1]
+def read_nodes(data):
+    nodes_array = array('d', b64decode(data['nodes']))
+    nodes = [numpy.array(x) for x in zip(nodes_array[0::3],
+                                         nodes_array[1::3],
+                                         nodes_array[2::3])]
+    assert data['nodes_num'] == len(nodes)
+    return nodes
 
-    def __init__(self, type, vertexes, neigbors=[]):
-        self.type = type
-        self.vertexes = vertexes
-        self.neigbors = neigbors
-        self.points = []
-
-    def set_verges(self, verges):
-        self.verges = verges
-
-    def add_point(self, point):
-        self.points.append(point)
-
-def readCell(line):
-    words = line.split()
-    elm_type = int(words[0])
-    number_of_nodes = Element.number_of_nodes[elm_type]
-    return Element( elm_type, [int(w) for w in words[1:1+number_of_nodes] ] ), int(words[-1])
-
-def readFacet(line):
-    words = line.split()
-    ints = map(int, words)
-    elm_type = ints[0]
-    number_of_nodes = Element.number_of_nodes[elm_type]
-    vertexes = ints[1:1+number_of_nodes]
-    number_of_neigbors = ints[1+number_of_nodes] 
-    neigbors = ints[2+number_of_nodes:2+number_of_nodes+number_of_neigbors] 
-    return Element( elm_type, vertexes, neigbors ) 
+def read_elements(data):
+    return [element(t           =  c['type'],
+                    ns          =  c['nodes'],
+                    ord_index   =  c['ord_index'],
+                    phys_index  =  c['phys_name'],
+                    part_index  =  c['part_index'],
+                    neigbors    =  c['neigbors']) for c in data]
 
 def readNodesElems(filename):
-    nodes = []
-    cells = []
-    facets = []
     with open(filename, "rb") as fd:
-        line = " "
-        while line:
-            line = fd.readline()
-            try:
-                item = re.split("\W+", line)[1]
-            except IndexError:
-                item = ""
-            readers = {"nodes" : readNode, "cells" : readCell, "facets" : readFacet}
-            if item in readers.keys():
-                while True:
-                    line = fd.readline()
-                    if line == ("</%s>\n" % item):
-                        break
-                    result = readers[item](line)
-                    locals()[item].append( result )
-    cells, indexes = zip(*cells)
-    return nodes, cells, indexes, facets
+        data  = json.load(fd)
+        meshdata = data['mesh']
+        nodes = read_nodes(meshdata)
+        cells  = read_elements(meshdata['cells'])
+        facets = read_elements(meshdata['facets'])
+
+    return nodes, cells, facets
 
 def readNodesCells(filename):
-    nodes, cells, indexes, facets = readNodesElems(filename)
+    nodes, cells, facets = readNodesElems(filename)
     return nodes, cells
-
-def readNodesCellsIndexes(filename):
-    nodes, cells, indexes, facets = readNodesElems(filename)
-    return nodes, cells, indexes
 
 def isNumber(s):
     try:
@@ -156,9 +127,9 @@ def cellCrossPlane(cell, nodes, O, u, v):
 def intersect(O, u, cell, nodes):
     line = []
     for facet in facets_dic[cell.type]:
-        a3 = lineCrossFacet(O, u, nodes[cell.vertexes[facet[0]]], 
-                                  nodes[cell.vertexes[facet[1]]], 
-                                  nodes[cell.vertexes[facet[-1]]])
+        a3 = lineCrossFacet(O, u, nodes[cell.nodes[facet[0]]], 
+                                  nodes[cell.nodes[facet[1]]], 
+                                  nodes[cell.nodes[facet[-1]]])
         if a3:
             line.append(a3)     
     if line:

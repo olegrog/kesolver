@@ -36,13 +36,7 @@ for filename in sys.argv[2:]:
 
     toprint = []
 
-    ext = re.search(r'\.\w+$', filename).group(0)
-    if   ext == '.txt':
-        data = readMacros(filename, len(cells))
-    elif ext == '.bin':
-        rads, ms, dvs, _ = readRadsMassesDvs(sys.argv[1])
-        print rads, ms, dvs
-        data = readF(filename, len(cells), 18, ms=ms, rads=rads, dvs=dvs)
+    data = readMacros(filename, len(cells))
         
     atdata = [at(macro, inds) for macro in data]
 
