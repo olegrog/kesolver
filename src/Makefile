@@ -24,6 +24,7 @@ SOURCE   += Printer.o
 
 SOURCE   +=  property_tree/property_tree.o
 SOURCE   +=  base64/base64.o
+SOURCE   +=  logger/logger.o
 
 INCLUDES := -I ../JsonCpp/include
 LIBS     := -L ../JsonCpp/lib/ -ljsoncpp

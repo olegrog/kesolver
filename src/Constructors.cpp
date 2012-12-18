@@ -235,7 +235,6 @@ PhysicalFacet* constructFacet(const PropertyTree& facetdata,
                               const Gas& gas)
 {
     std::string phys_name = facetdata["phys_name"].asString();
-    std::cout << "facet: phys_name = " << phys_name << std::endl;
     PhysicalFacet* facet = bcsdata.isMember(phys_name) ? 
                            createFacet(bcsdata[phys_name]["type"].asString(),
                                        bcsdata[phys_name], gas) :
@@ -322,7 +321,6 @@ double findTimeStep(const std::vector<Polygon*>& spacemesh,
 void GivePolygonMemoryAndInit(const PropertyTree& tree, const Gas& gas, Polygon* polygon)
 {
     const std::string name = polygon->getPhysicalName();
-    std::cout << "give and init: " << name << std::endl;
     const PropertyTree& data = tree["initial_conditions"][name];
     polygon->f().f(gas.maxwell(data));
 }

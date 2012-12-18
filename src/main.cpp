@@ -5,6 +5,7 @@
 #include "mpi.h"
 
 #include "property_tree/property_tree.hpp"
+#include "logger/logger.hpp"
 
 #include "Constructors.hpp"
 #include "Polygon.hpp"
@@ -28,18 +29,17 @@ int main(int argc, char** argv)
     GasConstructor(prop_tree["gas"], &gas_p);
     Gas& gas = *gas_p;
 
-    LABEL
-    std::cout << "gas.size() = " << gas_p->size() << std::endl;
+    LOG(INFO) << "gas.size() = " << gas_p->size();
 
     std::vector<Polygon*>        spacemesh;                   
     std::vector<PhysicalFacet*>  facets;  
     ElementsConstructor(prop_tree, spacemesh, facets, gas);
 
     double curnt = prop_tree["curnt_limit"].asDouble();
-    std::cout << "curnt = " << curnt << std::endl;
+    LOG(INFO) << "curnt = " << curnt;
 
     double time_step = findTimeStep(spacemesh, gas, curnt);
-    std::cout << "time_step = " << time_step << std::endl;
+    LOG(INFO) << "time_step = " << time_step;
     
     for (std::vector<PhysicalFacet*>::iterator pp = facets.begin();
             pp != facets.end(); ++pp)
@@ -54,12 +54,12 @@ int main(int argc, char** argv)
     std::vector<int> mypolys;  
     MypolysConstructor(rank, spacemesh, mypolys);
 
-    std::cout << "rank = " << rank << " facets.size() = "   << facets.size() << 
-        " mypolys.size() = " << mypolys.size() << std::endl;
+    LOG(INFO) << "rank = " << rank << " facets.size() = " << facets.size() << 
+        " mypolys.size() = " << mypolys.size();
 
     Transfer* transfer;
     int order = prop_tree.isMember("order") ? prop_tree["order"].asInt() : 1;
-    std::cout << "order = " << order << std::endl;
+    LOG(INFO) << "order = " << order;
 
     if (order == 2)
         transfer = new Transfer2(facets, spacemesh, mypolys);
@@ -70,25 +70,25 @@ int main(int argc, char** argv)
     Integral integral = IntegralConstructor(prop_tree["integral"]);
 
     int rep = prop_tree["transfer"].isMember("rep") ? prop_tree["transfer"]["rep"].asInt() : 1;
-    std::cout << "rep = " << rep << std::endl;
+    LOG(INFO) << "rep = " << rep;
 
     Printer printer(prop_tree["printer"]);
     for (int i = 0; i < 101; i++) {
 
-        std::cout << i << std::endl;
+        LOG(INFO) << i;
 
         printer.print(i, spacemesh, mypolys, gas, size, rank);
 
         for (int j = 0; j < rep; ++j) {
-            std::cout << "transfer" << std::endl;
+            LOG(INFO) << "transfer";
             transfer->move(facets, spacemesh, mypolys, gas);
         }
 
-        std::cout << "integral" << std::endl;
+        LOG(INFO) << "integral";
         integral.collide(rep*time_step, spacemesh, mypolys, gas);
 
         for (int j = 0; j < rep; ++j) {
-            std::cout << "transfer" << std::endl;
+            LOG(INFO) << "transfer";
             transfer->move(facets, spacemesh, mypolys, gas);
         }
         
