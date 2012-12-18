@@ -1,8 +1,8 @@
-CXX       =  c++
-MPICXX    =  mpic++
-CXXFLAGS  =  -O3 -Wall -Wchar-subscripts -g -msse2
+CXX      :=  c++
+MPICXX   :=  mpic++
+CXXFLAGS :=  -O3 -Wall -Wchar-subscripts -g 
 
-SOURCE    =  main.o
+SOURCE   :=  main.o
 SOURCE   +=  Constructors.o
 
 SOURCE   += SpeedFunction.o 
@@ -28,7 +28,12 @@ SOURCE   +=  base64/base64.o
 INCLUDES := -I ../JsonCpp/include
 LIBS     := -L ../JsonCpp/lib/ -ljsoncpp
 
-all : $(SOURCE)
+all : kes
+
+debug : CXXFLAGS += -DDEBUG -O0
+debug : kes
+
+kes : $(SOURCE)
 	$(MPICXX) -o kes $(SOURCE) $(CXXFLAGS) $(LIBS)
 
 main.o : main.cpp
