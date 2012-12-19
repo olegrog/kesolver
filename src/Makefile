@@ -34,10 +34,16 @@ INCLUDES += -I ../JsonCpp/include
 
 LIBS     := -L ../JsonCpp/lib/ -ljsoncpp
 
+.PHONY : all debug clean
+
 all : kes
 
 debug : CXXFLAGS += -DDEBUG -O0
 debug : kes
+
+clean :
+	find . -iname "*.o" -exec rm '{}' ';'
+	rm kes
 
 kes : $(SOURCE)
 	$(MPICXX) -o kes $(SOURCE) $(CXXFLAGS) $(LIBS)
@@ -53,4 +59,6 @@ base64/base64.o: base64/base64.cpp
 
 .cpp.o:
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+
 
