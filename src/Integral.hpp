@@ -2,7 +2,7 @@
 #define INTEGRAL_H
 
 #include <vector>
-#include "Polygon.hpp"
+#include "mesh/unstruct/Polygon.hpp"
 #include "Gas.hpp"
 #include "section.hpp"
 

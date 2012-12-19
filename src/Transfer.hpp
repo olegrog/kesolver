@@ -6,7 +6,8 @@
 #include "property_tree/property_tree.hpp"
 
 #include "Gas.hpp"
-#include "PhysicalFacet.hpp"
+#include "mesh/unstruct/PhysicalFacet.hpp"
+#include "mesh/unstruct/Polygon.hpp"
 #include "DataExchanger.hpp"
 
 class Transfer {

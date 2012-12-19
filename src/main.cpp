@@ -8,8 +8,8 @@
 #include "logger/logger.hpp"
 
 #include "Constructors.hpp"
-#include "Polygon.hpp"
-#include "PhysicalFacet.hpp"
+
+#include "mesh/unstruct/UnstructMesh.hpp"
 
 #include "Transfer.hpp"
 #include "Transfer1.hpp"
@@ -31,41 +31,30 @@ int main(int argc, char** argv)
 
     LOG(INFO) << "gas.size() = " << gas_p->size();
 
-    std::vector<Polygon*>        spacemesh;                   
-    std::vector<PhysicalFacet*>  facets;  
-    ElementsConstructor(prop_tree, spacemesh, facets, gas);
-
-    double curnt = prop_tree["curnt_limit"].asDouble();
-    LOG(INFO) << "curnt = " << curnt;
-
-    double time_step = findTimeStep(spacemesh, gas, curnt);
-    LOG(INFO) << "time_step = " << time_step;
-    
-    for (std::vector<PhysicalFacet*>::iterator pp = facets.begin();
-            pp != facets.end(); ++pp)
-        (*pp)->findMultInOut(time_step, spacemesh);
-
-    LABEL
+    UnstructMesh mesh(prop_tree, gas);
 
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    std::vector<int> mypolys;  
-    MypolysConstructor(rank, spacemesh, mypolys);
+    mesh.setMpiRank(rank);
 
-    LOG(INFO) << "rank = " << rank << " facets.size() = " << facets.size() << 
-        " mypolys.size() = " << mypolys.size();
+    LOG(INFO) << "rank = " << rank 
+              << " facets.size() = "  << mesh.getFacets().size() 
+              << " mypolys.size() = " << mesh.getMyCells().size();
 
     Transfer* transfer;
     int order = prop_tree.isMember("order") ? prop_tree["order"].asInt() : 1;
     LOG(INFO) << "order = " << order;
 
     if (order == 2)
-        transfer = new Transfer2(facets, spacemesh, mypolys);
+        transfer = new Transfer2(mesh.getFacets(), mesh.getCells(), mesh.getMyCells());
     else
         transfer = new Transfer1();
-    transfer->init(prop_tree, gas, facets, spacemesh, mypolys, rank);
+
+    transfer->init(prop_tree, gas, 
+                   mesh.getFacets(), mesh.getCells(), mesh.getMyCells(),
+                   rank);
 
     Integral integral = IntegralConstructor(prop_tree["integral"]);
 
@@ -77,19 +66,19 @@ int main(int argc, char** argv)
 
         LOG(INFO) << i;
 
-        printer.print(i, spacemesh, mypolys, gas, size, rank);
+        printer.print(i, mesh.getCells(), mesh.getMyCells(), gas, size, rank);
 
         for (int j = 0; j < rep; ++j) {
             LOG(INFO) << "transfer";
-            transfer->move(facets, spacemesh, mypolys, gas);
+            transfer->move(mesh.getFacets(), mesh.getCells(), mesh.getMyCells(), gas);
         }
 
         LOG(INFO) << "integral";
-        integral.collide(rep*time_step, spacemesh, mypolys, gas);
+        integral.collide(rep*mesh.getTimeStep(), mesh.getCells(), mesh.getMyCells(), gas);
 
         for (int j = 0; j < rep; ++j) {
             LOG(INFO) << "transfer";
-            transfer->move(facets, spacemesh, mypolys, gas);
+            transfer->move(mesh.getFacets(), mesh.getCells(), mesh.getMyCells(), gas);
         }
         
     }

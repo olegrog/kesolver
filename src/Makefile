@@ -1,6 +1,6 @@
 CXX      :=  c++
 MPICXX   :=  mpic++
-CXXFLAGS :=  -O3 -Wall -Wchar-subscripts -g 
+CXXFLAGS :=  -O2 -Wall -Wchar-subscripts -g 
 
 SOURCE   :=  main.o
 SOURCE   +=  Constructors.o
@@ -14,11 +14,14 @@ SOURCE   += Transfer1.o
 
 SOURCE   += DataExchanger.o 
 
-SOURCE   += Polygon.o 
-SOURCE   += Prism.o Tetrahedron.o Hexahedron.o 
+SOURCE   += mesh/unstruct/UnstructMesh.o 
 
-SOURCE   += PhysicalFacet.o
-SOURCE   += MirrorFacet.o GateFacet.o WallMaxwallFacet.o MaxwellFacet.o 
+SOURCE   += mesh/unstruct/Polygon.o 
+SOURCE   += mesh/unstruct/Prism.o mesh/unstruct/Tetrahedron.o mesh/unstruct/Hexahedron.o 
+
+SOURCE   += mesh/unstruct/PhysicalFacet.o
+SOURCE   += mesh/unstruct/MirrorFacet.o mesh/unstruct/GateFacet.o 
+SOURCE   += mesh/unstruct/WallMaxwallFacet.o mesh/unstruct/MaxwellFacet.o 
 
 SOURCE   += Printer.o 
 
@@ -26,7 +29,9 @@ SOURCE   +=  property_tree/property_tree.o
 SOURCE   +=  base64/base64.o
 SOURCE   +=  logger/logger.o
 
-INCLUDES := -I ../JsonCpp/include
+INCLUDES := -I .
+INCLUDES += -I ../JsonCpp/include
+
 LIBS     := -L ../JsonCpp/lib/ -ljsoncpp
 
 all : kes

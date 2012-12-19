@@ -1,7 +1,6 @@
 #include <cassert>
 
 #include "SpeedFunction.hpp"
-#include "Polygon.hpp"
 #include "auxiliary.hpp"
 
 void SpeedFunction::giveMemoryToGradient()

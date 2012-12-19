@@ -4,7 +4,7 @@
 #include <fstream>
 
 #include "Gas.hpp"
-#include "Polygon.hpp"
+#include "mesh/unstruct/Polygon.hpp"
 
 #include "property_tree/property_tree.hpp"
 

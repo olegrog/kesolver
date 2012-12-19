@@ -4,7 +4,7 @@
 #include <vector>
 #include "mpi.h"
 
-#include "Polygon.hpp"
+#include "mesh/unstruct/Polygon.hpp"
 
 class DataExchanger {
 	private:
