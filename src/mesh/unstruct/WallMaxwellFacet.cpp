@@ -4,6 +4,10 @@
 #include "auxiliary.hpp"
 #include "WallMaxwellFacet.hpp"
 
+#include "FacetFactory.hpp"
+
+REGISTER_FACET(WallMaxwellFacet, "diffusion")              
+
 void WallMaxwellFacet::calculateDistance(std::vector<Polygon*>& spacemesh)
 {
 	Polygon* p_in = spacemesh[polygon[0]];

@@ -10,7 +10,9 @@
 
 class WallMaxwellFacet : public PhysicalFacet {
 	public:
-		WallMaxwellFacet(const PropertyTree& tree, const Gas& gas)
+		WallMaxwellFacet() {}
+
+        void init(const PropertyTree& tree, const Gas& gas)
         {
             DistributionFunction fm = gas.maxwell(tree);
             copy(fm, f);

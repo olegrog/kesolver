@@ -21,7 +21,7 @@ SOURCE   += mesh/unstruct/Prism.o mesh/unstruct/Tetrahedron.o mesh/unstruct/Hexa
 
 SOURCE   += mesh/unstruct/PhysicalFacet.o
 SOURCE   += mesh/unstruct/MirrorFacet.o mesh/unstruct/GateFacet.o 
-SOURCE   += mesh/unstruct/WallMaxwallFacet.o mesh/unstruct/MaxwellFacet.o 
+SOURCE   += mesh/unstruct/WallMaxwellFacet.o mesh/unstruct/MaxwellFacet.o 
 
 SOURCE   += Printer.o 
 

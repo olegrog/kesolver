@@ -32,6 +32,8 @@ class PhysicalFacet {
 		double getSquare() const { return S; }
 		V3d getCenter() const { return center; }
 
+        virtual void init(const PropertyTree& tree, const Gas& gas) = 0;
+
 		void transfer(std::vector<Polygon*>& spacemesh, const Gas& gas);
 		virtual void doTransfer(std::vector<Polygon*>& spacemesh,
 				const Gas& gas) = 0;

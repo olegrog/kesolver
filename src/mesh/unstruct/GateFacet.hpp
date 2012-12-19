@@ -5,6 +5,8 @@
 
 class GateFacet : public PhysicalFacet {
 	public:
+        void init(const PropertyTree& tree, const Gas& gas) {}
+
 		void calculateDistance(std::vector<Polygon*>& spacemesh);
 
 		void doTransfer(std::vector<Polygon*>& spacemesh, const Gas& gas);

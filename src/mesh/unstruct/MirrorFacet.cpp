@@ -1,5 +1,9 @@
 #include "MirrorFacet.hpp"
 
+#include "FacetFactory.hpp"
+
+REGISTER_FACET(MirrorFacet, "mirror")              
+
 void MirrorFacet::calculateDistance(std::vector<Polygon*>& spacemesh)
 {
 	Polygon* p_in = spacemesh[polygon[0]];

@@ -6,10 +6,7 @@
 #include "Prism.hpp"
 #include "Hexahedron.hpp"
 
-#include "GateFacet.hpp"
-#include "MirrorFacet.hpp"
-#include "WallMaxwellFacet.hpp"
-#include "MaxwellFacet.hpp"
+#include "FacetFactory.hpp"
 
 #include "base64/base64.hpp"
 #include "logger/logger.hpp"
@@ -20,28 +17,6 @@ Polygon* createPolygon(const PropertyTree& celldata) {
     else if (type == 5) return new Hexahedron();
     else if (type == 6) return new Prism();
     else return 0;
-}
-
-PhysicalFacet* createFacet(const std::string& type,
-                           const PropertyTree& physdata, 
-                           const Gas& gas)
-{
-    if (type == "diffusion")  {
-        return new WallMaxwellFacet(physdata, gas);
-    }
-    else if (type == "maxwell")  {
-        return new MaxwellFacet(physdata, gas);
-    }
-    else if (type == "mirror") {
-        return new MirrorFacet((Axis)physdata["axis"].asInt());
-    }
-    else if (type == "gate") {
-        return new GateFacet();
-    }
-    else {
-        // TODO: raise exception
-        return 0;
-    }
 }
 
 template <typename Element>
@@ -89,10 +64,14 @@ PhysicalFacet* constructFacet(const PropertyTree& facetdata,
                               const Gas& gas)
 {
     std::string phys_name = facetdata["phys_name"].asString();
-    PhysicalFacet* facet = bcsdata.isMember(phys_name) ? 
-                           createFacet(bcsdata[phys_name]["type"].asString(),
-                                       bcsdata[phys_name], gas) :
-                           createFacet("gate", facetdata, gas);
+    std::string  facet_name = "gate";
+    PropertyTree facet_cond = facetdata;
+    if (bcsdata.isMember(phys_name)) {
+        facet_name = bcsdata[phys_name]["type"].asString();
+        facet_cond = bcsdata[phys_name];
+    }
+    PhysicalFacet* facet = FacetFactory::instance().create(facet_name);
+    facet->init(facet_cond, gas);
     constructElement(facetdata, nodes, facet);
     facet->setType(facetdata["type"].asInt());
     facet->findNormalAndSquare();

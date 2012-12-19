@@ -1,5 +1,9 @@
 #include "GateFacet.hpp"
 
+#include "FacetFactory.hpp"
+
+REGISTER_FACET(GateFacet, "gate")              
+
 void GateFacet::doTransfer(std::vector<Polygon*>& spacemesh, const Gas& gas)
 {
     size_t size       = spacemesh[polygon[0]]->f().size();

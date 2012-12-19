@@ -1,6 +1,9 @@
 #include "MaxwellFacet.hpp"
 #include "auxiliary.hpp"
 
+#include "FacetFactory.hpp"
+
+REGISTER_FACET(MaxwellFacet, "maxwell")              
 
 void MaxwellFacet::calculateDistance(std::vector<Polygon*>& spacemesh)
 {
