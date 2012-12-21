@@ -8,57 +8,55 @@
 #include "v.hpp"
 
 class Polygon {
-	protected:
+    protected:
 
-		int numberOfVertex;
-		int numberOfEdges;
-		int numberOfFacets;
+        int numberOfVertex;
+        int numberOfEdges;
+        int numberOfFacets;
 
-		double V;
-		double Lmin;
-		V3d center;				// necessary just for second order
-		T3d dd;
+        double V;
+        double Lmin;
+        V3d center;             // necessary just for second order
+        T3d dd;
 
-		std::vector<V3d> vertex;
-		std::vector<int> neigbors;
+        std::vector<V3d> vertex;
+        std::vector<int> neigbors;
 
-		SpeedFunction function;
+        SpeedFunction function;
 
-	public:
+    public:
 
-		int rank;
+        int rank;
         std::string phys_name;
 
-		void calculateLength();
-		virtual void calculateVolume() = 0;
-		virtual void calculateCenter() = 0;
+        void calculateLength();
+        virtual void calculateVolume() = 0;
+        virtual void calculateCenter() = 0;
 
-		void setVertexes(const std::vector<V3d>& vertexes) { vertex = vertexes; }
-		void setNeigbors(const std::vector<int>& neigbors_) { neigbors = neigbors_; }
+        void setVertexes(const std::vector<V3d>& vertexes) { vertex = vertexes; }
+        void setNeigbors(const std::vector<int>& neigbors_) { neigbors = neigbors_; }
 
-		const std::vector<int>& getNeigbors() const { return neigbors; }
+        const std::vector<int>& getNeigbors() const { return neigbors; }
 
-		double getLMin() const { return Lmin; }
-		int getNumberOfVertexes() const { return  numberOfVertex; }
-		
-		void setRank(int rank_) { rank = rank_; }
-		int getRank() const { return rank; }
+        double getLMin() const { return Lmin; }
+        int getNumberOfVertexes() const { return  numberOfVertex; }
+        
+        void setRank(int rank_) { rank = rank_; }
+        int getRank() const { return rank; }
 
-		void setPhysicalName(const std::string& name) { phys_name = name; }
-		const std::string& getPhysicalName() const { return phys_name; }
+        void setPhysicalName(const std::string& name) { phys_name = name; }
+        const std::string& getPhysicalName() const { return phys_name; }
 
-		double getVolume() const { return V; }
-		V3d getCenter() const { return center; }
-		T3d& getDD() { return dd; } 
+        double getVolume() const { return V; }
+        V3d getCenter() const { return center; }
+        T3d& getDD() { return dd; } 
 
-		void inverseDD();
+        void inverseDD();
 
-		void prepareForNextStep();
-		void findGradient();
+        void prepareForNextStep();
+        void findGradient();
 
-		SpeedFunction& f() { return function; }
-
-		bool isActive() const { return function.size() > 0; }
+        SpeedFunction& f() { return function; }
 
 };
 

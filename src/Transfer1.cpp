@@ -25,9 +25,7 @@ void Transfer1::init(const PropertyTree& tree, const Gas& gas,
 	for (size_t i = 0; i < toAllocPolygons.size(); ++i) {
 		GivePolygonMemoryAndInit(tree, gas, spacemesh[toAllocPolygons[i]]);
 	}
-	for (size_t i = 0; i < facets.size(); ++i) {
-		facets[i]->activation(spacemesh);
-	}
+
 	data_exchanger.mpiInit(spacemesh);
 }
 

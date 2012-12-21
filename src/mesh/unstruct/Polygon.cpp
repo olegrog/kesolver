@@ -19,18 +19,16 @@ void Polygon::inverseDD() {
 }
 
 void Polygon::prepareForNextStep() {
-	if ( isActive() )
-		for (size_t i = 0; i < function.size(); ++i) {
-			function.getFMin()[i]     = function.f()[i];
-			function.getFMax()[i]     = function.f()[i];
-			function.getGradient()[i] = 0.;
-			function.getPhi()[i]      = 1.;
-		}
+    for (size_t i = 0; i < function.size(); ++i) {
+        function.getFMin()[i]     = function.f()[i];
+        function.getFMax()[i]     = function.f()[i];
+        function.getGradient()[i] = 0.;
+        function.getPhi()[i]      = 1.;
+    }
 }
 
 void Polygon::findGradient() {
-	if ( isActive() )
-		for (size_t i = 0; i < function.size(); ++i)
-			function.getGradient()[i] = mult(dd, function.getGradient()[i]);
+    for (size_t i = 0; i < function.size(); ++i)
+        function.getGradient()[i] = mult(dd, function.getGradient()[i]);
 }
 

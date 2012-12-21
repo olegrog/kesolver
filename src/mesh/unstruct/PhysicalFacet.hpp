@@ -21,8 +21,6 @@ class PhysicalFacet {
 		std::vector<int> polygon;
 		V3d d_in, d_out;
 
-		bool is_active;
-
 	public:
 		void setType(int type_);
 		void setNeigbors(const std::vector<int>& neigbors_);
@@ -31,6 +29,7 @@ class PhysicalFacet {
 		void findMultInOut(double t, const std::vector<Polygon*>& spacemesh);
 		double getSquare() const { return S; }
 		V3d getCenter() const { return center; }
+        const std::vector<int>& getNeigbors() const { return polygon; }
 
         virtual void init(const PropertyTree& tree, const Gas& gas) = 0;
 
@@ -57,8 +56,6 @@ class PhysicalFacet {
 			else return 0;
 		}
 		virtual int order() const = 0;
-
-		void activation(const std::vector<Polygon*>& spacemesh);
 
 	private:
 

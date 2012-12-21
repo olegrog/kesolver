@@ -40,11 +40,13 @@ int main(int argc, char** argv)
     mesh.setMpiRank(rank);
 
     LOG(INFO) << "rank = " << rank 
-              << " facets.size() = "  << mesh.getFacets().size() 
-              << " mypolys.size() = " << mesh.getMyCells().size();
+              << " facets.size() = "   << mesh.getFacets().size() 
+              << " mypolys.size() = "  << mesh.getMyCells().size()
+              << " myfacets.size() = " << mesh.getMyFacets().size();
 
     Transfer* transfer;
-    int order = prop_tree.isMember("order") ? prop_tree["order"].asInt() : 1;
+    int order = prop_tree["transfer"].isMember("order") ? 
+                prop_tree["transfer"]["order"].asInt() : 1;
     LOG(INFO) << "order = " << order;
 
     if (order == 2)
@@ -58,7 +60,8 @@ int main(int argc, char** argv)
 
     Integral integral = IntegralConstructor(prop_tree["integral"]);
 
-    int rep = prop_tree["transfer"].isMember("rep") ? prop_tree["transfer"]["rep"].asInt() : 1;
+    int rep = prop_tree["transfer"].isMember("rep") ? 
+              prop_tree["transfer"]["rep"].asInt() : 1;
     LOG(INFO) << "rep = " << rep;
 
     Printer printer(prop_tree["printer"]);

@@ -121,16 +121,6 @@ void ElementsConstructor(const PropertyTree& tree,
 
 }
 
-void MypolysConstructor(int rank,
-                        const std::vector<Polygon*>& polygons,
-                        std::vector<int>& mypolys)
-{
-    for (size_t i = 0; i < polygons.size(); ++i) 
-        if (polygons[i]->getRank() == rank) {
-            mypolys.push_back(i);
-        }
-}
-
 double findTimeStep(const std::vector<Polygon*>& spacemesh,
                     const Gas& gas,
                     double curnt)
@@ -164,10 +154,5 @@ UnstructMesh::UnstructMesh(const PropertyTree& tree,
     for (std::vector<PhysicalFacet*>::iterator pp = facets.begin();
             pp != facets.end(); ++pp)
         (*pp)->findMultInOut(time_step, cells);
-}
-
-void UnstructMesh::setMpiRank(int rank) 
-{
-    MypolysConstructor(rank, cells, mycells);
 }
 

@@ -49,10 +49,6 @@ void Transfer2::init(const PropertyTree& tree, const Gas& gas,
 		spacemesh[toAllocPolygons[i]]->f().giveMemoryToGradient();
 	}
 
-	for (size_t i = 0; i < facets.size(); ++i) {
-		facets[i]->activation(spacemesh);
-	}
-
 	data_exchanger.mpiInit(spacemesh);
 }
 

@@ -3,38 +3,24 @@
 
 #include <vector>
 
-#include "Polygon.hpp"
-#include "PhysicalFacet.hpp"
+#include "mesh/Mesh.hpp"
 
 #include "property_tree/property_tree.hpp"
 
-class UnstructMesh {
+class UnstructMesh : public class Mesh {
     public:
         UnstructMesh(const PropertyTree& tree, const Gas& gas);
 
-        void setMpiRank(int rank);
+        virtual Cells&  getCells()  { return cells;  }
+        virtual Facets& getFacets() { return facets; }
 
-        typedef std::vector<Polygon*>       Cells;
-        typedef std::vector<PhysicalFacet*> Facets;
-
-        Cells&  getCells()  { return cells;  }
-        Facets& getFacets() { return facets; }
-
-        typedef std::vector<int> Ints;
-
-        Ints&  getMyCells()  { return mycells;  }
-        Ints&  getMyFacets() { return myfacets; }
-
-        double getTimeStep() const { return time_step; }
+        virtual double getTimeStep() const { return time_step; }
 
     private:
         Cells  cells;                   
         Facets facets;  
-        Ints   mycells;  
-        Ints   myfacets;  
 
         double time_step;
-
 };
 
 #endif // _UNSTRUCTMESH_HPP_

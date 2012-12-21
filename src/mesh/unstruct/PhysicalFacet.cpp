@@ -54,52 +54,49 @@ void PhysicalFacet::findMultInOut(double t, const std::vector<Polygon*>& spaceme
 
 void PhysicalFacet::findPhi(const std::vector<Polygon*>& spacemesh, const Gas& gas)
 {
-    if (is_active)
-        doFindPhi(spacemesh, gas);
+    doFindPhi(spacemesh, gas);
 }
 void PhysicalFacet::transfer(std::vector<Polygon*>& spacemesh,
         const Gas& gas) 
 {
-    if (is_active) {
 /*
-        for (size_t j = 0; j < polygon.size(); ++j) {
-            double f = spacemesh[polygon[j]]->f().g()[0];
-            if (f != f) {
-                LABEL
-                std::cout << polygon.size() << std::endl;
-                std::cout << "nan bef " << polygon[j] << std::endl;
-                exit(-1);
-            }
+    for (size_t j = 0; j < polygon.size(); ++j) {
+        double f = spacemesh[polygon[j]]->f().g()[0];
+        if (f != f) {
+            LABEL
+            std::cout << polygon.size() << std::endl;
+            std::cout << "nan bef " << polygon[j] << std::endl;
+            exit(-1);
         }
-*/
-        doTransfer(spacemesh, gas);
-/*
-        for (size_t j = 0; j < polygon.size(); ++j) {
-            double f = spacemesh[polygon[j]]->f().g()[0];
-            if (f != f) {
-                LABEL
-                std::cout << polygon.size() << std::endl;
-                std::cout << "nan aft " << polygon[j] << std::endl;
-                exit(-1);
-            }
-        }
-*/
     }
-}
-void PhysicalFacet::transfer2(std::vector<Polygon*>& spacemesh,
-        const Gas& gas) 
-{
-    if (is_active)
-        doTransfer2(spacemesh, gas);
-}
-void PhysicalFacet::findGradient(const std::vector<Polygon*>& spacemesh,
-        const Gas& gas) 
-{
-    if (is_active)
-        doFindGradient(spacemesh, gas);
+*/
+    doTransfer(spacemesh, gas);
+/*
+    for (size_t j = 0; j < polygon.size(); ++j) {
+        double f = spacemesh[polygon[j]]->f().g()[0];
+        if (f != f) {
+            LABEL
+            std::cout << polygon.size() << std::endl;
+            std::cout << "nan aft " << polygon[j] << std::endl;
+            exit(-1);
+        }
+    }
+*/
 }
 
-void PhysicalFacet::doFindPhi(const std::vector<Polygon*>& spacemesh, const Gas& gas)
+void PhysicalFacet::transfer2(std::vector<Polygon*>& spacemesh,
+                              const Gas& gas) 
+{
+    doTransfer2(spacemesh, gas);
+}
+void PhysicalFacet::findGradient(const std::vector<Polygon*>& spacemesh,
+                                 const Gas& gas) 
+{
+    doFindGradient(spacemesh, gas);
+}
+
+void PhysicalFacet::doFindPhi(const std::vector<Polygon*>& spacemesh,
+                              const Gas& gas)
 {
     for (size_t j = 0; j < polygon.size(); ++j) {
         Polygon* poly = spacemesh[polygon[j]];
@@ -124,11 +121,5 @@ void PhysicalFacet::doFindPhi(const std::vector<Polygon*>& spacemesh, const Gas&
             
         }
     }
-}
-
-void PhysicalFacet::activation(const std::vector<Polygon*>& spacemesh) {
-    is_active = true;
-    for (size_t i = 0; i < polygon.size(); ++i) 
-        is_active = is_active && spacemesh[polygon[i]]->isActive();
 }
 
