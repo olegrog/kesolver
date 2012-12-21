@@ -2,13 +2,13 @@
 #include <vector>
 #include <string>
 
-#include "mpi.h"
-
 #include "property_tree/property_tree.hpp"
 #include "logger/logger.hpp"
 
 #include "Constructors.hpp"
 
+#include "mesh/MpiMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/unstruct/UnstructMesh.hpp"
 
 #include "Transfer.hpp"
@@ -31,18 +31,21 @@ int main(int argc, char** argv)
 
     LOG(INFO) << "gas.size() = " << gas_p->size();
 
-    UnstructMesh mesh(prop_tree, gas);
+    Mesh* mesh_p = new UnstructMesh(prop_tree, gas);
 
-    int rank, size;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MeshMpi mesh(mesh_p);
 
-    mesh.setMpiRank(rank);
+    LOG(INFO) << "facets.size() = "   << mesh.getFacets().size() 
+              << " ffacets.size() = " << mesh.getFlowingFacets().size();
 
-    LOG(INFO) << "rank = " << rank 
-              << " facets.size() = "   << mesh.getFacets().size() 
-              << " mypolys.size() = "  << mesh.getMyCells().size()
-              << " myfacets.size() = " << mesh.getMyFacets().size();
+    LOG(INFO) << "cells.size() = "   << mesh.getCells().size() 
+              << " fcells.size() = "  << mesh.getFlowingCells().size()
+              << " mycells.size() = "  << mesh.getMyCells().size()
+
+	for (size_t i = 0; i < mesh.getFlowingCells().size(); ++i) {
+		GivePolygonMemoryAndInit(tree, gas, mesh.getFlowingCells()[i]);
+		mesh.getFlowingCells()[i]->f().giveMemoryToGradient();
+    }
 
     Transfer* transfer;
     int order = prop_tree["transfer"].isMember("order") ? 

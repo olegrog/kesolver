@@ -2,13 +2,12 @@
 #define DATAEXCHANGER_H
 
 #include <vector>
-#include "mpi.h"
 
 #include "mesh/unstruct/Polygon.hpp"
 
 class DataExchanger {
-	private:
-		std::vector<int> recv_tetr;
+    private:
+        std::vector<int> recv_tetr;
         std::vector<int> send_tetr;
         std::vector<int> recv_process;
         std::vector<int> send_process;
@@ -21,20 +20,23 @@ class DataExchanger {
         MPI_Request *request;
         MPI_Status  *statuses;
 
-		void prepareSendRecv(std::vector<Polygon*>& spacemesh, const std::vector<int>& mypolys, int rank);
-		void prepareSendRecv2(std::vector<Polygon*>& spacemesh, const std::vector<int>& mypolys, int rank);
+        void prepareSendRecv(std::vector<Polygon*>& cells,
+                             int rank);
+        void prepareSendRecv2(std::vector<Polygon*>& cells, 
+                              int rank);
 
-		void cleanSendRecv();
+        void cleanSendRecv();
 
+    public:
+        void swap();
 
-	public:
-		void swap();
+        void init(std::vector<Polygon*>& cells,
+                  int rank);
+        void init2(std::vector<Polygon*>& cells,
+                  int rank);
+        void mpiInit(std::vector<Polygon*>& cells);
 
-		void init(std::vector<Polygon*>& spacemesh, const std::vector<int>& mypolys, int rank);
-		void init2(std::vector<Polygon*>& spacemesh, const std::vector<int>& mypolys, int rank);
-		void mpiInit(std::vector<Polygon*>& spacemesh);
-
-		const std::vector<int>& getToAllocPolygons() const { return recv_tetr; }
+        const std::vector<int>& getExchangeCells() const { return recv_tetr; }
 };
 
 #endif /*DATAEXCHANGER_H*/

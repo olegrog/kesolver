@@ -4,21 +4,38 @@
 #include <vector>
 
 #include "mesh/Mesh.hpp"
+#include "DataExchange.hpp"
 
 class MeshMpi {
     public:
-        MeshMpi(const Mesh* mesh_ptr, int rank);
+        MeshMpi(const Mesh* mesh_ptr);
 
-        typedef std::vector<int> Ints;
+        typedef typename Mesh::Cells  Cells;
+        typedef typename Mesh::Facets Facets;
 
-        Ints&  getMyCells()  { return mycells;  }
-        Ints&  getMyFacets() { return myfacets; }
+        Cells&  getAllCells()      { return cells; }
+        Cells&  getFlowingCells()  { return flowing_cells; }
+        Cells&  getMyCells()       { return my_cells; }
 
-        // TODO: add all neccessary methods
+        Facets& getAllFacets()     { return facets; }
+        Facets& getFlowingFacets() { return flowing_facets; }
+
+        void newStep();
 
     private:
-        Ints   mycells;  
-        Ints   myfacets;  
+        bool mpi_init;
+
+        Mesh*   mesh_ptr;  
+
+        Cells&  cells;
+        Cells   flowing_cells;  
+        Cells   my_cells;  
+
+        Facets& facets;
+        Facets  my_facets;  
+
+		DataExchanger data_exchanger;
+
 };
 
 #endif // _MESHMPI_HPP_

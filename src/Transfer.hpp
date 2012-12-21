@@ -3,23 +3,12 @@
 
 #include <vector>
 
-#include "property_tree/property_tree.hpp"
-
 #include "Gas.hpp"
-#include "mesh/unstruct/PhysicalFacet.hpp"
-#include "mesh/unstruct/Polygon.hpp"
-#include "DataExchanger.hpp"
+#include "MeshMpi.hpp"
 
 class Transfer {
-	protected:
-		DataExchanger data_exchanger;
-	public:
-		virtual void init(const PropertyTree& tree, const Gas& gas, 
-				const std::vector <PhysicalFacet*>& facets,	
-				std::vector<Polygon*>& spacemesh, const std::vector<int>& mypolys, int rank) = 0;
-		virtual	void move(const std::vector <PhysicalFacet*>& facets, 
-				std::vector<Polygon*>& spacemesh, const std::vector<int>& mypolys, 
-				const Gas& gas) = 0;
+    public:
+        virtual void move(const MeshMpi& mesh, const Gas& gas) = 0;
 };
 
 #endif /*TRANSFER_H*/

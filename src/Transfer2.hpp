@@ -1,18 +1,12 @@
-#ifndef TRANSFER2_HPP_
-#define TRANSFER2_HPP_
+#ifndef _TRANSFER2_HPP_
+#define _TRANSFER2_HPP_
 
 #include "Transfer.hpp"
 
 class Transfer2 : public Transfer {
 	public:
-		Transfer2(const std::vector <PhysicalFacet*>& facets, 
-				std::vector<Polygon*>& spacemesh, const std::vector<int>& mypolys);
-		void move(const std::vector <PhysicalFacet*>& facets,
-				std::vector<Polygon*>& spacemesh, const std::vector<int>& mypolys,
-				const Gas& gas);
-		void init(const PropertyTree& tree, const Gas& gas, 
-				const std::vector <PhysicalFacet*>& facets,	
-				std::vector<Polygon*>& spacemesh, const std::vector<int>& mypolys, int rank);
+		Transfer2(const MeshMpi& mesh);
+		void move(const MeshMpi& mesh,const Gas& gas);
 };
 
-#endif /*TRANSFER2_HPP_*/
+#endif /*_TRANSFER2_HPP_*/

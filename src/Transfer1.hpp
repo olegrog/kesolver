@@ -4,13 +4,8 @@
 #include "Transfer.hpp"
 
 class Transfer1 : public Transfer {
-	public:
-		void move(const std::vector <PhysicalFacet*>& facets,
-				std::vector<Polygon*>& spacemesh, const std::vector<int>& mypolys,
-				const Gas& gas);
-		void init(const PropertyTree& tree, const Gas& gas, 
-				const std::vector <PhysicalFacet*>& facets,	
-				std::vector<Polygon*>& spacemesh, const std::vector<int>& mypolys, int rank);
+    public:
+        void move(const MeshMpi& mesh, const Gas& gas);
 };
 
 #endif /*TRANSFER1_HPP_*/

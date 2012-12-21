@@ -2,7 +2,7 @@
 #include "Transfer2.hpp"
 #include "Constructors.hpp"
 
-Transfer2::Transfer2(const std::vector <PhysicalFacet*>& facets, std::vector<Polygon*>& spacemesh, const std::vector<int>& mypolys)
+Transfer2::Transfer2(const MeshMpi& mesh)
 {
 	for (size_t i = 0; i < facets.size(); i++) 
 		facets[i]->calculateDistance(spacemesh);
@@ -10,7 +10,7 @@ Transfer2::Transfer2(const std::vector <PhysicalFacet*>& facets, std::vector<Pol
 		spacemesh[i]->inverseDD();
 }
 
-void Transfer2::move(const std::vector <PhysicalFacet*>& facets, std::vector<Polygon*>& spacemesh, const std::vector<int>& mypolys, const Gas& gas)
+void Transfer2::move(const MeshMpi& mesh, const Gas& gas)
 {
 	data_exchanger.swap();
 
@@ -32,23 +32,5 @@ void Transfer2::move(const std::vector <PhysicalFacet*>& facets, std::vector<Pol
     for (size_t i = 0; i < mypolys.size(); i++) 
         spacemesh[mypolys[i]]->f().equategf();
 
-}
-
-void Transfer2::init(const PropertyTree& tree, const Gas& gas, 
-				const std::vector <PhysicalFacet*>& facets,	
-				std::vector<Polygon*>& spacemesh, const std::vector<int>& mypolys, int rank)
-{
-	data_exchanger.init2(spacemesh, mypolys, rank);
-	for (size_t i = 0; i < mypolys.size(); ++i) {
-		GivePolygonMemoryAndInit(tree, gas, spacemesh[mypolys[i]]);
-		spacemesh[mypolys[i]]->f().giveMemoryToGradient();
-	}
-	const std::vector<int>& toAllocPolygons = data_exchanger.getToAllocPolygons();
-	for (size_t i = 0; i < toAllocPolygons.size(); ++i) {
-		GivePolygonMemoryAndInit(tree, gas, spacemesh[toAllocPolygons[i]]);
-		spacemesh[toAllocPolygons[i]]->f().giveMemoryToGradient();
-	}
-
-	data_exchanger.mpiInit(spacemesh);
 }
 
