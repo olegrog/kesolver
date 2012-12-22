@@ -7,14 +7,17 @@
 
 #include "property_tree/property_tree.hpp"
 
-class UnstructMesh : public class Mesh {
+class UnstructMesh : public Mesh {
     public:
         UnstructMesh(const PropertyTree& tree, const Gas& gas);
 
         virtual Cells&  getCells()  { return cells;  }
         virtual Facets& getFacets() { return facets; }
 
-        virtual double getTimeStep() const { return time_step; }
+        virtual double getTimeStep() const {
+            LABEL
+            return time_step;
+        }
 
     private:
         Cells  cells;                   

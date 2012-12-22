@@ -8,7 +8,7 @@
 
 class Transfer {
     public:
-        virtual void move(const MeshMpi& mesh, const Gas& gas) = 0;
+        virtual void move(MeshMpi& mesh, const Gas& gas) = 0;
 };
 
 #endif /*TRANSFER_H*/

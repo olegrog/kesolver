@@ -14,6 +14,7 @@ SOURCE   += Transfer1.o
 
 SOURCE   += DataExchanger.o 
 
+SOURCE   += MeshMpi.o 
 SOURCE   += mesh/unstruct/UnstructMesh.o 
 
 SOURCE   += mesh/unstruct/Polygon.o 
@@ -48,7 +49,7 @@ clean :
 kes : $(SOURCE)
 	$(MPICXX) -o kes $(SOURCE) $(CXXFLAGS) $(LIBS)
 
-main.o : main.cpp
+MeshMpi.o : MeshMpi.cpp
 	$(MPICXX) -c $< -o $@ $(CXXFLAGS) $(INCLUDES)
 
 DataExchanger.o : DataExchanger.cpp

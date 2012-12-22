@@ -4,11 +4,12 @@
 #include <vector>
 
 #include "mesh/Mesh.hpp"
-#include "DataExchange.hpp"
+#include "DataExchanger.hpp"
 
 class MeshMpi {
     public:
-        MeshMpi(const Mesh* mesh_ptr);
+        MeshMpi(Mesh* mesh_ptr);
+        ~MeshMpi();
 
         typedef typename Mesh::Cells  Cells;
         typedef typename Mesh::Facets Facets;
@@ -20,21 +21,37 @@ class MeshMpi {
         Facets& getAllFacets()     { return facets; }
         Facets& getFlowingFacets() { return flowing_facets; }
 
+        typedef std::vector<int> Ints;
+        const Ints& getMyCellIndexes() const { return my_cell_indexes; }
+
+        double getTimeStep() const {
+            return time_step;
+        //    mesh_ptr->getTimeStep();
+        }
+
         void newStep();
+
+        int getRank() const { return rank; }
+        int getSize() const { return size; }
+
+        void barrier() const;
 
     private:
         bool mpi_init;
+        double time_step;
 
         Mesh*   mesh_ptr;  
 
         Cells&  cells;
         Cells   flowing_cells;  
         Cells   my_cells;  
+        Ints    my_cell_indexes;
 
         Facets& facets;
-        Facets  my_facets;  
+        Facets  flowing_facets;  
 
 		DataExchanger data_exchanger;
+        int rank, size;
 
 };
 

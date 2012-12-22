@@ -5,7 +5,7 @@
 
 class Transfer1 : public Transfer {
     public:
-        void move(const MeshMpi& mesh, const Gas& gas);
+        void move(MeshMpi& mesh, const Gas& gas);
 };
 
 #endif /*TRANSFER1_HPP_*/

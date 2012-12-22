@@ -5,9 +5,9 @@
 #include <stdexcept>
 #include <limits>
 
-#include "mpi.h"
-
 #include "Printer.hpp"
+
+#include "logger/logger.hpp"
 
 Printer::Printer(const PropertyTree& tree)
 {
@@ -30,17 +30,21 @@ Printer::Printer(const PropertyTree& tree)
     std::cout << "dirname = " << dirname << ' ' << status << std::endl;
 }
 
-void Printer::saveMacroParams(int i, const std::vector<Polygon*>& spacemesh,
-                              const std::vector<int>& mypolys, const Gas& gas, 
-                              int size, int rank)
+void Printer::saveMacroParams(int i,
+                              MeshMpi& mesh,
+                              const Gas& gas)
 {
     std::ostringstream ss;
-    for (unsigned int j = 0; j < mypolys.size(); j++)
-        ss << mypolys[j] << ' ' << gas.macro(spacemesh[mypolys[j]]->f().f()) << std::endl;
+    for (unsigned int j = 0; j < mesh.getMyCells().size(); j++)
+        ss << mesh.getMyCellIndexes()[j] << ' ' 
+           << gas.macro(mesh.getMyCells()[j]->f().f()) << std::endl;
 
     char macroFileName[256]; 
     sprintf(macroFileName, (dirname + filename).c_str(), i);
     std::ofstream macroParamsFile;
+
+    int size = mesh.getSize();
+    int rank = mesh.getRank();
 
     for(int k = 0; k < size; k++) {
         if (rank == k) {
@@ -53,17 +57,21 @@ void Printer::saveMacroParams(int i, const std::vector<Polygon*>& spacemesh,
 
             macroParamsFile.close();
         }
-        MPI_Barrier(MPI_COMM_WORLD);
+        mesh.barrier();
     }
 }
 
-void Printer::saveSpeedFunction(int i, const std::vector<Polygon*>& spacemesh,
-                                const std::vector<int>& mypolys, int size, int rank)
+void Printer::saveSpeedFunction(int i,
+                                MeshMpi& mesh,
+                                const Gas& gas)
 {
     char functionFileName[256];
     sprintf(functionFileName, (dirname + functionfilename).c_str(), i);
     std::ofstream function;
     std::string name("Printer::saveFunction");
+
+    int size = mesh.getSize();
+    int rank = mesh.getRank();
 
     for (int k = 0; k < size; k++) {
         if (rank == k) {
@@ -71,9 +79,10 @@ void Printer::saveSpeedFunction(int i, const std::vector<Polygon*>& spacemesh,
                 function.open(functionFileName, std::ios::out);
             else
                 function.open(functionFileName, std::ios::out | std::ios::app);
-            for (size_t i = 0; i < mypolys.size(); i++) {
-                function.write( reinterpret_cast<const char*>(&mypolys[i]), sizeof(int) );
-                SpeedFunction& f = spacemesh[mypolys[i]]->f();
+            for (size_t i = 0; i < mesh.getMyCells().size(); i++) {
+                function.write(reinterpret_cast<const char*>(&(mesh.getMyCellIndexes())[i]),
+                               sizeof(int));
+                SpeedFunction& f = mesh.getMyCells()[i]->f();
                 size_t fsize = f.size();
                 function.write( reinterpret_cast<const char*>(&fsize), sizeof(int) );
                 double* f_p = &(f.f()[0]);
@@ -85,20 +94,21 @@ void Printer::saveSpeedFunction(int i, const std::vector<Polygon*>& spacemesh,
             }
             function.close();
         }
-        MPI_Barrier(MPI_COMM_WORLD);
+        mesh.barrier();
     }
 }
 
-void Printer::print(int i, const std::vector<Polygon*>& spacemesh,
-        const std::vector<int>& mypolys, const Gas& gas, int size, int rank)
+void Printer::print(int i,
+                    MeshMpi& mesh,
+                    const Gas& gas)
 {
     if ( i % save_macro_point == 0 ) { 
-        std::cout << "save_macro" << std::endl;
-        saveMacroParams(i, spacemesh, mypolys, gas, size, rank);
+        LOG(INFO) << "save_macro";
+        saveMacroParams(i, mesh, gas);
     }
     if ( ( save_func ) && ( i % save_func_freq == 0 ) ) {
-        std::cout << "save_func" << std::endl;
-        saveSpeedFunction(i, spacemesh, mypolys, size, rank);
+        LOG(INFO) << "save_func";
+        saveSpeedFunction(i, mesh, gas);
     }
 }
 

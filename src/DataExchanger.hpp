@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include "mpi.h"
+
 #include "mesh/unstruct/Polygon.hpp"
 
 class DataExchanger {

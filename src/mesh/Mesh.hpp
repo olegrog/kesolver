@@ -3,8 +3,8 @@
 
 #include <vector>
 
-#include "Polygon.hpp"
-#include "PhysicalFacet.hpp"
+#include "unstruct/Polygon.hpp"
+#include "unstruct/PhysicalFacet.hpp"
 
 class Mesh {
     public:

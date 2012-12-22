@@ -13,30 +13,33 @@ Integral::Integral(int p_, int order_,
 }
 
 void Integral::collide(double t, 
-                       std::vector<Polygon*>& spacemesh, 
-                       const std::vector<int>& mypolys, 
+                       std::vector<Polygon*>& cells, 
                        Gas& gas)
 {
+            LABEL
     if (!is_free_molecular) {
         if (order == 1)
         {
+            LABEL
             gas.ciGen(2*t, p, section);
-            for(size_t i = 0; i < mypolys.size(); i++) {
-                gas.ciIter(spacemesh[mypolys[i]]->f().g());
-                spacemesh[mypolys[i]]->f().equategf();
+            LABEL
+            for(size_t i = 0; i < cells.size(); i++) {
+                gas.ciIter(cells[i]->f().g());
+                cells[i]->f().equategf();
             }
         }
         else if (order == 2)
         {
+            LABEL
             gas.ciGen(2*t, p/2, section);
-            for(size_t i = 0; i < mypolys.size(); i++) {
-                gas.ciIter(spacemesh[mypolys[i]]->f().f());
+            for(size_t i = 0; i < cells.size(); i++) {
+                gas.ciIter(cells[i]->f().f());
             }
 
             gas.ciGen(2*t, p/2, section);
-            for(size_t i = 0; i < mypolys.size(); i++) {
-                gas.ciIter(spacemesh[mypolys[i]]->f().f());
-                spacemesh[mypolys[i]]->f().meanf();
+            for(size_t i = 0; i < cells.size(); i++) {
+                gas.ciIter(cells[i]->f().f());
+                cells[i]->f().meanf();
             }
         }
         else 

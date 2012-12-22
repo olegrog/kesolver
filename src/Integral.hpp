@@ -10,8 +10,7 @@ class Integral{
 
 	public:
 		void collide(double t, 
-                     std::vector<Polygon*>& spacemesh, 
-                     const std::vector<int>& mypolys, 
+                     std::vector<Polygon*>& cells, 
                      Gas& gas);
 
 		Integral(int p_, int order_, 

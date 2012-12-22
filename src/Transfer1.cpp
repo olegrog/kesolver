@@ -2,14 +2,14 @@
 #include "Transfer1.hpp"
 #include "Constructors.hpp"
 
-void Transfer1::move(const MeshMpi& mesh, const Gas& gas)
+void Transfer1::move(MeshMpi& mesh, const Gas& gas)
 {
-	data_exchanger.swap();
+	mesh.newStep();
 
-    for(size_t i = 0; i < facets.size(); ++i)
-        facets[i]->transfer(spacemesh, gas);
-    for(size_t i = 0; i < mypolys.size(); ++i) 
-        spacemesh[mypolys[i]]->f().equategf();
-
+    for (size_t i = 0; i < mesh.getFlowingFacets().size(); i++) {
+        mesh.getFlowingFacets()[i]->transfer(mesh.getAllCells(), gas);
+    }
+    for (size_t i = 0; i < mesh.getMyCells().size(); i++) 
+        mesh.getMyCells()[i]->f().equategf();
 }
 

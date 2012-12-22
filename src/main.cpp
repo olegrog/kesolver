@@ -7,7 +7,7 @@
 
 #include "Constructors.hpp"
 
-#include "mesh/MpiMesh.hpp"
+#include "MeshMpi.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/unstruct/UnstructMesh.hpp"
 
@@ -35,15 +35,15 @@ int main(int argc, char** argv)
 
     MeshMpi mesh(mesh_p);
 
-    LOG(INFO) << "facets.size() = "   << mesh.getFacets().size() 
+    LOG(INFO) << "facets.size() = "   << mesh.getAllFacets().size() 
               << " ffacets.size() = " << mesh.getFlowingFacets().size();
 
-    LOG(INFO) << "cells.size() = "   << mesh.getCells().size() 
+    LOG(INFO) << "cells.size() = "   << mesh.getAllCells().size() 
               << " fcells.size() = "  << mesh.getFlowingCells().size()
-              << " mycells.size() = "  << mesh.getMyCells().size()
+              << " mycells.size() = "  << mesh.getMyCells().size();
 
 	for (size_t i = 0; i < mesh.getFlowingCells().size(); ++i) {
-		GivePolygonMemoryAndInit(tree, gas, mesh.getFlowingCells()[i]);
+		GivePolygonMemoryAndInit(prop_tree, gas, mesh.getFlowingCells()[i]);
 		mesh.getFlowingCells()[i]->f().giveMemoryToGradient();
     }
 
@@ -53,13 +53,9 @@ int main(int argc, char** argv)
     LOG(INFO) << "order = " << order;
 
     if (order == 2)
-        transfer = new Transfer2(mesh.getFacets(), mesh.getCells(), mesh.getMyCells());
+        transfer = new Transfer2(mesh);
     else
         transfer = new Transfer1();
-
-    transfer->init(prop_tree, gas, 
-                   mesh.getFacets(), mesh.getCells(), mesh.getMyCells(),
-                   rank);
 
     Integral integral = IntegralConstructor(prop_tree["integral"]);
 
@@ -72,24 +68,24 @@ int main(int argc, char** argv)
 
         LOG(INFO) << i;
 
-        printer.print(i, mesh.getCells(), mesh.getMyCells(), gas, size, rank);
+        printer.print(i, mesh, gas);
 
         for (int j = 0; j < rep; ++j) {
             LOG(INFO) << "transfer";
-            transfer->move(mesh.getFacets(), mesh.getCells(), mesh.getMyCells(), gas);
+            transfer->move(mesh, gas);
         }
 
         LOG(INFO) << "integral";
-        integral.collide(rep*mesh.getTimeStep(), mesh.getCells(), mesh.getMyCells(), gas);
+        double ts = rep*mesh.getTimeStep();
+        LABEL
+        integral.collide(ts, mesh.getMyCells(), gas);
 
         for (int j = 0; j < rep; ++j) {
             LOG(INFO) << "transfer";
-            transfer->move(mesh.getFacets(), mesh.getCells(), mesh.getMyCells(), gas);
+            transfer->move(mesh, gas);
         }
         
     }
-
-    MPI_Finalize();
 
     return 0;
 }
