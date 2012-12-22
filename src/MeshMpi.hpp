@@ -3,16 +3,14 @@
 
 #include <vector>
 
-#include "mesh/Mesh.hpp"
+#include "Mesh.hpp"
+
 #include "DataExchanger.hpp"
 
-class MeshMpi {
+class MeshMpi : public Mesh {
     public:
-        MeshMpi(Mesh* mesh_ptr);
+        MeshMpi(MeshBase* mesh_ptr);
         ~MeshMpi();
-
-        typedef typename Mesh::Cells  Cells;
-        typedef typename Mesh::Facets Facets;
 
         Cells&  getAllCells()      { return cells; }
         Cells&  getFlowingCells()  { return flowing_cells; }
@@ -21,7 +19,6 @@ class MeshMpi {
         Facets& getAllFacets()     { return facets; }
         Facets& getFlowingFacets() { return flowing_facets; }
 
-        typedef std::vector<int> Ints;
         const Ints& getMyCellIndexes() const { return my_cell_indexes; }
 
         double getTimeStep() const {
@@ -37,8 +34,8 @@ class MeshMpi {
         void barrier() const;
 
     private:
-        bool mpi_init;
         double time_step;
+        bool mpi_init;
 
         Mesh*   mesh_ptr;  
 

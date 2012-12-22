@@ -2,7 +2,7 @@
 
 #include "MeshMpi.hpp"
 
-MeshMpi::MeshMpi(Mesh* mesh) :
+MeshMpi::MeshMpi(MeshBase* mesh) :
     time_step(mesh->getTimeStep()),
     mpi_init(false),
     cells(mesh->getCells()),

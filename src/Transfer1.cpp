@@ -2,7 +2,7 @@
 #include "Transfer1.hpp"
 #include "Constructors.hpp"
 
-void Transfer1::move(MeshMpi& mesh, const Gas& gas)
+void Transfer1::move(Mesh& mesh, const Gas& gas)
 {
 	mesh.newStep();
 

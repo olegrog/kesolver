@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Transfer2.hpp"
 
-Transfer2::Transfer2(MeshMpi& mesh)
+Transfer2::Transfer2(Mesh& mesh)
 {
 	for (size_t i = 0; i < mesh.getFlowingFacets().size(); i++) 
 		mesh.getFlowingFacets()[i]->calculateDistance(mesh.getAllCells());
@@ -9,7 +9,7 @@ Transfer2::Transfer2(MeshMpi& mesh)
 		mesh.getFlowingCells()[i]->inverseDD();
 }
 
-void Transfer2::move(MeshMpi& mesh, const Gas& gas)
+void Transfer2::move(Mesh& mesh, const Gas& gas)
 {
 	mesh.newStep();
 

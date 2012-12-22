@@ -31,7 +31,7 @@ Printer::Printer(const PropertyTree& tree)
 }
 
 void Printer::saveMacroParams(int i,
-                              MeshMpi& mesh,
+                              Mesh& mesh,
                               const Gas& gas)
 {
     std::ostringstream ss;
@@ -62,7 +62,7 @@ void Printer::saveMacroParams(int i,
 }
 
 void Printer::saveSpeedFunction(int i,
-                                MeshMpi& mesh,
+                                Mesh& mesh,
                                 const Gas& gas)
 {
     char functionFileName[256];
@@ -99,7 +99,7 @@ void Printer::saveSpeedFunction(int i,
 }
 
 void Printer::print(int i,
-                    MeshMpi& mesh,
+                    Mesh& mesh,
                     const Gas& gas)
 {
     if ( i % save_macro_point == 0 ) { 

@@ -3,11 +3,11 @@
 
 #include <vector>
 
-#include "mesh/Mesh.hpp"
+#include "mesh/MeshBase.hpp"
 
 #include "property_tree/property_tree.hpp"
 
-class UnstructMesh : public Mesh {
+class UnstructMesh : public MeshBase {
     public:
         UnstructMesh(const PropertyTree& tree, const Gas& gas);
 

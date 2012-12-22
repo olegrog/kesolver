@@ -4,11 +4,11 @@
 #include <vector>
 
 #include "Gas.hpp"
-#include "MeshMpi.hpp"
+#include "Mesh.hpp"
 
 class Transfer {
     public:
-        virtual void move(MeshMpi& mesh, const Gas& gas) = 0;
+        virtual void move(Mesh& mesh, const Gas& gas) = 0;
 };
 
 #endif /*TRANSFER_H*/

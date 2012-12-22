@@ -1,12 +1,12 @@
-#ifndef _MESH_HPP_
-#define _MESH_HPP_
+#ifndef _MESHBASE_HPP_
+#define _MESHBASE_HPP_
 
 #include <vector>
 
 #include "unstruct/Polygon.hpp"
 #include "unstruct/PhysicalFacet.hpp"
 
-class Mesh {
+class MeshBase {
     public:
         typedef std::vector<Polygon*>       Cells;
         typedef std::vector<PhysicalFacet*> Facets;
@@ -17,5 +17,5 @@ class Mesh {
         virtual double getTimeStep() const  = 0;
 };
 
-#endif // _MESH_HPP_
+#endif // _MESHBASE_HPP_
 

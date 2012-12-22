@@ -16,11 +16,9 @@ void Integral::collide(double t,
                        std::vector<Polygon*>& cells, 
                        Gas& gas)
 {
-            LABEL
     if (!is_free_molecular) {
         if (order == 1)
         {
-            LABEL
             gas.ciGen(2*t, p, section);
             LABEL
             for(size_t i = 0; i < cells.size(); i++) {
@@ -30,7 +28,6 @@ void Integral::collide(double t,
         }
         else if (order == 2)
         {
-            LABEL
             gas.ciGen(2*t, p/2, section);
             for(size_t i = 0; i < cells.size(); i++) {
                 gas.ciIter(cells[i]->f().f());

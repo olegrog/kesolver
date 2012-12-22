@@ -7,9 +7,9 @@
 
 #include "Constructors.hpp"
 
-#include "MeshMpi.hpp"
-#include "mesh/Mesh.hpp"
 #include "mesh/unstruct/UnstructMesh.hpp"
+#include "Mesh.hpp"
+#include "MeshMpi.hpp"
 
 #include "Transfer.hpp"
 #include "Transfer1.hpp"
@@ -31,9 +31,9 @@ int main(int argc, char** argv)
 
     LOG(INFO) << "gas.size() = " << gas_p->size();
 
-    Mesh* mesh_p = new UnstructMesh(prop_tree, gas);
-
-    MeshMpi mesh(mesh_p);
+    MeshBase* mesh_base_p = new UnstructMesh(prop_tree, gas);
+    MeshMpi*  mesh_mpi_p  = new MeshMpi(mesh_base_p);
+    Mesh& mesh = *mesh_mpi_p;
 
     LOG(INFO) << "facets.size() = "   << mesh.getAllFacets().size() 
               << " ffacets.size() = " << mesh.getFlowingFacets().size();

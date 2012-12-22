@@ -5,8 +5,8 @@
 
 class Transfer2 : public Transfer {
 	public:
-		Transfer2(MeshMpi& mesh);
-		void move(MeshMpi& mesh,const Gas& gas);
+		Transfer2(Mesh& mesh);
+		void move(Mesh& mesh,const Gas& gas);
 };
 
 #endif /*_TRANSFER2_HPP_*/
