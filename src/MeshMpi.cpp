@@ -2,12 +2,14 @@
 
 #include "MeshMpi.hpp"
 
-MeshMpi::MeshMpi(MeshBase* mesh) :
+MeshMpi::MeshMpi(int argc, char** argv, MeshBase* mesh) :
     time_step(mesh->getTimeStep()),
     mpi_init(false),
     cells(mesh->getCells()),
     facets(mesh->getFacets())
 {
+    MPI_Init(&argc, &argv);
+
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 

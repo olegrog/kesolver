@@ -9,7 +9,7 @@
 
 class MeshMpi : public Mesh {
     public:
-        MeshMpi(MeshBase* mesh_ptr);
+        MeshMpi(int argc, char** argv, MeshBase* mesh_ptr);
         ~MeshMpi();
 
         Cells&  getAllCells()      { return cells; }

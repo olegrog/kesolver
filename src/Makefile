@@ -1,5 +1,5 @@
 CXX      :=  c++
-MPICXX   :=  mpic++
+MPICXX   :=  mpic++ -DMPI_ON
 CXXFLAGS :=  -O2 -Wall -Wchar-subscripts -g 
 
 SOURCE   :=  main.o
@@ -12,9 +12,7 @@ SOURCE   += Integral.o section.o
 SOURCE   += Transfer2.o 
 SOURCE   += Transfer1.o 
 
-SOURCE   += DataExchanger.o 
-
-SOURCE   += MeshMpi.o 
+SOURCE   += MeshSingle.o 
 SOURCE   += mesh/unstruct/UnstructMesh.o 
 
 SOURCE   += mesh/unstruct/Polygon.o 
@@ -30,6 +28,9 @@ SOURCE   +=  property_tree/property_tree.o
 SOURCE   +=  base64/base64.o
 SOURCE   +=  logger/logger.o
 
+MPISOURCE := MeshMpi.o 
+MPISOURCE += DataExchanger.o 
+
 INCLUDES := -I .
 INCLUDES += -I ../JsonCpp/include
 
@@ -37,17 +38,20 @@ LIBS     := -L ../JsonCpp/lib/ -ljsoncpp
 
 .PHONY : all debug clean
 
-all : kes
+all : kes kes-mpi
 
 debug : CXXFLAGS += -DDEBUG -O0
 debug : kes
 
 clean :
 	find . -iname "*.o" -exec rm '{}' ';'
-	rm kes
+	rm kes kes-mpi
 
 kes : $(SOURCE)
-	$(MPICXX) -o kes $(SOURCE) $(CXXFLAGS) $(LIBS)
+	$(CXX) -o kes $(SOURCE) $(CXXFLAGS) $(LIBS)
+
+kes-mpi : $(SOURCE)
+	$(MPICXX) -o kes-mpi $(SOURCE) $(MPISOURCE) $(CXXFLAGS) $(LIBS)
 
 MeshMpi.o : MeshMpi.cpp
 	$(MPICXX) -c $< -o $@ $(CXXFLAGS) $(INCLUDES)
