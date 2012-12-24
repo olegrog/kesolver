@@ -4,10 +4,12 @@
 #include <string>
 #include <vector>
 
+#include "mesh/CellBase.hpp"
+
 #include "SpeedFunction.hpp"
 #include "v.hpp"
 
-class Polygon {
+class Polygon : public CellBase {
     protected:
 
         int numberOfVertex;
@@ -20,32 +22,21 @@ class Polygon {
         T3d dd;
 
         std::vector<V3d> vertex;
-        std::vector<int> neigbors;
 
         SpeedFunction function;
 
     public:
-
-        int rank;
-        std::string phys_name;
-
         void calculateLength();
         virtual void calculateVolume() = 0;
         virtual void calculateCenter() = 0;
 
         void setVertexes(const std::vector<V3d>& vertexes) { vertex = vertexes; }
-        void setNeigbors(const std::vector<int>& neigbors_) { neigbors = neigbors_; }
-
-        const std::vector<int>& getNeigbors() const { return neigbors; }
 
         double getLMin() const { return Lmin; }
         int getNumberOfVertexes() const { return  numberOfVertex; }
         
         void setRank(int rank_) { rank = rank_; }
         int getRank() const { return rank; }
-
-        void setPhysicalName(const std::string& name) { phys_name = name; }
-        const std::string& getPhysicalName() const { return phys_name; }
 
         double getVolume() const { return V; }
         V3d getCenter() const { return center; }

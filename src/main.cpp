@@ -41,11 +41,11 @@ int main(int argc, char** argv)
 #endif
     Mesh& mesh = *mesh_p;
 
-    LOG(INFO) << "facets.size() = "   << mesh.getAllFacets().size() 
-              << " ffacets.size() = " << mesh.getFlowingFacets().size();
+    LOG(INFO) << "facets.size() = "    << mesh.getAllFacets().size() 
+              << " ffacets.size() = "  << mesh.getFlowingFacets().size();
 
-    LOG(INFO) << "cells.size() = "   << mesh.getAllCells().size() 
-              << " fcells.size() = "  << mesh.getFlowingCells().size()
+    LOG(INFO) << "cells.size() = "     << mesh.getAllCells().size() 
+              << " fcells.size() = "   << mesh.getFlowingCells().size()
               << " mycells.size() = "  << mesh.getMyCells().size();
 
 	for (size_t i = 0; i < mesh.getFlowingCells().size(); ++i) {
