@@ -15,7 +15,7 @@ void DataExchanger::prepareSendRecv(std::vector<Polygon*>& cells, int rank)
 	for(size_t i = 0; i < cells.size(); i++)
         if (cells[i]->getRank() == rank)
             for(size_t j = 0; j < cells[i]->getNeigbors().size(); j++) {
-                int m = cells[cells[i]->getNeigbors()[j]]->rank;
+                int m = cells[cells[i]->getNeigbors()[j]]->getRank();
                 if (m != rank) {
                     _recv_process.push_back(m);
                     _send_process.push_back(m);
@@ -31,7 +31,7 @@ void DataExchanger::prepareSendRecv2(std::vector<Polygon*>& cells, int rank)
         if (cells[i]->getRank() == rank)
             for(size_t j = 0; j < cells[i]->getNeigbors().size(); j++) {
                 int nr = cells[i]->getNeigbors()[j];
-                int m = cells[nr]->rank;
+                int m = cells[nr]->getRank();
                 if (m != rank) {
                     _recv_process.push_back(m);
                     _send_process.push_back(m);
@@ -40,9 +40,9 @@ void DataExchanger::prepareSendRecv2(std::vector<Polygon*>& cells, int rank)
                 }
                 for(size_t k = 0; k < cells[nr]->getNeigbors().size(); k++) {
                     int nr2 = cells[nr]->getNeigbors()[k];
-                    if (cells[nr2]->rank != rank) {
-                        _recv_process.push_back(cells[nr2]->rank);
-                        _send_process.push_back(cells[nr2]->rank);
+                    if (cells[nr2]->getRank() != rank) {
+                        _recv_process.push_back(cells[nr2]->getRank());
+                        _send_process.push_back(cells[nr2]->getRank());
                         _recv_tetr.push_back(nr2);
                         _send_tetr.push_back(i);
                     }
