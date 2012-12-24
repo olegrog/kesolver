@@ -2,34 +2,37 @@ CXX      :=  c++
 MPICXX   :=  mpic++ -DMPI_ON
 CXXFLAGS :=  -O2 -Wall -Wchar-subscripts -g 
 
-SOURCE   :=  main.o
-SOURCE   +=  Constructors.o
+SOURCE   :=  main.c
+SOURCE   +=  Constructors.c
 
-SOURCE   += SpeedFunction.o 
+SOURCE   += SpeedFunction.c 
 
-SOURCE   += Integral.o section.o
+SOURCE   += Integral.c section.c
 
-SOURCE   += Transfer2.o 
-SOURCE   += Transfer1.o 
+SOURCE   += Transfer2.c 
+SOURCE   += Transfer1.c 
 
-SOURCE   += MeshSingle.o 
-SOURCE   += mesh/unstruct/UnstructMesh.o 
+SOURCE   += MeshSingle.c 
+SOURCE   += mesh/unstruct/UnstructMesh.c 
 
-SOURCE   += mesh/unstruct/Polygon.o 
-SOURCE   += mesh/unstruct/Prism.o mesh/unstruct/Tetrahedron.o mesh/unstruct/Hexahedron.o 
+SOURCE   += mesh/unstruct/Polygon.c 
+SOURCE   += mesh/unstruct/Prism.c mesh/unstruct/Tetrahedron.c mesh/unstruct/Hexahedron.c 
 
-SOURCE   += mesh/unstruct/PhysicalFacet.o
-SOURCE   += mesh/unstruct/MirrorFacet.o mesh/unstruct/GateFacet.o 
-SOURCE   += mesh/unstruct/WallMaxwellFacet.o mesh/unstruct/MaxwellFacet.o 
+SOURCE   += mesh/unstruct/PhysicalFacet.c
+SOURCE   += mesh/unstruct/MirrorFacet.c mesh/unstruct/GateFacet.c 
+SOURCE   += mesh/unstruct/WallMaxwellFacet.c mesh/unstruct/MaxwellFacet.c 
 
-SOURCE   += Printer.o 
+SOURCE   += Printer.c 
 
-SOURCE   +=  property_tree/property_tree.o
-SOURCE   +=  base64/base64.o
-SOURCE   +=  logger/logger.o
+SOURCE   +=  property_tree/property_tree.c
+SOURCE   +=  base64/base64.c
+SOURCE   +=  logger/logger.c
 
-MPISOURCE := MeshMpi.o 
-MPISOURCE += DataExchanger.o 
+MPISOURCE := MeshMpi.c 
+MPISOURCE += DataExchanger.c 
+
+OBJ    = $(SOURCE:.c=.o)
+MPIOBJ = $(MPISOURCE:.c=.o)
 
 INCLUDES := -I .
 INCLUDES += -I ../JsonCpp/include
@@ -47,11 +50,11 @@ clean :
 	find . -iname "*.o" -exec rm '{}' ';'
 	rm kes kes-mpi
 
-kes : $(SOURCE)
-	$(CXX) -o kes $(SOURCE) $(CXXFLAGS) $(LIBS)
+kes : $(OBJ)
+	$(CXX) -o kes $(OBJ) $(CXXFLAGS) $(LIBS)
 
-kes-mpi : $(SOURCE) $(MPISOURCE)
-	$(MPICXX) -o kes-mpi $(SOURCE) $(MPISOURCE) $(CXXFLAGS) $(LIBS)
+kes-mpi : $(OBJ) $(MPIOBJ)
+	$(MPICXX) -o kes-mpi $(OBJ) $(MPIOBJ) $(CXXFLAGS) $(LIBS)
 
 MeshMpi.o : MeshMpi.cpp
 	$(MPICXX) -c $< -o $@ $(CXXFLAGS) $(INCLUDES)
