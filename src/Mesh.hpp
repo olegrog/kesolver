@@ -7,8 +7,8 @@
 
 class Mesh {
     public:
-        typedef typename MeshBase::Cells  Cells;
-        typedef typename MeshBase::Facets Facets;
+        typedef MeshBase::Cells  Cells;
+        typedef MeshBase::Facets Facets;
 
         virtual Cells&  getAllCells() = 0; 
         virtual Cells&  getFlowingCells() = 0;

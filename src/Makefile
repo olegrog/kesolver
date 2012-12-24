@@ -50,7 +50,7 @@ clean :
 kes : $(SOURCE)
 	$(CXX) -o kes $(SOURCE) $(CXXFLAGS) $(LIBS)
 
-kes-mpi : $(SOURCE)
+kes-mpi : $(SOURCE) $(MPISOURCE)
 	$(MPICXX) -o kes-mpi $(SOURCE) $(MPISOURCE) $(CXXFLAGS) $(LIBS)
 
 MeshMpi.o : MeshMpi.cpp
