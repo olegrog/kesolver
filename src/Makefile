@@ -1,43 +1,46 @@
 CXX      :=  c++
 MPICXX   :=  mpic++ -DMPI_ON
-CXXFLAGS :=  -O2 -Wall -Wchar-subscripts -g 
+CXXFLAGS :=  -O2 -Wall -g 
 
-SOURCE   :=  main.c
-SOURCE   +=  Constructors.c
+SOURCE   :=  main.cpp
+SOURCE   +=  Constructors.cpp
 
-SOURCE   += SpeedFunction.c 
+SOURCE   += SpeedFunction.cpp
 
-SOURCE   += Integral.c section.c
+SOURCE   += Integral.cpp section.cpp
 
-SOURCE   += Transfer2.c 
-SOURCE   += Transfer1.c 
+SOURCE   += Transfer2.cpp
+SOURCE   += Transfer1.cpp
 
-SOURCE   += MeshSingle.c 
-SOURCE   += mesh/unstruct/UnstructMesh.c 
+SOURCE   += MeshSingle.cpp
+SOURCE   += mesh/unstruct/UnstructMesh.cpp
 
-SOURCE   += mesh/unstruct/Polygon.c 
-SOURCE   += mesh/unstruct/Prism.c mesh/unstruct/Tetrahedron.c mesh/unstruct/Hexahedron.c 
+SOURCE   += mesh/unstruct/Polygon.cpp
+SOURCE   += mesh/unstruct/Prism.cpp mesh/unstruct/Tetrahedron.cpp mesh/unstruct/Hexahedron.cpp
 
-SOURCE   += mesh/unstruct/PhysicalFacet.c
-SOURCE   += mesh/unstruct/MirrorFacet.c mesh/unstruct/GateFacet.c 
-SOURCE   += mesh/unstruct/WallMaxwellFacet.c mesh/unstruct/MaxwellFacet.c 
+SOURCE   += mesh/unstruct/PhysicalFacet.cpp
+SOURCE   += mesh/unstruct/MirrorFacet.cpp mesh/unstruct/GateFacet.cpp
+SOURCE   += mesh/unstruct/WallMaxwellFacet.cpp mesh/unstruct/MaxwellFacet.cpp
 
-SOURCE   += Printer.c 
+SOURCE   += Printer.cpp
 
-SOURCE   +=  property_tree/property_tree.c
-SOURCE   +=  base64/base64.c
-SOURCE   +=  logger/logger.c
+SOURCE   +=  property_tree/property_tree.cpp
+SOURCE   +=  base64/base64.cpp
+SOURCE   +=  logger/logger.cpp
 
-MPISOURCE := MeshMpi.c 
-MPISOURCE += DataExchanger.c 
+MPISOURCE := MeshMpi.cpp
+MPISOURCE += DataExchanger.cpp
 
-OBJ    = $(SOURCE:.c=.o)
-MPIOBJ = $(MPISOURCE:.c=.o)
+OBJ    = $(SOURCE:.cpp=.o)
+MPIOBJ = $(MPISOURCE:.cpp=.o)
 
 INCLUDES := -I .
 INCLUDES += -I ../JsonCpp/include
 
 LIBS     := -L ../JsonCpp/lib/ -ljsoncpp
+
+DEP    = $(SOURCE:.cpp=.d)
+MPIDEP = $(MPISOURCE:.cpp=.d)
 
 .PHONY : all debug clean
 
@@ -47,7 +50,7 @@ debug : CXXFLAGS += -DDEBUG -O0
 debug : kes
 
 clean :
-	find . -iname "*.o" -exec rm '{}' ';'
+	find . -iname "*.[od]" -exec rm '{}' ';'
 	rm kes kes-mpi
 
 kes : $(OBJ)
@@ -55,6 +58,15 @@ kes : $(OBJ)
 
 kes-mpi : $(OBJ) $(MPIOBJ)
 	$(MPICXX) -o kes-mpi $(OBJ) $(MPIOBJ) $(CXXFLAGS) $(LIBS)
+
+-include $(DEP)
+-include $(MPIDEP)
+
+%.d: %.cpp
+	@set -e; rm -f $@; \
+	$(CXX) -MM $(CXXFLAGS) $(INCLUDES) $< > $@.$$$$; \
+	sed 's,\($(notdir $*)\)\.o[ :]*,$(dir $*)\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
 
 MeshMpi.o : MeshMpi.cpp
 	$(MPICXX) -c $< -o $@ $(CXXFLAGS) $(INCLUDES)
@@ -67,6 +79,4 @@ base64/base64.o: base64/base64.cpp
 
 .cpp.o:
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
-
-
 
