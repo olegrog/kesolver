@@ -15,6 +15,9 @@
 #include "ci_mixture.hpp"
 #include "ci_mix.hpp"
 
+#include "base64/base64.hpp"
+#include "logger/logger.hpp"
+
 const std::vector<double> readMasses(const PropertyTree& tree) {
     std::vector<double> masses;
     if (tree.isMember("mass_ratio")) {
@@ -148,13 +151,28 @@ void GasConstructor(const PropertyTree& tree, Gas** gas_pp)
     *gas_pp = gas_p;
 }
 
-
-
 void GivePolygonMemoryAndInit(const PropertyTree& tree, const Gas& gas, Polygon* polygon)
 {
-    const std::string name = polygon->getPhysicalName();
+    const std::string name   = polygon->getPhysicalName();
     const PropertyTree& data = tree["initial_conditions"][name];
-    polygon->f().f(gas.maxwell(data));
+    const std::string type   = data["type"].asString();
+    if (type == "maxwell") {
+        polygon->f().f(gas.maxwell(data));
+    }
+    else if (type == "raw") {
+        std::vector<unsigned char> bytes = base64::decode(data["raw"].asString());
+        const double* doubles = reinterpret_cast<const double*>(&bytes.front());
+        const size_t size = bytes.size() / sizeof(double);
+        LOG(INFO) << "bytes.size() = " << bytes.size();
+        std::vector<double> f(size);
+        for (size_t i = 0; i < size; ++i)
+            f[i] = doubles[i];
+        polygon->f().f(f);
+    }
+    else {
+        // not implemented yet
+        // TODO: raise exception
+    }
 }
 
 Integral IntegralConstructor(const PropertyTree& tree)

@@ -13,7 +13,6 @@ if __name__ == "__main__":
     with open(sys.argv[-3], 'rb') as fd:
         data = json.load(fd)
 
-
     # attach
     data['mesh'] = meshdata
         

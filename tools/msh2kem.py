@@ -47,12 +47,6 @@ def gen_physical_map(facets, key_gen):
         key_to_physical_index[key] = facet.phys_index
     return key_to_physical_index
 
-def encode_simple_attr(ls, attr, fmt='i'):
-    return b64encode(array(fmt, [getattr(l, attr) for l in ls]))
-
-def encode_list_attr(ls, attr, fmt='i'):
-    return b64encode(array(fmt, [n for l in ls for n in getattr(l, attr)]))
-
 def write_nodes(nodes, data):
     data['nodes_num'] = len(nodes)
     nodes_list = [w for node in nodes for w in node]
@@ -72,22 +66,6 @@ def cell_to_dict(cell, phys_names):
 
 def write_elements(cells, phys_names):
     return [cell_to_dict(cell, phys_names) for cell in cells]
-
-def read_nodes(data):
-    nodes_array = array('d', b64dencode(data['nodes']))
-    nodes = [x for x in zip(nodes_array[0::3],
-                            nodes_array[1::3],
-                            nodes_array[2::3])]
-    assert data['nodes_num'] == len(nodes)
-    return nodes
-
-def read_elements(data):
-    return [element(t           =  c['type'],
-                    ns          =  c['nodes'],
-                    ord_index   =  c['ord_index'],
-                    phys_index  =  c['phys_index'],
-                    part_index  =  c['part_index'],
-                    neigbors    =  c['neigbors']) for c in data]
 
 if __name__ == "__main__":
 

@@ -80,8 +80,8 @@ void Printer::saveSpeedFunction(int i,
             else
                 function.open(functionFileName, std::ios::out | std::ios::app);
             for (size_t i = 0; i < mesh.getMyCells().size(); i++) {
-                function.write(reinterpret_cast<const char*>(&(mesh.getMyCellIndexes())[i]),
-                               sizeof(int));
+                int index = mesh.getMyCellIndexes()[i];
+                function.write(reinterpret_cast<const char*>(&index), sizeof(int));
                 SpeedFunction& f = mesh.getMyCells()[i]->f();
                 size_t fsize = f.size();
                 function.write( reinterpret_cast<const char*>(&fsize), sizeof(int) );

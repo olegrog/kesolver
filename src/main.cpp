@@ -35,7 +35,7 @@ int main(int argc, char** argv)
 
     MeshBase* mesh_base_p = new UnstructMesh(prop_tree, gas);
 #ifdef MPI_ON
-    MeshMpi*  mesh_p      = new MeshMpi(argc, argv, mesh_base_p);
+    MeshMpi*     mesh_p   = new MeshMpi(argc, argv, mesh_base_p);
 #else
     MeshSingle*  mesh_p   = new MeshSingle(mesh_base_p);
 #endif
