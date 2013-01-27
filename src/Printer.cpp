@@ -13,6 +13,8 @@ Printer::Printer(const PropertyTree& tree)
 {
     save_func = tree.isMember("savefunc") ? tree["savefunc"].asBool() : false;
 
+    LOG(INFO) << "save_func = " << save_func;
+
     save_func_freq = std::numeric_limits<int>::max();
     if (save_func) {
         functionfilename = tree["savefuncfilename"].asString();

@@ -2,9 +2,9 @@
 
 import sys, math, numpy, out2
 
-O = numpy.array( [0., 0.0013, 0.001] )
+O = numpy.array( [0.0012, 0.0013, 0.001] )
 u = numpy.array( [1., 0., 0.] )
-v = numpy.array( [0., 0.997, 0.08] )
+v = numpy.array( [0., 1.0, 0.0] )
 
 #O = numpy.array( [0., 0.0013, 0.001] )
 #u = numpy.array( [1., 0., 0.] )
@@ -94,9 +94,9 @@ x, y = numpy.array(x), numpy.array(y)
 #trs = tri.Triangulation(x, y)
 trs = []
 
-#for cell, macro in zip(cells, numpy.array(data[i])):
+for cell, macro in zip(cells, numpy.array(data[i])):
 #for cell, macro in zip(cells, numpy.array(data[i]) * numpy.array(data[i+4])):
-for cell, macro in zip(cells, numpy.array(data[i+8])/numpy.array(data[i])):
+#for cell, macro in zip(cells, numpy.array(data[i+8])/numpy.array(data[i])):
 #for cell, macro in zip(cells, numpy.array(data[i])*numpy.array(data[i+4])/numpy.array(data[i+8])/numpy.array(data[i+12])):
     if cell.points:
         trs += out2.triangles(cell.points, points)
@@ -130,8 +130,8 @@ ax.xaxis.set_major_locator(xmajorLocator)
 ymajorLocator   = MaxNLocator(5)
 ax.yaxis.set_major_locator(ymajorLocator)
 
-barmajorLocator   = MaxNLocator(5)
-bar.ax.xaxis.set_major_locator(barmajorLocator)
+#barmajorLocator   = MaxNLocator(5)
+#bar.ax.xaxis.set_major_locator(barmajorLocator)
 
 pylab.savefig("field.eps")
 pylab.show()

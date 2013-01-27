@@ -7,9 +7,9 @@ u = numpy.array( [1., 0., 0.] )
 v = numpy.array( [0., 0.997, 0.08] )
 
 def intersect(O, u, v, cell, nodes):
-	g = out2.gamma(nodes[cell.vertexes[0]] - O, u, v)	
-	for vertex in cell.vertexes[1:]:
-		if g * out2.gamma(nodes[vertex] - O, u, v) <= 0:
+	g = out2.gamma(nodes[cell.nodes[0]] - O, u, v)	
+	for node in cell.nodes[1:]:
+		if g * out2.gamma(nodes[node] - O, u, v) <= 0:
 			return True
 	return False
 

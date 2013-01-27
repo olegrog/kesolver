@@ -50,7 +50,6 @@ int main(int argc, char** argv)
 
 	for (size_t i = 0; i < mesh.getFlowingCells().size(); ++i) {
 		GivePolygonMemoryAndInit(prop_tree, gas, mesh.getFlowingCells()[i]);
-		mesh.getFlowingCells()[i]->f().giveMemoryToGradient();
     }
 
     Transfer* transfer;
@@ -59,7 +58,12 @@ int main(int argc, char** argv)
     LOG(INFO) << "order = " << order;
 
     if (order == 2)
+    {
+	    for (size_t i = 0; i < mesh.getFlowingCells().size(); ++i) {
+		    mesh.getFlowingCells()[i]->f().giveMemoryToGradient();
+        }
         transfer = new Transfer2(mesh);
+    }
     else
         transfer = new Transfer1();
 
@@ -70,7 +74,7 @@ int main(int argc, char** argv)
     LOG(INFO) << "rep = " << rep;
 
     Printer printer(prop_tree["printer"]);
-    for (int i = 0; i < 101; i++) {
+    for (int i = 0; i < 1000001; i++) {
 
         LOG(INFO) << i;
 

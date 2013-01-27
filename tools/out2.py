@@ -34,7 +34,7 @@ def readMacros(filename, size):
 def splitFacetsToVerges(facets):
     vdic = {}
     for facet in facets:
-        n = lambda i: facet.vertexes[i]
+        n = lambda i: facet.nodes[i]
         verges = [ sortPair( (n(i), n(j)) ) for i, j in verges_dic[facet.type] ]
         for v1, v2 in listToPairs(verges):        
             if v1 in vdic:
@@ -72,8 +72,8 @@ def cellsToVerges(cells):
     verges = dict()
     for l, cell in enumerate(cells):
         vs = verges_dic[ cell.type ]
-        vs = [ sortV( (cell.vertexes[i], cell.vertexes[j]) ) for i, j in vs ]
-        cell.set_verges(vs)
+        vs = [ sortV( (cell.nodes[i], cell.nodes[j]) ) for i, j in vs ]
+        cell.nodes = vs
         for v in vs:
             if v in verges:
                 verges[v].append(l)
@@ -83,20 +83,22 @@ def cellsToVerges(cells):
 
 def intersectEdges(verges, cells, nodes, O, u, v):
     points = []
+    for cell in cells:
+        cell.points = []
     l = 0
     for (i, j), cs in verges.iteritems():
         if gamma(nodes[i] - O, u, v) * gamma(nodes[j] - O, u, v) <= 0:
             p = vergeCrossPlane(nodes[i], nodes[j], O, u, v)
             points.append(numpy.array(p))
             for cell in cs:
-                cells[cell].add_point(l)
+                cells[cell].points.append(l)
             l += 1
     return points
 
 def cellCrossPlane(cell, nodes, O, u, v):
     verges = verges_dic[ cell.type ]
     for i, j in verges:
-        p = vergeCrossPlane(nodes[cell.vertexes[i]], nodes[cell.vertexes[j]], O, u, v)
+        p = vergeCrossPlane(nodes[cell.nodes[i]], nodes[cell.nodes[j]], O, u, v)
         if p:
             yield p
 
@@ -156,9 +158,9 @@ def vergesToLines(vdic):
 
 def inCell(cell, nodes, p):
     for facet in facets_dic[cell.type]:
-        g = gamma( nodes[cell.vertexes[facet[0]]]  - p, 
-                   nodes[cell.vertexes[facet[1]]]  - p, 
-                   nodes[cell.vertexes[facet[-1]]] - p )
+        g = gamma( nodes[cell.nodes[facet[0]]]  - p, 
+                   nodes[cell.nodes[facet[1]]]  - p, 
+                   nodes[cell.nodes[facet[-1]]] - p )
         if g > 0:
             return False
     return True
@@ -195,7 +197,7 @@ def inTr(x, tr, points):
     return (g1 * g2 >= 0 ) and (g1 * g3 >= 0)
         
 def l2Min(cell, nodes):
-    return min( [ sqr(nodes[i]-nodes[j]) for i,j in listToPairs(cell.vertexes) ] )
+    return min( [ sqr(nodes[i]-nodes[j]) for i,j in listToPairs(cell.nodes) ] )
     
 def lMin(cells, nodes):
     l2_min = min( [l2Min(cell, nodes) for cell in cells] )
@@ -357,17 +359,17 @@ def pointsCross(points):
     return numpy.linalg.det(a) / 6
 
 def tetrahedronVolume(elm, points):
-    ps = [points[i] for i in elm.vertexes]
+    ps = [points[i] for i in elm.nodes]
     return pointsCross(ps) / 6.    
 
 def prismVolume(elm, points):
-    ps = [points[i] for i in elm.vertexes]
+    ps = [points[i] for i in elm.nodes]
     return pointsCross([ps[0], ps[1], ps[2], ps[3]]) + \
            pointsCross([ps[1], ps[3], ps[4], ps[5]]) + \
            pointsCross([ps[1], ps[2], ps[3], ps[5]])  
 
 def hexahedronVolume(elm, points):
-    ps = [points[i] for i in elm.vertexes]
+    ps = [points[i] for i in elm.nodes]
     return pointsCross([ps[0], ps[1], ps[3], ps[4]]) + \
            pointsCross([ps[1], ps[2], ps[3], ps[6]]) + \
            pointsCross([ps[1], ps[4], ps[5], ps[6]]) + \
