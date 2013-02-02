@@ -52,12 +52,14 @@ void GateFacet::doTransfer2(std::vector<Polygon*>& spacemesh, const Gas& gas)
         double sppr = gas.dot(i, n);
         if(sppr < 0.0) {
             double dd = - 0.5 * dt * gas.dot(i, df_in[i]);
+//            double dd = 0.0;
             double d = (f1_in[i] + (dot(df_in[i], d_in) + dd)*phi_in[i])*sppr;
             f2_in[i] += d * mult_in;
             f2_out[i] -= d * mult_out; 
         }
         else{
             double dd = - 0.5 * dt * gas.dot(i, df_out[i]);
+//            double dd = 0.0;
             double d = (f1_out[i] + (dot(df_out[i], d_out) + dd)*phi_out[i])*sppr;
             f2_in[i] += d * mult_in; 
             f2_out[i] -= d * mult_out;

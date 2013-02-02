@@ -106,7 +106,8 @@ void PhysicalFacet::doFindPhi(const std::vector<Polygon*>& spacemesh,
             double f = function.f()[i];
             V3d df = function.getGradient()[i];
             double dd = - 0.5 * dt * gas.dot(i, df);
-            double dl = dot(function.getGradient()[i], cc + dd);
+//            double dd = 0.0;
+            double dl = dot(df, cc + dd);
             double d1 = function.getFMax()[i] - f;
             double d2 = function.getFMin()[i] - f;
             double phi;
