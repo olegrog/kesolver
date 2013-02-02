@@ -59,18 +59,21 @@ if __name__ == "__main__":
 
     init_data = data['initial_conditions']
 
+    b = [False for i in range(100)]
+
     for cell in cells2:
         if init_data[cell.phys_index]['type'] == 'from_func':
+
             center = find_center(nodes2, cell.nodes)
 
             for i, c in enumerate(centers):
-                if np.max(np.abs(c - center)) < 1e-12:
+                if np.abs(c - center)[0] < 1e-6:
                     name = '_from_func_%d_' % i
                     if not name in init_data: 
                         init_data[name] = {'type': 'raw', 'raw': func[i]}
                     cell.phys_index = name
                     break
-    
+
     data['mesh']['cells'] = write_elements(cells2)
 
     # open resulting .kei file and dump the modified data 
