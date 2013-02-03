@@ -48,7 +48,8 @@ class XiMesh {
             rad(ximesh.rad), cut_(ximesh.cut_),
             a_(ximesh.a_), vol_(ximesh.vol_), 
             xis(ximesh.xis), vis(ximesh.vis),
-            xyzmap(ximesh.xyzmap), mirr(ximesh.mirr)
+            xyzmap(ximesh.xyzmap), mirr(ximesh.mirr),
+            v3(ximesh.v3)
         {
             std::cout << "XiMesh::CopyConstructor\n";
         }
@@ -63,6 +64,10 @@ class XiMesh {
 
         const Vd operator[](const int i) const 
                 { return xis[i]; }
+
+        const std::vector<V3d>& vel() const {
+            return v3;
+        }
 
         const Vm p(const int i) const;
         double   e(const int i) const 
@@ -88,6 +93,7 @@ class XiMesh {
         std::vector<Vi> vis;
         std::vector<int> xyzmap;
         std::vector<Vj> mirr;
+        std::vector<V3d> v3;
 
         int flatten(const Vi i) const 
                 { return ::flatten(i, rad); }
@@ -158,6 +164,7 @@ inline XiMesh<Cartesian>::XiMesh(int rad, double cut, const Vm v_ ) :
                     xyzmap[j] = -1;
                 }
             }
+
     mirr.resize(vis.size());
     for (size_t i = 0; i < vis.size(); ++i) {
         V3i xi(vis[i]);
@@ -165,6 +172,11 @@ inline XiMesh<Cartesian>::XiMesh(int rad, double cut, const Vm v_ ) :
                       operator()(V3i(xi[0], 2*rad-1-xi[1], xi[2])),
                       operator()(V3i(xi[0], xi[1], 2*rad-1-xi[2])));
 
+    }
+
+    v3.resize(xis.size());
+    for (size_t i = 0; i < xis.size(); ++i) {
+        v3[i] = xis[i];
     }
 }
 
@@ -189,10 +201,16 @@ inline XiMesh<Cylindrical>::XiMesh(int rad, double cut, const Vm v_ ) :
                 xyzmap[j] = -1;
             }
         }
+
     mirr.resize(vis.size());
     for (size_t i = 0; i < vis.size(); ++i) {
         V2i xi(vis[i]);
         mirr[i] = operator()(V2i(2*rad-1-xi[0], xi[1]));
+    }
+
+    v3.resize(xis.size());
+    for (size_t i = 0; i < xis.size(); ++i) {
+        v3[i] = xis[i];
     }
 }
 

@@ -19,6 +19,7 @@ class Gas {
 
         virtual double cut() const = 0;
         virtual double dot(const int i, const V3d n) const = 0;
+        virtual const std::vector<V3d>& vel() const = 0; 
         virtual int mirror(const int i, const Axis a) const = 0;
         virtual void equateStreams(DistributionFunction& g,
                              const DistributionFunction& f,
@@ -57,6 +58,10 @@ class GasTemplate : public Gas {
 
         double dot(const int i, const V3d n) const {
             return ::dot(ximesh[i], n);
+        }
+
+        const std::vector<V3d>& vel() const {
+            return ximesh.vel();
         }
 
         int mirror(const int i, const Axis a) const {

@@ -31,6 +31,9 @@ class XiMeshMix {
         const Vd operator[](const int i) const 
                 { return xis[i]; }
 
+        const std::vector<V3d>& vel() const 
+                { return v3; }
+
         const Vm p(const int i) const { return ps[i]; }
         double   e(const int i) const { return es[i]; }
         double   m(const int i) const { return ms[i]; }
@@ -77,6 +80,7 @@ class XiMeshMix {
         std::vector<double> es, vols, ms, vol_logs, as;
         std::vector<int> cis;
         std::vector<Vj> mirr;
+        std::vector<V3d> v3;
 
         int flatten(const int i_mix, const int i_xi) const {
             return offsets[i_mix] + i_xi;
@@ -134,6 +138,7 @@ XiMeshMix<symmetry>::XiMeshMix(const int rad, const double s2e, const VecD& mass
     ms.reserve(size_);
     cis.reserve(size_);
     as.reserve(size_);
+    v3.reserve(size_);
 
     for (size_t j = 0; j < ximeshes.size(); ++j) {
         const XiMeshType& mesh = ximeshes[j];
@@ -149,6 +154,7 @@ XiMeshMix<symmetry>::XiMeshMix(const int rad, const double s2e, const VecD& mass
              cis.push_back(j);
               as.push_back(mesh.a());
             mirr.push_back(offsets[j] + mesh.mirror(i));
+              v3.push_back(mesh.vel()[i] / masses[j]);
         }
     }
 }

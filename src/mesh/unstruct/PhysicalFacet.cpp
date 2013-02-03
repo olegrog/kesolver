@@ -101,15 +101,23 @@ void PhysicalFacet::doFindPhi(const std::vector<Polygon*>& spacemesh,
     for (size_t j = 0; j < polygon.size(); ++j) {
         Polygon* poly = spacemesh[polygon[j]];
         SpeedFunction& function = poly->f();
+
+        DistributionFunction&    func = function.f();
+        DistributionFunction&    fmax = function.getFMax();
+        DistributionFunction&    fmin = function.getFMin();
+        DistributionFunction3&  dfunc = function.getGradient();
+        DistributionFunction&    fphi = function.getPhi();
+
+        const std::vector<V3d>& vels = gas.vel();
+
         V3d cc = getCenter() - poly->getCenter();
         for(size_t i = 0; i < function.size(); i++) {
-            double f = function.f()[i];
-            V3d df = function.getGradient()[i];
-            double dd = - 0.5 * dt * gas.dot(i, df);
-//            double dd = 0.0;
+            double f = func[i];
+            V3d df = dfunc[i];
+            double dd = - 0.5 * dt * dot(vels[i], df);
             double dl = dot(df, cc + dd);
-            double d1 = function.getFMax()[i] - f;
-            double d2 = function.getFMin()[i] - f;
+            double d1 = fmax[i] - f;
+            double d2 = fmin[i] - f;
             double phi;
             if (std::abs(dl) < 1e-10) phi = 0.;
             else {
@@ -117,8 +125,8 @@ void PhysicalFacet::doFindPhi(const std::vector<Polygon*>& spacemesh,
                 else        phi = std::min(1., d2 / dl);
             }
 
-            if (function.getPhi()[i] > phi)
-                function.getPhi()[i] = phi;
+            if (fphi[i] > phi)
+                fphi[i] = phi;
             
         }
     }
