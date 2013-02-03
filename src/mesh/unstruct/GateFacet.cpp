@@ -16,7 +16,7 @@ void GateFacet::doTransfer(std::vector<Polygon*>& spacemesh, const Gas& gas)
     DistributionFunction& f1_out    = f2.f();
     DistributionFunction& f2_out    = f2.g();
 
-    const std::vector<V3d> vels = gas.vel();
+    const std::vector<V3d>& vels = gas.vel();
 
     for (size_t i = 0; i < size; ++i) {
 
@@ -48,7 +48,7 @@ void GateFacet::doTransfer2(std::vector<Polygon*>& spacemesh, const Gas& gas)
     const DistributionFunction3& df_out    = f2.getGradient();
     const DistributionFunction&  phi_out   = f2.getPhi();
 
-    const std::vector<V3d> vels = gas.vel();
+    const std::vector<V3d>& vels = gas.vel();
 
     V3d d_out = getCenter() - spacemesh[polygon[1]]->getCenter();
     

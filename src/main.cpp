@@ -74,7 +74,7 @@ int main(int argc, char** argv)
     LOG(INFO) << "rep = " << rep;
 
     Printer printer(prop_tree["printer"]);
-    for (int i = 0; i < 1000001; i++) {
+    for (int i = 0; i < 201; i++) {
 
         LOG(INFO) << i;
 
