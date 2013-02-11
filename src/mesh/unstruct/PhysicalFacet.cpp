@@ -103,31 +103,27 @@ void PhysicalFacet::doFindPhi(const std::vector<Polygon*>& spacemesh,
         SpeedFunction& function = poly->f();
 
         DistributionFunction&    func = function.f();
+        DistributionFunction&    dd   = function.g();
         DistributionFunction&    fmax = function.getFMax();
         DistributionFunction&    fmin = function.getFMin();
         DistributionFunction3&  dfunc = function.getGradient();
         DistributionFunction&    fphi = function.getPhi();
 
-        const std::vector<V3d>& vels = gas.vel();
-
         V3d cc = getCenter() - poly->getCenter();
         for(size_t i = 0; i < function.size(); i++) {
-            double f = func[i];
             V3d df = dfunc[i];
-            double dd = - 0.5 * dt * dot(vels[i], df);
-            double dl = dot(df, cc + dd);
-            double d1 = fmax[i] - f;
-            double d2 = fmin[i] - f;
+            double dl = dot(df, cc + dd[i] * dt);
+            double d1 = fmax[i];
+            double d2 = fmin[i];
             double phi;
             if (std::abs(dl) < 1e-10) phi = 0.;
             else {
                 if (dl > 0) phi = std::min(1., d1 / dl);
                 else        phi = std::min(1., d2 / dl);
             }
-
             if (fphi[i] > phi)
-                fphi[i] = phi;
-            
+                fphi[i] = phi; 
+
         }
     }
 }

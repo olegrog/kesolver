@@ -103,9 +103,11 @@ void GateFacet::doFindGradient(const std::vector<Polygon*>& spacemesh,
     DistributionFunction3& df_out     = f2.getGradient();
     DistributionFunction& fmin_out    = f2.getFMin();
     DistributionFunction& fmax_out    = f2.getFMax();
+
+    V3d d_in_out = d_in - d_out;
     
     for (size_t i = 0; i < size; ++i) {
-        V3d b = (f_out[i] - f_in[i]) * (d_in - d_out);
+        V3d b = (f_out[i] - f_in[i]) * d_in_out;
         df_in[i] += b;
         df_out[i] += b;
 

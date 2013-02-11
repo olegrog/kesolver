@@ -1,5 +1,6 @@
 #include <iostream>
 #include <limits>
+#include <algorithm>
 
 #include "Polygon.hpp"
 
@@ -19,16 +20,35 @@ void Polygon::inverseDD() {
 }
 
 void Polygon::prepareForNextStep() {
-    for (size_t i = 0; i < function.size(); ++i) {
-        function.getFMin()[i]     = function.f()[i];
-        function.getFMax()[i]     = function.f()[i];
-        function.getGradient()[i] = 0.;
-        function.getPhi()[i]      = 1.;
-    }
+
+    std::copy ( function.f().begin(), function.f().end(), function.getFMin().begin() );
+    std::copy ( function.f().begin(), function.f().end(), function.getFMax().begin() );
+
+    std::fill( function.getGradient().begin(), function.getGradient().end(), V3d(0., 0., 0.) );
+    std::fill( function.getPhi().begin(), function.getPhi().end(), 0. );
+
 }
 
-void Polygon::findGradient() {
-    for (size_t i = 0; i < function.size(); ++i)
-        function.getGradient()[i] = mult(dd, function.getGradient()[i]);
+void Polygon::findGradientAndPhi(const Gas& gas) {
+
+    DistributionFunction&    func = function.f();
+    DistributionFunction&    g    = function.g();
+    DistributionFunction&    fmax = function.getFMax();
+    DistributionFunction&    fmin = function.getFMin();
+    DistributionFunction3&  dfunc = function.getGradient();
+
+    const std::vector<V3d>& vels = gas.vel();
+
+    for (size_t i = 0; i < function.size(); ++i) {
+
+        dfunc[i] = mult(dd, dfunc[i]);
+
+        double f = func[i];
+        V3d df = dfunc[i];
+        g[i] = - 0.5 * dot(vels[i], df);
+        fmax[i] -= f;
+        fmin[i] -= f;
+
+    }
 }
 

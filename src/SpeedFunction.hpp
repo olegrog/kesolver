@@ -20,6 +20,7 @@ class SpeedFunction {
 		DistributionFunction& g() { return f2; }
 
 		void equategf();
+		void equatefg();
 		void meanf();
 
 		DistributionFunction3& getGradient() { return df; }

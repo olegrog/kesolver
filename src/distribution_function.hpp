@@ -4,8 +4,8 @@
 #include <vector>
 #include <valarray>
 
-typedef std::valarray<double> DistributionFunction;
+typedef std::vector<double> DistributionFunction;
 
-typedef std::valarray<V3d> DistributionFunction3;
+typedef std::vector<V3d> DistributionFunction3;
 
 #endif

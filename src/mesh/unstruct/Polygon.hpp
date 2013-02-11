@@ -6,6 +6,7 @@
 
 #include "mesh/CellBase.hpp"
 
+#include "Gas.hpp"
 #include "SpeedFunction.hpp"
 #include "v.hpp"
 
@@ -45,7 +46,7 @@ class Polygon : public CellBase {
         void inverseDD();
 
         void prepareForNextStep();
-        void findGradient();
+        void findGradientAndPhi(const Gas& gas);
 
         SpeedFunction& f() { return function; }
 

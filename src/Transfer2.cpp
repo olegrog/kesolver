@@ -20,10 +20,13 @@ void Transfer2::move(Mesh& mesh, const Gas& gas)
         mesh.getFlowingFacets()[i]->findGradient(mesh.getAllCells(), gas);
     }
     for (size_t i = 0; i < mesh.getFlowingCells().size(); i++) {
-        mesh.getFlowingCells()[i]->findGradient();
+        mesh.getFlowingCells()[i]->findGradientAndPhi(gas);
     }
     for (size_t i = 0; i < mesh.getFlowingFacets().size(); i++) {
         mesh.getFlowingFacets()[i]->findPhi(mesh.getAllCells(), gas);
+    }
+    for (size_t i = 0; i < mesh.getFlowingCells().size(); i++) {
+        mesh.getFlowingCells()[i]->f().equatefg();
     }
     for (size_t i = 0; i < mesh.getFlowingFacets().size(); i++) {
         mesh.getFlowingFacets()[i]->transfer2(mesh.getAllCells(), gas);

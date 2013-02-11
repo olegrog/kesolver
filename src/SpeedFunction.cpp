@@ -15,6 +15,10 @@ void SpeedFunction::equategf() {
     copy(f2, f1);
 }
 
+void SpeedFunction::equatefg() {
+    copy(f1, f2);
+}
+
 void SpeedFunction::meanf() {
     for (size_t i = 0; i < size_; ++i) {
         f1[i] = 0.5 * (f1[i] + f2[i]);
