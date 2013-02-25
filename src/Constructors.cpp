@@ -77,7 +77,8 @@ Gas* gasMixVolume(const PropertyTree& tree,
         return gasMixScheme<symmetry, volume, Euler>     (tree, rad, cut, masses);
     else if (scheme == "Continues")
         return gasMixScheme<symmetry, volume, Continues> (tree, rad, cut, masses);
-    else { return NULL; /* TODO raise */ }
+    else
+        throw std::invalid_argument("Unknown time scheme type");
 }
 
 template <Symmetry symmetry>
@@ -103,8 +104,10 @@ Gas* gasSymmetry(const PropertyTree& tree, const std::string& type,
 
         const double a = cut / rad * std::sqrt(masses[0]);
         std::vector<int> rads;
-        for (size_t i = 0; i < masses.size(); ++i)
+        for (size_t i = 0; i < masses.size(); ++i) {
+            std::cout << "mass[" << i << "] = " << masses[i] << std::endl;
             rads.push_back(static_cast<int>(rad * std::sqrt(masses[i] / masses[0])));
+        }
         return new GasType(XiMeshMixture<symmetry>(a, rads, masses));
     }
     else if (type == "Mix") {
@@ -120,9 +123,11 @@ Gas* gasSymmetry(const PropertyTree& tree, const std::string& type,
             return gasMixVolume<symmetry, Tight2>    (tree, rad, cut, masses);
         else if (volume == "Grad")
             return gasMixVolume<symmetry, Grad>      (tree, rad, cut, masses);
-        else { return NULL; /* TODO raise */ }
+        else
+            throw std::invalid_argument("Unknown mix volume type");
     }
-    else { return NULL; /* TODO raise */ }
+    else
+        throw std::invalid_argument("Unknown gas type");
 }
 
 void GasConstructor(const PropertyTree& tree, Gas** gas_pp)
@@ -146,7 +151,8 @@ void GasConstructor(const PropertyTree& tree, Gas** gas_pp)
         gas_p = gasSymmetry<Cylindrical>(tree, type, rad, cut);
     else if (symm == "Cartesian")
         gas_p = gasSymmetry<Cartesian>(tree, type, rad, cut);
-    else { gas_p = NULL; /* TODO raise */ }
+    else
+        throw std::invalid_argument("Unknown symmetry type");
 
     *gas_pp = gas_p;
 }
@@ -169,10 +175,8 @@ void GivePolygonMemoryAndInit(const PropertyTree& tree, const Gas& gas, Polygon*
             f[i] = doubles[i];
         polygon->f().f(f);
     }
-    else {
-        // not implemented yet
-        // TODO: raise exception
-    }
+    else 
+        throw std::invalid_argument("Unknown initial condition type");
 }
 
 Integral IntegralConstructor(const PropertyTree& tree)
@@ -227,6 +231,16 @@ Integral IntegralConstructor(const PropertyTree& tree)
             std::string filename = tree["file"].asString();
             section = new MaSection(as, filename);
             std::cout << "MaSection" << std::endl;
+        }
+        else if (str == "Anikin") {
+            double d = strTo<double>(tree["d"].asString());
+            double e = strTo<double>(tree["e"].asString());
+
+            std::string file_teta  = tree["file_teta"].asString();
+            std::string file_vel   = tree["file_vel"].asString();
+            std::string file_sigma = tree["file_sigma"].asString();
+            section = new AnikinSection(d, e, file_teta, file_vel, file_sigma);
+            std::cout << "AnikinSection" << std::endl;
         }
         else
             throw std::invalid_argument("Unknown section");

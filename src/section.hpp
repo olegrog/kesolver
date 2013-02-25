@@ -76,4 +76,21 @@ class MaSection : public SimpleSection {
         std::vector<double> sigma;
 };
 
+class AnikinSection : public SimpleSection {
+    public:
+        AnikinSection(double d, double e, 
+                      const std::string& file_teta,
+                      const std::string& file_vel,
+                      const std::string& file_sigma);
+
+        virtual double section(const double g, const double th) const;
+        virtual double section(const double g, const double th,
+                               const int i1, const int i2) const;
+
+    private:
+        double d, e;
+        std::vector<double> gs, ths;
+        std::vector<double> sigma;
+};
+
 #endif

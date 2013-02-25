@@ -71,7 +71,6 @@ double LJSection::ker(const double g, const double cth) const
 
 
 
-
 MaSection::MaSection(const std::vector<double>& as,
                      const std::string& filename) : as(as)
 {
@@ -102,5 +101,47 @@ double MaSection::ker(const double g, const double cth) const
     int j = bin_search(th, ths);
 //    std::cout << "th, g, sigma = " << th << ' ' << g << ' ' << sigma[j] << ' ' << sigma[j] / M_PI / g << std::endl;
     return sigma[j] / M_PI / g;
+}
+
+AnikinSection::AnikinSection(double d, double e,
+                             const std::string& file_teta,
+                             const std::string& file_vel,
+                             const std::string& file_sigma)
+    : d(d), e(e)
+{
+    std::ifstream fd_teta(file_teta.c_str());
+    double x;
+    while (fd_teta >> x)
+        ths.push_back(x);
+
+    std::ifstream fd_vel(file_vel.c_str());
+    while (fd_vel >> x)
+        gs.push_back(x);
+
+    std::ifstream fd_sigma(file_sigma.c_str());
+    while (fd_sigma >> x)
+        sigma.push_back(x);
+}
+
+double AnikinSection::section(const double g, const double cth) const 
+{
+    return section(g, cth, 0, 0);
+}
+
+double AnikinSection::section(const double g, const double cth,
+                              const int i1, const int i2) const
+{
+    double g1 = g / std::sqrt(e);
+
+    int i = bin_search(g1, gs);
+    double th = std::acos(cth);
+    int j = bin_search(th, ths);    
+
+    int l;
+    if (i1 == i2) l = i1;
+    else          l = 2 + i1 + i2; // TODO 2
+
+    return sigma[l * ths.size() * gs.size() + i * ths.size() + j]
+        / std::sin(th) * sqr(d);
 }
 
