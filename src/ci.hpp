@@ -8,7 +8,7 @@
 
 #include "symmetry.hpp"
 #include "distribution_function.hpp"
-#include "korobov.hpp"
+#include "integr_grid.hpp"
 #include "section.hpp"
 #include "ximesh.hpp"
 #include "random.hpp"
@@ -36,25 +36,25 @@ struct CollisionNode<Cylindrical> {
     double c, r, a;
 };
 
-template <Symmetry symmetry> 
-struct Korobov;
-
-template <>
-struct Korobov<Cartesian> {
-    typedef korobov::Grid<8> type;
-};
-
-template <>
-struct Korobov<Cylindrical> {
-    typedef korobov::Grid<8> type;
-};
-
 enum CollisionType {
     BadCollision,
     BadSearch,
     SameXi,
     GoodOne,
     GoodTwo
+};
+
+template <Symmetry symmetry>
+struct GridType;
+
+template <>
+struct GridType<Cartesian> {
+    typedef sobol::Grid<4> Grid;
+};
+
+template <>
+struct GridType<Cylindrical> {
+    typedef sobol::Grid<6> Grid;
 };
 
 template <Symmetry symmetry, template <Symmetry symmetry> class XiMeshType, typename Nodes>
@@ -66,16 +66,15 @@ void ciGen(const double time_step, const int p,
     for (int i = 0; i < 9; ++i)
         ss[i] = 0;
 
-    typedef typename Korobov<symmetry>::type KorobovGrid;
-    KorobovGrid korobov_grid;
-    korobov_grid.resize(p);
-    std::cout << korobov_grid.size() << std::endl;
+    typedef typename GridType<symmetry>::Grid Grid;
+    Grid grid(p);
+    std::cout << grid.size() << std::endl;
 
     nc.clear();
     int n_nu = 0;
-    for (typename KorobovGrid::iterator iter = korobov_grid.begin();
-            iter != korobov_grid.end(); ++iter) {
-        const korobov::Point& point = *iter;
+    for (typename Grid::iterator iter = grid.begin();
+            iter != grid.end(); ++iter) {
+        const typename Grid::point& point = *iter;
 
         CollisionType type;
         typename Nodes::value_type node;
@@ -109,13 +108,13 @@ void ciGen(const double time_step, const int p,
     std::random_shuffle(nc.begin(), nc.end());
 }
 
-template <template <Symmetry symmetry> class XiMeshType>
+template <typename Point, template <Symmetry symmetry> class XiMeshType>
 inline boost::tuple<int, int, 
                   typename XiMeshType<Cartesian>::Vi,
                   typename XiMeshType<Cartesian>::Vi,
                   V3d, V3d,
                   V3d>
-        calcNodeBefore(const korobov::Point& p,
+        calcNodeBefore(const Point& p,
                        const XiMeshType<Cartesian>& ximesh) 
 { 
     const int i1 = toInt(ximesh.size() * p[0]);
@@ -132,13 +131,13 @@ inline boost::tuple<int, int,
     return boost::make_tuple(i1, i2, vi, wi, v, w, n);
 }
 
-template <template <Symmetry symmetry> class XiMeshType>
+template <typename Point, template <Symmetry symmetry> class XiMeshType>
 inline boost::tuple<int, int, 
                   typename XiMeshType<Cylindrical>::Vi,
                   typename XiMeshType<Cylindrical>::Vi,
                   V3d, V3d,
                   V3d>
-        calcNodeBefore(const korobov::Point& p,
+        calcNodeBefore(const Point& p,
                        const XiMeshType<Cylindrical>& ximesh) 
 { 
     const int i1 = toInt(ximesh.size() * p[0]);
@@ -298,8 +297,8 @@ makeNode(const int iv , const int iw,
     return node;
 }
 
-template <Symmetry symmetry, template <Symmetry symmetry> class XiMeshType>
-CollisionType calcNode(const korobov::Point& p, 
+template <typename Point, Symmetry symmetry, template <Symmetry symmetry> class XiMeshType>
+CollisionType calcNode(const Point& p, 
                        const XiMeshType<symmetry>& ximesh,
                        CollisionNode<symmetry>& node,
                        const SimpleSection* section)

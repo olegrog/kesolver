@@ -217,8 +217,8 @@ searchMix(typename XiMeshMix<symmetry>::Vd v1, typename XiMeshMix<symmetry>::Vi 
 }
 
 
-template <Volume volume, Symmetry symmetry>
-CollisionType calcNode(const korobov::Point& p, 
+template <typename Point, Volume volume, Symmetry symmetry>
+CollisionType calcNode(const Point& p, 
                        const XiMeshMix<symmetry>& ximesh,
                        CollisionNodeMix<symmetry, volume>& node,
                        const SimpleSection* section)

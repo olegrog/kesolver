@@ -1,6 +1,6 @@
 CXX      :=  c++
 MPICXX   :=  mpic++ -DMPI_ON
-CXXFLAGS :=  -O2 -Wall -g -pg -funroll-loops
+CXXFLAGS :=  -O3 -Wall 
 
 SOURCE   :=  main.cpp
 SOURCE   +=  Constructors.cpp
