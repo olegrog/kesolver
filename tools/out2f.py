@@ -19,9 +19,21 @@ symmetry = data["gas"]["symmetry"]
 
 print rad
 
-dim = (2*rad, rad) 
-x = numpy.fromfunction(lambda i, j: i - rad + 0.5, dim)
-r = numpy.fromfunction(lambda i, j: j       + 0.5, dim)
+if symmetry == "Cylindrical":
+    dim = (2*rad, rad) 
+    x = numpy.fromfunction(lambda i, j: i - rad + 0.5, dim)
+    r = numpy.fromfunction(lambda i, j: j       + 0.5, dim)
+    vol = r
+    e = x*x + r*r
+    
+elif symmetry == "Cartesian":
+    dim = (2*rad, 2*rad, 2*rad)
+    x = numpy.fromfunction(lambda i, j, k: i - rad + 0.5, dim)
+    y = numpy.fromfunction(lambda i, j, k: j - rad + 0.5, dim)
+    z = numpy.fromfunction(lambda i, j, k: k - rad + 0.5, dim)
+    vol = numpy.ones_like(y)
+    e = x*x + y*y + z*z
+
 
 with open(sys.argv[2], 'rb') as fd:
     while fd:
@@ -32,16 +44,23 @@ with open(sys.argv[2], 'rb') as fd:
 
         f = numpy.zeros_like(x)
         a = array.array('d')
-        circl = x*x + r*r < rad*rad
+        circl = e < rad*rad
         size = numpy.sum(circl)
         a.fromfile(fd, size)
 
         if i == int(sys.argv[3]):
             f[circl] = numpy.array(a)
 
-            f = f / r
+            f = f / vol
             f = numpy.ma.masked_where(f == 0.0, f)
-            surf = ax.plot_wireframe(x, r, f, color='k')
+
+            if symmetry == "Cartesian":
+                xp = x[:, rad:, rad]
+                yp = y[:, rad:, rad]
+                fp = f[:, rad:, rad]
+                surf = ax.plot_wireframe(xp, yp, fp, color='k')
+            elif symmetry == "Cylindrical":
+                surf = ax.plot_wireframe(x, r, f, color='k')
 
             break
 
