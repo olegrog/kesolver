@@ -247,7 +247,7 @@ double frac(double x) {
 template <int n>
 class Iterator {
     public:
-        Iterator(int i, const double* s) : i(i) {
+        Iterator(unsigned int i, const double* s) : i(i) {
             update();
             for (int j = 0; j < n; ++j) shift[j] = s[j];
         }
@@ -277,6 +277,7 @@ class Grid {
         Grid(int size = 0) : size_(size) {
             for (int i = 0; i < n; ++i) 
                 shift[i] = static_cast<double>(std::rand())/RAND_MAX;
+            start = std::rand();
         }
 
         int size() const { return size_; }
@@ -284,12 +285,13 @@ class Grid {
         typedef Iterator<n> iterator;
         typedef Array<double, n>    point;
 
-        iterator begin() { return iterator(1, shift); }
-        iterator end()   { return iterator(size_+1, shift); }
+        iterator begin() { return iterator(start, shift); }
+        iterator end()   { return iterator(size_+start, shift); }
 
     private:
         double shift[n];
         size_t size_;
+        unsigned int start;
 };
 
 }

@@ -110,7 +110,7 @@ if __name__ == "__main__":
             e = make_e(symmetry, ax)
             e1 = 0.5 * e / tau
 
-            f = 1. / math.sqrt(cube(2 * math.pi * tau)) * np.exp(-e) * ( 1 + (1 - tau) / tau * (e - 1.5) )
+            f = 1. / math.sqrt(cube(2 * math.pi * tau)) * np.exp(-e1) * ( 1 + (1 - tau) / tau * (e1 - 1.5) )
             f *= vol
 
             lin_f = f[r < sqr(cut)]

@@ -58,9 +58,9 @@ with open(sys.argv[2], 'rb') as fd:
                 xp = x[:, rad:, rad]
                 yp = y[:, rad:, rad]
                 fp = f[:, rad:, rad]
-                surf = ax.plot_wireframe(xp, yp, fp, color='k')
             elif symmetry == "Cylindrical":
-                surf = ax.plot_wireframe(x, r, f, color='k')
+                xp, yp, fp = x, y, f
+            surf = ax.plot_wireframe(xp, yp, fp, color='k')
 
             break
 
