@@ -10,10 +10,12 @@
 #include "ximesh_mixture.hpp"
 #include "ximesh_mix.hpp"
 #include "ximesh_rot.hpp"
+#include "ximesh_rect.hpp"
 
 #include "ci_simple.hpp"
 #include "ci_mixture.hpp"
 #include "ci_mix.hpp"
+#include "ci_rect.hpp"
 
 #include "base64/base64.hpp"
 #include "logger/logger.hpp"
@@ -125,6 +127,9 @@ Gas* gasSymmetry(const PropertyTree& tree, const std::string& type,
             return gasMixVolume<symmetry, Grad>      (tree, rad, cut, masses);
         else
             throw std::invalid_argument("Unknown mix volume type");
+    }
+    else if (type == "Rect") {
+
     }
     else
         throw std::invalid_argument("Unknown gas type");

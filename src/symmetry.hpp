@@ -22,7 +22,9 @@ struct SymmetryTrait<Cartesian> {
     typedef V3d Vm;
     typedef V3i Vi;
     typedef V3i Vj;
+    typedef V3< std::vector<double> > VVd;
     static const Vd t_mult() { return Vd(1., 1., 1.); }
+    static const int ximesh_dim = 3;
 };
 
 template <>
@@ -31,7 +33,9 @@ struct SymmetryTrait<Cylindrical> {
     typedef double Vm;
     typedef V2i    Vi;
     typedef int    Vj;
+    typedef V2< std::vector<double> > VVd;
     static const Vd t_mult() { return Vd(1., 1./2.); }
+    static const int ximesh_dim = 2;
 };
 
 inline SymmetryTrait<Cartesian>::Vd vm2vd(SymmetryTrait<Cartesian>::Vm x) {

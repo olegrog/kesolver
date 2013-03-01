@@ -135,10 +135,10 @@ inline boost::tuple<bool,
 
 template<Symmetry symmetry, template <Symmetry symmetry> class XiMeshMixtureType>
 boost::tuple<V3d, double, V3d, V3d, V3d, V3d>
-calcNodeCollide(const int i1, const int i2,
-                   const V3d v, const V3d w,
-                   const V3d n,
-                   const XiMeshMixtureType<symmetry>& ximesh)
+calcNodeCollideMixture(const int i1, const int i2,
+                       const V3d v, const V3d w,
+                       const V3d n,
+                       const XiMeshMixtureType<symmetry>& ximesh)
 {
     const double m1 = ximesh.m(i1);
     const double m2 = ximesh.m(i2);
@@ -151,5 +151,16 @@ calcNodeCollide(const int i1, const int i2,
     const V3d   w2 = m2 * o + nn;
     return boost::make_tuple(u, g, o, nn, v2, w2);
 }
+
+template<Symmetry symmetry>
+boost::tuple<V3d, double, V3d, V3d, V3d, V3d>
+calcNodeCollide(const int i1, const int i2,
+                const V3d v, const V3d w,
+                const V3d n,
+                const XiMeshMixture<symmetry>& ximesh)
+{
+    return calcNodeCollideMixture(i1, i2, v, w, n, ximesh);
+}
+
 
 #endif
