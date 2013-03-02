@@ -38,6 +38,88 @@ const std::vector<double> readMasses(const PropertyTree& tree) {
     return masses;
 }
 
+double find_q(double d, int n, double err = 1e-10)
+{
+    // first approx
+    double q = 2 * d / n - 1;
+    while (true) {
+        double qq = std::pow(q, n-1);
+        double f  = (q * qq - 1) / (q - 1);
+        if (std::abs(f - d) < err)
+            break;
+        double df = ((n-1) * q * qq - n * qq + 1) / sqr(q-1);
+        double dq = (d - f) / df;
+        q += dq;
+    }
+    return q;
+}
+
+template <Symmetry symmetry>
+std::pair<typename SymmetryTrait<symmetry>::VVd,
+          typename SymmetryTrait<symmetry>::VVd>
+makeVV(const std::vector<double>& vs, 
+       const std::vector<double>& vols,
+       const std::vector<double>& vs2, 
+       const std::vector<double>& vols2);
+
+template <>
+std::pair<typename SymmetryTrait<Cartesian>::VVd,
+          typename SymmetryTrait<Cartesian>::VVd>
+makeVV<Cartesian>(const std::vector<double>& vs, 
+                  const std::vector<double>& vols,
+                  const std::vector<double>& vs2, 
+                  const std::vector<double>& vols2)
+{
+    return std::make_pair(SymmetryTrait<Cartesian>::VVd(vs2), 
+                          SymmetryTrait<Cartesian>::VVd(vols2));
+}
+
+template <>
+std::pair<typename SymmetryTrait<Cylindrical>::VVd,
+          typename SymmetryTrait<Cylindrical>::VVd>
+makeVV<Cylindrical>(const std::vector<double>& vs, 
+                    const std::vector<double>& vols,
+                    const std::vector<double>& vs2, 
+                    const std::vector<double>& vols2)
+{
+    return std::make_pair(SymmetryTrait<Cylindrical>::VVd(vs2, vs), 
+                          SymmetryTrait<Cylindrical>::VVd(vols2, vols));
+}
+
+template <Symmetry symmetry>
+std::pair<typename SymmetryTrait<symmetry>::VVd,
+          typename SymmetryTrait<symmetry>::VVd>
+readVV(const PropertyTree& tree, int rad, double cut)
+{
+    double hcenter = tree["hcenter"].asDouble(); 
+    double q = find_q(cut / hcenter, rad);
+    std::cout << "q = " << q << std::endl;
+
+    std::vector<double> vs, vols;
+    double h = hcenter;
+    double x = h / 2;
+    for (int i = 0; i < rad; ++i) {
+        vs.push_back(x);
+        vols.push_back(h);
+        x += h / 2;
+        h *= q;
+        x += h / 2;
+    }
+
+    std::vector<double> vs2, vols2;
+    for (int i = rad-1; i >= 0; --i) {
+        vs2.push_back(-vs[i]);
+        vols2.push_back(vols[i]);
+    }
+    for (int i = 0; i < rad; ++i) {
+        vs2.push_back(vs[i]);
+        vols2.push_back(vols[i]);
+    }
+
+    return makeVV<symmetry>(vs, vols, vs2, vols2);
+}
+
+
 template <Symmetry symmetry, Volume volume, TimeScheme scheme>
 Gas* gasMixScheme(const PropertyTree& tree, 
                   const int rad, const double cut,
@@ -129,7 +211,15 @@ Gas* gasSymmetry(const PropertyTree& tree, const std::string& type,
             throw std::invalid_argument("Unknown mix volume type");
     }
     else if (type == "Rect") {
+        typedef GasTemplate<symmetry, XiMeshRect, ColliderRect<symmetry> > GasType;
 
+        typedef typename SymmetryTrait<symmetry>::VVd VVd;
+        std::pair<VVd, VVd> vpair = readVV<symmetry>(tree, rad, cut);
+        VVd vv(vpair.first), vvol(vpair.second);
+
+        XiMeshRect<symmetry> ximesh(vv, vvol);
+
+        return new GasType(ximesh);
     }
     else
         throw std::invalid_argument("Unknown gas type");

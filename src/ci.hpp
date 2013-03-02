@@ -160,6 +160,22 @@ inline boost::tuple<int, int,
     return boost::make_tuple(i1, i2, vi, wi, v, w, n);
 }
 
+template<Symmetry symmetry, template <Symmetry symmetry> class XiMeshType>
+boost::tuple<V3d, double, V3d, V3d, V3d, V3d>
+calcNodeCollideSimple(const int i1, const int i2,
+                      const V3d v, const V3d w,
+                      const V3d n,
+                      const XiMeshType<symmetry>& ximesh)
+{
+    const V3d    u = w - v;
+    const double g = norm(u);
+    const V3d    o = 0.5 * (v + w);
+    const V3d   nn = 0.5 * n * g;
+    const V3d   v2 = o - nn;
+    const V3d   w2 = o + nn;
+    return boost::make_tuple(u, g, o, nn, v2, w2);
+}
+
 template<Symmetry symmetry, template<Symmetry symmetry> class XiMeshType>
 boost::tuple<int, double, 
            typename XiMeshType<symmetry>::Vi, typename XiMeshType<symmetry>::Vi,

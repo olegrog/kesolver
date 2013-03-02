@@ -32,6 +32,10 @@ class XiMeshRect {
         const Vd operator[](const int i) const 
                 { return xis[i]; }
 
+        const std::vector<V3d>& vel() const {
+            return v3;
+        }
+
         const Vm p(const int i) const;
         double   e(const int i) const 
                 { return sqr(operator[](i)); }
@@ -59,6 +63,7 @@ class XiMeshRect {
         std::vector<double> vols, vol_logs;
         std::vector<int> xyzmap;
         std::vector<Vj>  mirr;
+        std::vector<V3d> v3;
 
         int flatten(const Vi i) const;
 };
@@ -191,6 +196,11 @@ inline XiMeshRect<Cartesian>::XiMeshRect(const VVd& vv, const VVd& vvol) :
                       operator()(V3i(xi[0], xi[1], 2*rad[2]-1-xi[2])));
 
     }
+
+    v3.resize(xis.size());
+    for (size_t i = 0; i < xis.size(); ++i) {
+        v3[i] = xis[i];
+    }
 }
 
 template <>
@@ -235,6 +245,11 @@ inline XiMeshRect<Cylindrical>::XiMeshRect(const VVd& vv, const VVd& vvol) :
     for (size_t i = 0; i < vis.size(); ++i) {
         V2i xi(vis[i]);
         mirr[i] = operator()(V2i(2*rad[0]-1-xi[0], xi[1]));
+    }
+
+    v3.resize(xis.size());
+    for (size_t i = 0; i < xis.size(); ++i) {
+        v3[i] = xis[i];
     }
 }
 

@@ -110,13 +110,7 @@ calcNodeCollide(const int i1, const int i2,
                    const V3d n,
                    const XiMesh<symmetry>& ximesh)
 {
-    const V3d    u = w - v;
-    const double g = norm(u);
-    const V3d    o = 0.5 * (v + w);
-    const V3d   nn = 0.5 * n * g;
-    const V3d   v2 = o - nn;
-    const V3d   w2 = o + nn;
-    return boost::make_tuple(u, g, o, nn, v2, w2);
+    return calcNodeCollideSimple(i1, i2, v, w, n, ximesh);
 }
 
 #endif

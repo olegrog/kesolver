@@ -2095,6 +2095,43 @@ struct MakeRSwarm<Symmetric, Cylindrical, XiMeshType> {
     }
 };
 
+template <template <Symmetry> class XiMeshType>
+struct MakeRSwarm<Symmetric, Cartesian, XiMeshType> {
+    static const Symmetry symmetry = Cartesian;
+    static const Volume volume = Symmetric;
+    const Stencil<symmetry, volume, double> 
+            make(const typename SymmetryTrait<symmetry>::Vd x,
+                 const Stencil<symmetry, volume, int> j,
+                 const XiMeshType<symmetry>& ximesh) const
+    {
+        Stencil<symmetry, volume, double> s;
+
+//        std::cout << x << ' ' << t.b << ' ' << t.f << std::endl;
+
+        V3d hf, hb;
+
+        hf[0] = ximesh[j.i][0] - ximesh[j.o][0];
+        hb[0] = ximesh[j.l][0] - ximesh[j.o][0];
+        hf[1] = ximesh[j.j][1] - ximesh[j.o][1];
+        hb[1] = ximesh[j.m][1] - ximesh[j.o][1];
+        hf[2] = ximesh[j.k][2] - ximesh[j.o][2];
+        hb[2] = ximesh[j.n][2] - ximesh[j.o][2];
+        
+
+        s.i  =   x[0] * (x[0] - hb[0]) / hf[0] / (hf[0] - hb[0]);
+        s.l  = - x[0] * (x[0] - hf[0]) / hb[0] / (hf[0] - hb[0]);
+        s.j  =   x[1] * (x[1] - hb[1]) / hf[1] / (hf[1] - hb[1]);
+        s.m  = - x[1] * (x[1] - hf[1]) / hb[1] / (hf[1] - hb[1]);
+        s.k  =   x[2] * (x[2] - hb[2]) / hf[2] / (hf[2] - hb[2]);
+        s.n  = - x[2] * (x[2] - hf[2]) / hb[2] / (hf[2] - hb[2]);
+
+        s.o  =  1 - s.i - s.j - s.k - s.l - s.m - s.n;
+
+//        std::cout << s << std::endl;
+
+        return s;
+    }
+};
 template <Volume volume, Symmetry symmetry, template <Symmetry> class XiMeshType>
 Stencil<symmetry, volume, double> doMakeRSwarm(const typename SymmetryTrait<symmetry>::Vd x,
                                              const Stencil<symmetry, volume, int> j,

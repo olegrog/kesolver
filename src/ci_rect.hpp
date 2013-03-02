@@ -18,8 +18,9 @@ class ColliderRect {
         }
 
         void gen(const double time_step, const int p,
-                 const XiMeshType& ximesh) {
-            ciGen(time_step, p, ximesh, nc);
+                 const XiMeshType& ximesh,
+                 const SimpleSection* section) {
+            ciGen(time_step, p, ximesh, nc, section);
         }
 
         template <typename DF>

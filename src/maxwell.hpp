@@ -25,13 +25,20 @@ class Maxwell {
 };
 
 
+template <typename F, Symmetry symmetry, template <Symmetry symmetry> class XiMeshType>
+void setMaxwellSimple(F& f, const typename XiMeshType<symmetry>::Vm v, const double temp,
+                const XiMeshType<symmetry>& mesh)
+{
+    const typename XiMeshType<symmetry>::Vd u = vm2vd(v);
+    for (size_t i = 0; i < mesh.size(); ++i)
+        f[i] = std::exp( - 0.5 * sqr(mesh[i] - u) / temp) * mesh.vol(i);
+}
+
 template <typename F, Symmetry symmetry>
 void setMaxwell(F& f, const typename XiMesh<symmetry>::Vm v, const double temp,
                 const XiMesh<symmetry>& mesh)
 {
-    const typename XiMesh<symmetry>::Vd u = vm2vd(v);
-    for (size_t i = 0; i < mesh.size(); ++i)
-        f[i] = std::exp( - 0.5 * sqr(mesh[i] - u) / temp) * mesh.vol(i);
+    setMaxwellSimple(f, v, temp, mesh);
 }
 
 template <typename F, Symmetry symmetry, template <Symmetry symmetry> class XiMeshType>
@@ -69,6 +76,13 @@ void setMaxwell(F& f, const typename XiMeshRot<symmetry>::Vm v, const double tem
     const typename XiMesh<symmetry>::Vd u = vm2vd(v);
     for (size_t i = 0; i < mesh.size(); ++i)
         f[i] = std::exp( - 0.5 * ( sqr(mesh[i] - u) + mesh.erot(i) ) / temp ) * mesh.vol(i);
+}
+
+template <typename F, Symmetry symmetry>
+void setMaxwell(F& f, const typename XiMesh<symmetry>::Vm v, const double temp,
+                const XiMeshRect<symmetry>& mesh)
+{
+    setMaxwellSimple(f, v, temp, mesh);
 }
 
 template <typename PropertyTree, typename XiMeshType> 

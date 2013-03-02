@@ -8,6 +8,7 @@
 #include "ximesh_mixture.hpp"
 #include "ximesh_mix.hpp"
 #include "ximesh_rot.hpp"
+#include "ximesh_rect.hpp"
 
 template <Symmetry symmetry>
 struct MacroSimple {
@@ -221,6 +222,11 @@ MacroRot<symmetry> macro(const F& f, const XiMeshRot<symmetry>& mesh)
     return MacroRot<symmetry>(f, mesh);
 }
 
+template <typename F, Symmetry symmetry>
+MacroSimple<symmetry> macro(const F& f, const XiMeshRect<symmetry>& mesh)
+{
+    return MacroSimple<symmetry>(f, mesh);
+}
 
 template <typename DF1, typename DF2, typename V, typename XiMeshType>
 void equateStreamsSimple(DF1& g, const DF2& f, const V n, const XiMeshType& mesh)
@@ -290,6 +296,12 @@ void equateStreams(DF& g, const DF& f, const V n, const XiMeshRot<symmetry>& mes
     return equateStreamsSimple(g, f, n, mesh);
 }
 
+template <typename DF, typename V, Symmetry symmetry>
+void equateStreams(DF& g, const DF& f, const V n, const XiMeshRect<symmetry>& mesh)
+{
+    return equateStreamsSimple(g, f, n, mesh);
+}
+
 template <typename DF, typename Stream, typename XiMeshType>
 Stream& equateNSimple(DF& g, Stream& stream, const XiMeshType& mesh)
 {
@@ -346,6 +358,12 @@ Stream& equateN(DF& g, Stream& stream, const XiMeshMix<symmetry>& mesh)
 
 template <typename DF, typename Stream, Symmetry symmetry>
 Stream& equateN(DF& g, Stream& stream, const XiMeshRot<symmetry>& mesh)
+{
+    return equateNSimple(g, stream, mesh);
+}
+
+template <typename DF, typename Stream, Symmetry symmetry>
+Stream& equateN(DF& g, Stream& stream, const XiMeshRect<symmetry>& mesh)
 {
     return equateNSimple(g, stream, mesh);
 }
