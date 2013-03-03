@@ -11,6 +11,8 @@ from numpy import fromfunction
 import array
 from base64 import b64encode
 
+from kepy.ximesh import read_ximesh, make_e
+
 def sqr(x):
     return x * x
 
@@ -23,59 +25,7 @@ if __name__ == "__main__":
     with open(sys.argv[-2], 'rb') as fd:
         data = json.load(fd)
 
-    cut = float(data["gas"]["cut"])
-    rad = int(data["gas"]["rad"])
-    symmetry = data["gas"]["symmetry"]
-
-#    print cut, rad, v, symmetry
-
-
-    if symmetry == "Cylindrical":
-
-        v = float(data["gas"].get("v", "0."))
-
-        x = np.fromfunction(lambda i, j: v + (i + 0.5 - rad) * cut / rad,
-                            (2 * rad, rad), dtype=float)
-        y = np.fromfunction(lambda i, j: (j + 0.5) * cut / rad,
-                            (2 * rad, rad), dtype=float)
-        ax = [x, y]
-
-        r = sqr(x-v) + sqr(y)
-        
-        vol = y
-        d3v = 2 * math.pi * sqr(cut / rad)
-
-    elif symmetry == "Cartesian":
-
-        v = map(float, data["gas"].get("v", "( 0. 0. 0. )")[1:-1].split() )
-        vx, vy, vz = v
-
-        x = np.fromfunction(lambda i, j, k: vx + (i + 0.5 - rad) * cut / rad,
-                            (2 * rad, 2 * rad, 2 * rad), dtype=float)
-        y = np.fromfunction(lambda i, j, k: vy + (j + 0.5 - rad) * cut / rad,
-                            (2 * rad, 2 * rad, 2 * rad), dtype=float)
-        z = np.fromfunction(lambda i, j, k: vz + (k + 0.5 - rad) * cut / rad,
-                            (2 * rad, 2 * rad, 2 * rad), dtype=float)
-        ax = [x, y, z]
-
-        r = sqr(x-vx) + sqr(y-vy) + sqr(z-vz)
-
-        vol = np.ones_like(y)
-        d3v = cube(cut / rad)
-
-    def make_e(symm, ax, u=None):
-        if symm == "Cylindrical":
-            x, y = ax
-            if u is None:
-                u = 0.
-            return sqr(x-u) + sqr(y)
-        elif symm == "Cartesian":
-            x, y, z = ax
-            if u is None:
-                ux, uy, uz = 0., 0., 0.
-            else:
-                ux, uy, uz = u
-            return sqr(x-ux) + sqr(y-uy) + sqr(z-uz)
+    symmetry, rad, cut, ax, vol, r, d3v = read_ximesh(data)
 
     def str_to_u(symm, u):
         if symm == "Cylindrical":

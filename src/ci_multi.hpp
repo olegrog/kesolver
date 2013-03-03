@@ -116,13 +116,19 @@ CollisionType calcNode(const Point& p,
     V3d v, w, n;
     boost::tie(i1, i2, vi, wi, v, w, n) = calcNodeBefore(p, ximesh);
 
+//    std::cout << "v, w = " << v << ' ' << w << std::endl;
+
     double g;
     V3d    u, o, nn, v2, w2;
     boost::tie(u, g, o, nn, v2, w2) = calcNodeCollide(i1, i2, v, w, n, ximesh);
 
+//    std::cout << "u, g = " << u << ' ' << g << std::endl;
+
     Vi vj, wj;
     Vd v1, w1;
     boost::tie(vj, wj, v1, w1) = calcNodeAfter(i1, i2, v2, w2, ximesh);
+
+//    std::cout << "v1, w1 = " << v1 << ' ' << w1 << std::endl;
 
     int i3 = ximesh(vj);
     int i4 = ximesh(wj);
@@ -131,8 +137,9 @@ CollisionType calcNode(const Point& p,
 //    std::cout << "vj, wj = " << vj << ' ' << wj << std::endl;
 //    std::cout << "i3, i4 = " << i3 << ' ' << i4 << std::endl;
 
-    if ((i3 < 0) || (i4 < 0))
+    if ((i3 < 0) || (i4 < 0)) {
         return BadCollision;
+    }
 
     typename Node::Si j1, j2;
     Vd x1, x2;

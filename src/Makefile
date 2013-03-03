@@ -1,6 +1,6 @@
 CXX      :=  c++
 MPICXX   :=  mpic++ -DMPI_ON
-CXXFLAGS :=  -O3 -Wall 
+CXXFLAGS :=  -O3 -Wall -march=native # -fprofile-use
 
 SOURCE   :=  main.cpp
 SOURCE   +=  Constructors.cpp

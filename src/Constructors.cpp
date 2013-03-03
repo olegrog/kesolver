@@ -116,6 +116,11 @@ readVV(const PropertyTree& tree, int rad, double cut)
         vols2.push_back(vols[i]);
     }
 
+    for (size_t i = 0; i < vs2.size(); ++i) 
+        std::cout << vs2[i] << std::endl;
+    for (size_t i = 0; i < vols2.size(); ++i) 
+        std::cout << vols2[i] << std::endl;
+
     return makeVV<symmetry>(vs, vols, vs2, vols2);
 }
 

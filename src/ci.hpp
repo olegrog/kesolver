@@ -49,12 +49,12 @@ struct GridType;
 
 template <>
 struct GridType<Cartesian> {
-    typedef sobol::Grid<4> Grid;
+    typedef crand::Grid Grid;
 };
 
 template <>
 struct GridType<Cylindrical> {
-    typedef sobol::Grid<6> Grid;
+    typedef crand::Grid Grid;
 };
 
 template <Symmetry symmetry, template <Symmetry symmetry> class XiMeshType, typename Nodes>
@@ -85,6 +85,8 @@ void ciGen(const double time_step, const int p,
             ++n_nu;
         if ((type == GoodOne) || (type == GoodTwo))
             nc.push_back(node);
+        if (n_nu % 10000 == 0)
+            std::cout << "n_nu = " << n_nu << std::endl;
     }
 
     std::cout << "n_calc = " << nc.size() << " n_nu = " << n_nu << std::endl;

@@ -80,7 +80,7 @@ inline const XiMeshRect<Cylindrical>::Vm XiMeshRect<Cylindrical>::p(const int i)
 
 template <>
 inline int XiMeshRect<Cartesian>::flatten(const Vi i) const {
-    return dot(i, Vi(1, 2*rad[0], 2*rad[1]));
+    return dot(i, Vi(1, 2*rad[0], 2*rad[1]*2*rad[0]));
 };
 
 template <>
@@ -90,7 +90,8 @@ inline int XiMeshRect<Cylindrical>::flatten(const Vi i) const {
 
 template <>
 inline int XiMeshRect<Cartesian>::operator()(const Vi i) const {
-    return ((i >= 0) && (i < 2*rad)) ? xyzmap[flatten(i)] : -1;
+    int res = ((i >= 0) && (i < 2*rad)) ? xyzmap[flatten(i)] : -1;
+    return res;
 }
 
 template <>
@@ -115,10 +116,12 @@ inline const typename XiMeshRect<symmetry>::Vi XiMeshRect<symmetry>::xi2i(const 
     Vi i;
     for (int j = 0; j < SymmetryTrait<symmetry>::ximesh_dim; ++j) {
         double x = xi[j];
-        if (x < vv[j][0] - 0.5 * vvol[j][0]) 
+        if (x < vv[j][0] - 0.5 * vvol[j][0]) {
             i[j] = -1;
-        else if (x > vv[j][vv[j].size()-1] + 0.5 * vvol[j][vv[j].size()-1]) 
+        }
+        else if (x > vv[j][vv[j].size()-1] + 0.5 * vvol[j][vv[j].size()-1]) {
             i[j] = vv[j].size();
+        }
         else {
             int l = 0, r = vv[j].size(), c = 0;
             while (l < r) {
@@ -183,9 +186,8 @@ inline XiMeshRect<Cartesian>::XiMeshRect(const VVd& vv, const VVd& vvol) :
                     xyzmap[j] = i;
                     ++i;
                 }
-                else {
+                else 
                     xyzmap[j] = -1;
-                }
             }
     std::cout << "ximesh.size() = " << xis.size() << std::endl;
     mirr.resize(xis.size());
@@ -194,7 +196,6 @@ inline XiMeshRect<Cartesian>::XiMeshRect(const VVd& vv, const VVd& vvol) :
         mirr[i] = V3i(operator()(V3i(2*rad[0]-1-xi[0], xi[1], xi[2])),
                       operator()(V3i(xi[0], 2*rad[1]-1-xi[1], xi[2])),
                       operator()(V3i(xi[0], xi[1], 2*rad[2]-1-xi[2])));
-
     }
 
     v3.resize(xis.size());

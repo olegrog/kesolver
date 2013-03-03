@@ -1,10 +1,16 @@
 #!/usr/bin/env python
 
-import sys, math, numpy, array, struct, itertools
+import sys, math, array, struct, itertools
 import json
+import numpy as np
 
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 import matplotlib.pyplot as plt
+
+from kepy.ximesh import read_ximesh
+
+def sqr(x):
+    return x*x
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
@@ -13,27 +19,7 @@ ax = fig.add_subplot(111, projection='3d')
 with open(sys.argv[1], 'rb') as fd:
     data = json.load(fd)
 
-cut = float(data["gas"]["cut"])
-rad = int(data["gas"]["rad"])
-symmetry = data["gas"]["symmetry"]
-
-print rad
-
-if symmetry == "Cylindrical":
-    dim = (2*rad, rad) 
-    x = numpy.fromfunction(lambda i, j: i - rad + 0.5, dim)
-    r = numpy.fromfunction(lambda i, j: j       + 0.5, dim)
-    vol = r
-    e = x*x + r*r
-    
-elif symmetry == "Cartesian":
-    dim = (2*rad, 2*rad, 2*rad)
-    x = numpy.fromfunction(lambda i, j, k: i - rad + 0.5, dim)
-    y = numpy.fromfunction(lambda i, j, k: j - rad + 0.5, dim)
-    z = numpy.fromfunction(lambda i, j, k: k - rad + 0.5, dim)
-    vol = numpy.ones_like(y)
-    e = x*x + y*y + z*z
-
+symmetry, rad, cut, xyz, vol, r, d3v = read_ximesh(data)
 
 with open(sys.argv[2], 'rb') as fd:
     while fd:
@@ -42,30 +28,31 @@ with open(sys.argv[2], 'rb') as fd:
 
         print i, size
 
-        f = numpy.zeros_like(x)
+        f = np.zeros_like(r)
         a = array.array('d')
-        circl = e < rad*rad
-        size = numpy.sum(circl)
+        circl = r < cut*cut
+        size = np.sum(circl)
+        print size
         a.fromfile(fd, size)
 
         if i == int(sys.argv[3]):
-            f[circl] = numpy.array(a)
+            f[circl] = np.array(a)
 
             f = f / vol
-            f = numpy.ma.masked_where(f == 0.0, f)
+            f = np.ma.masked_where(f == 0.0, f)
 
             if symmetry == "Cartesian":
-                xp = x[:, rad:, rad]
-                yp = y[:, rad:, rad]
+                xp = xyz[0][:, rad:, rad]
+                yp = xyz[1][:, rad:, rad]
                 fp = f[:, rad:, rad]
             elif symmetry == "Cylindrical":
-                xp, yp, fp = x, y, f
+                xp, yp, fp = xyz[0], xyz[1], f
             surf = ax.plot_wireframe(xp, yp, fp, color='k')
 
             break
 
-ax.set_xlabel(r'$\xi_y$')
-ax.set_ylabel(r'$\xi_x$')
+ax.set_xlabel(r'$\xi_x$')
+ax.set_ylabel(r'$\xi_y$')
 
 for axis in ax.w_xaxis, ax.w_yaxis, ax.w_zaxis:
     axis.pane.set_visible(False)

@@ -110,13 +110,13 @@ stencilMulti(XiMeshRect<Cylindrical>::Vi vj, const XiMeshRect<Cylindrical>& )
 template <Volume volume, Symmetry symmetry> 
 Stencil<symmetry, volume, double> makeRSwarm(const typename SymmetryTrait<symmetry>::Vd x,
                                              const Stencil<symmetry, volume, int> j,
-                                             const XiMeshRect<symmetry> mesh)
+                                             const XiMeshRect<symmetry>& mesh)
 {
     return doMakeRSwarm<volume>(x, j, mesh);
 }
 
 template <Symmetry symmetry>
-double normRSwarm(const int i, const XiMeshRect<symmetry> ximesh)
+double normRSwarm(const int i, const XiMeshRect<symmetry>& ximesh)
 {
     return 1.;
 }

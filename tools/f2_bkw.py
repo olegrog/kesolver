@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 
 from scipy.integrate import quad
 
+from kepy.ximesh import read_ximesh, make_e
+
 def sqr(x):
     return x * x
 
@@ -29,34 +31,7 @@ timestep      = float(sys.argv[4])
 with open(keifilename, 'rb') as fd:
     data = json.load(fd)
 
-cut = float(data["gas"]["cut"])
-rad = int(data["gas"]["rad"])
-symmetry = data["gas"]["symmetry"]
-
-print rad
-
-if symmetry == "Cylindrical":
-    v = float(data["gas"].get("v", "0."))
-    dim = (2*rad, rad) 
-    x = np.fromfunction(lambda i, j: v + (i + 0.5 - rad) * cut / rad,
-                        (2 * rad, rad), dtype=float)
-    y = np.fromfunction(lambda i, j: (j + 0.5) * cut / rad,
-                        (2 * rad, rad), dtype=float)
-    vol = y
-    e = x*x + y*y
-    
-elif symmetry == "Cartesian":
-    v = map(float, data["gas"].get("v", "( 0. 0. 0. )")[1:-1].split() )
-    vx, vy, vz = v
-    dim = (2*rad, 2*rad, 2*rad)
-    x = np.fromfunction(lambda i, j, k: vx + (i + 0.5 - rad) * cut / rad,
-                        (2 * rad, 2 * rad, 2 * rad), dtype=float)
-    y = np.fromfunction(lambda i, j, k: vy + (j + 0.5 - rad) * cut / rad,
-                        (2 * rad, 2 * rad, 2 * rad), dtype=float)
-    z = np.fromfunction(lambda i, j, k: vz + (k + 0.5 - rad) * cut / rad,
-                        (2 * rad, 2 * rad, 2 * rad), dtype=float)
-    vol = np.ones_like(y)
-    e = x*x + y*y + z*z
+symmetry, rad, cut, xyz, vol, r, d3v = read_ximesh(data)
 
 # calculate lambda
 
@@ -79,9 +54,9 @@ with open(ffilename, 'rb') as fd:
     data = fd.read(4+4)
     i, size = struct.unpack('=ii', data)
 
-    f = np.zeros_like(x)
+    f = np.zeros_like(r)
     a = array.array('d')
-    circl = e < cut*cut
+    circl = r < cut*cut
     size = np.sum(circl)
     a.fromfile(fd, size)
 
@@ -100,34 +75,36 @@ time = file_i * timestep / math.sqrt(2) / math.pi
 
 xi = 0.4
 tau = 1. - xi * math.exp( - lamd * time )
+
+e = make_e(symmetry, xyz)
 e1 = 0.5 * e / tau
 
 g = 1. / math.sqrt(cube(2 * math.pi * tau)) * np.exp(-e1) * ( 1 + (1 - tau) / tau * (e1 - 1.5) )
 
 # prepare data for plotting
 
-def p(symm, x, y, f):
-    if symm == "Cartesian":
-        xp = x[:, rad:, rad]
-        yp = y[:, rad:, rad]
+def p(symm, xyz, f):
+    if symmetry == "Cartesian":
+        xp = xyz[0][:, rad:, rad]
+        yp = xyz[1][:, rad:, rad]
         fp = f[:, rad:, rad]
-        return xp, yp, fp
-    elif symm == "Cylindrical":
-        return x, y, f 
+    elif symmetry == "Cylindrical":
+        xp, yp, fp = xyz[0], xyz[1], f
+    return xp, yp, fp
 
 # plot functions
 
-surf = ax.plot_wireframe(*p(symmetry, x, y, f), color='b')
-surg = ax.plot_wireframe(*p(symmetry, x, y, g), color='r')
-#surg = ax.plot_wireframe(*p(symmetry, x, y, (f-g)), color='r')
+surf = ax.plot_wireframe(*p(symmetry, xyz, f), color='b')
+surg = ax.plot_wireframe(*p(symmetry, xyz, g), color='r')
+#surg = ax.plot_wireframe(*p(symmetry, xyz, (f-g)), color='r')
 
 with open("out1.txt", "w") as out:
-    x1, y1, f1 = p(symmetry, x, y, f)
+    x1, y1, f1 = p(symmetry, xyz, f)
     for u, v in zip(x1[:, 0], f1[:, 0]):
         out.writelines(str(u) + ' ' + str(v) + '\n')
 
 #with open("out2.txt", "w") as out:
-#    x1, y1, f1 = p(symmetry, x, y, (f-g))
+#    x1, y1, f1 = p(symmetry, xyz, (f-g))
 #    for u, v in zip(x1[:, 0], f1[:, 0]):
 #        out.writelines(str(u) + ' ' + str(v) + '\n')
 
