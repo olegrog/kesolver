@@ -50,8 +50,11 @@ class XiMeshRect {
         const Vj mirror(int i) const
                 { return mirr[i]; }
 
-         double vvi(int i, int a) const 
+        double vvi(int i, int a) const 
                 { return vv[a][i]; }
+
+        double vvoli(int i, int a) const 
+                { return vvol[a][i2vi(i)[a]]; }
 
     private:
         Vi rad;
@@ -96,7 +99,7 @@ inline int XiMeshRect<Cartesian>::operator()(const Vi i) const {
 
 template <>
 inline int XiMeshRect<Cylindrical>::operator()(Vi i) const {
-//    if (i[1] < 0) i[1] = - i[1] - 1;
+    if (i[1] < 0) i[1] = - i[1] - 1;
 //    std::cout << "i, rad = " << i << ' ' << rad << std::endl;
     return ((i >= 0) && (i < Vi(2*rad[0], rad[1]))) ? xyzmap[flatten(i)] : -1;
 }

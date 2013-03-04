@@ -2076,11 +2076,17 @@ struct MakeRSwarm<Symmetric, Cylindrical, XiMeshType> {
 
         V2d hf, hb;
 
-        hf[0] = ximesh[j.i][0] - ximesh[j.o][0];
-        hb[0] = ximesh[j.l][0] - ximesh[j.o][0];
-        hf[1] = ximesh[j.j][1] - ximesh[j.o][1];
-        hb[1] = ximesh[j.m][1] - ximesh[j.o][1];
+        hf[0] =   0.5 * ( ximesh.vvoli(j.i, 0) + ximesh.vvoli(j.o, 0) );
+        hb[0] = - 0.5 * ( ximesh.vvoli(j.l, 0) + ximesh.vvoli(j.o, 0) );
+        hf[1] =   0.5 * ( ximesh.vvoli(j.j, 1) + ximesh.vvoli(j.o, 1) );
+        hb[1] = - 0.5 * ( ximesh.vvoli(j.m, 1) + ximesh.vvoli(j.o, 1) );
         
+/*
+        std::cout << ximesh[j.i][0] - ximesh[j.o][0] << " = " << hf[0] << std::endl;
+        std::cout << ximesh[j.l][0] - ximesh[j.o][0] << " = " << hb[0] << std::endl;
+        std::cout << ximesh[j.j][1] - ximesh[j.o][1] << " = " << hf[1] << std::endl;
+        std::cout << ximesh[j.m][1] - ximesh[j.o][1] << " = " << hb[1] << std::endl;
+*/
 
         s.i  =   x[0] * (x[0] - hb[0]) / hf[0] / (hf[0] - hb[0]);
         s.l  = - x[0] * (x[0] - hf[0]) / hb[0] / (hf[0] - hb[0]);
@@ -2110,13 +2116,12 @@ struct MakeRSwarm<Symmetric, Cartesian, XiMeshType> {
 
         V3d hf, hb;
 
-        hf[0] = ximesh[j.i][0] - ximesh[j.o][0];
-        hb[0] = ximesh[j.l][0] - ximesh[j.o][0];
-        hf[1] = ximesh[j.j][1] - ximesh[j.o][1];
-        hb[1] = ximesh[j.m][1] - ximesh[j.o][1];
-        hf[2] = ximesh[j.k][2] - ximesh[j.o][2];
-        hb[2] = ximesh[j.n][2] - ximesh[j.o][2];
-        
+        hf[0] =   0.5 * ( ximesh.vvoli(j.i, 0) + ximesh.vvoli(j.o, 0) );
+        hb[0] = - 0.5 * ( ximesh.vvoli(j.l, 0) + ximesh.vvoli(j.o, 0) );
+        hf[1] =   0.5 * ( ximesh.vvoli(j.j, 1) + ximesh.vvoli(j.o, 1) );
+        hb[1] = - 0.5 * ( ximesh.vvoli(j.m, 1) + ximesh.vvoli(j.o, 1) );
+        hf[2] =   0.5 * ( ximesh.vvoli(j.k, 2) + ximesh.vvoli(j.o, 2) );
+        hb[2] = - 0.5 * ( ximesh.vvoli(j.n, 2) + ximesh.vvoli(j.o, 2) );
 
         s.i  =   x[0] * (x[0] - hb[0]) / hf[0] / (hf[0] - hb[0]);
         s.l  = - x[0] * (x[0] - hf[0]) / hb[0] / (hf[0] - hb[0]);

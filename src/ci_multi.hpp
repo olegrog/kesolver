@@ -234,6 +234,14 @@ void ciIterMultiCont(DF& f, const Nodes& nodes)
 //        std::cout << "g2 = " << g2 << std::endl;
 
         if ((g1 != g1) || (g2 != g2)) {
+            LABEL
+
+            std::cout << "f1 = " << f1 << std::endl;
+            std::cout << "f2 = " << f2 << std::endl;
+
+            std::cout << "r1 = " << r1 << std::endl;
+            std::cout << "r2 = " << r2 << std::endl;
+
             exit(-1);
         }
 
