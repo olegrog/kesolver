@@ -110,8 +110,11 @@ with open("out1.txt", "w") as out:
 
 # estinate the error
 
-err = math.sqrt(np.sum(sqr(f-g)) / np.sum(g))
-print err
+err = math.sqrt(np.sum(sqr(f-g)*vol) / np.sum(sqr(g)*vol))
+m4f = np.sum( vol * f * sqr(e) )
+m4g = np.sum( vol * g * sqr(e) )
+errm4 = abs(m4f-m4g) / m4g
+print err, errm4
 
 ax.set_xlabel(r'$\xi_y$')
 ax.set_ylabel(r'$\xi_x$')

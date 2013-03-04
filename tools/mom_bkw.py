@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 
 from scipy.integrate import quad
 
+from kepy.ximesh import read_ximesh, make_e
+
 def sqr(x):
     return x * x
 
@@ -24,34 +26,7 @@ ffilenames    = sys.argv[4:]
 with open(keifilename, 'rb') as fd:
     data = json.load(fd)
 
-cut = float(data["gas"]["cut"])
-rad = int(data["gas"]["rad"])
-symmetry = data["gas"]["symmetry"]
-
-print rad
-
-if symmetry == "Cylindrical":
-    v = float(data["gas"].get("v", "0."))
-    dim = (2*rad, rad) 
-    x = np.fromfunction(lambda i, j: v + (i + 0.5 - rad) * cut / rad,
-                        (2 * rad, rad), dtype=float)
-    y = np.fromfunction(lambda i, j: (j + 0.5) * cut / rad,
-                        (2 * rad, rad), dtype=float)
-    vol = y
-    e = x*x + y*y
-    
-elif symmetry == "Cartesian":
-    v = map(float, data["gas"].get("v", "( 0. 0. 0. )")[1:-1].split() )
-    vx, vy, vz = v
-    dim = (2*rad, 2*rad, 2*rad)
-    x = np.fromfunction(lambda i, j, k: vx + (i + 0.5 - rad) * cut / rad,
-                        (2 * rad, 2 * rad, 2 * rad), dtype=float)
-    y = np.fromfunction(lambda i, j, k: vy + (j + 0.5 - rad) * cut / rad,
-                        (2 * rad, 2 * rad, 2 * rad), dtype=float)
-    z = np.fromfunction(lambda i, j, k: vz + (k + 0.5 - rad) * cut / rad,
-                        (2 * rad, 2 * rad, 2 * rad), dtype=float)
-    vol = np.ones_like(y)
-    e = x*x + y*y + z*z
+symmetry, rad, cut, xyz, vol, r, d3v = read_ximesh(data)
 
 # calculate lambda
 
@@ -84,9 +59,9 @@ for i in range(int(ffilenames[0])):
         data = fd.read(4+4)
         i, size = struct.unpack('=ii', data)
 
-        f = np.zeros_like(x)
+        f = np.zeros_like(r)
         a = array.array('d')
-        circl = e < cut*cut
+        circl = r < cut*cut
         size = np.sum(circl)
         a.fromfile(fd, size)
 
@@ -99,27 +74,29 @@ for i in range(int(ffilenames[0])):
 
     xi = 0.4
     tau = 1. - xi * math.exp( - lamd * t )
+
+    e = make_e(symmetry, xyz)
     e1 = 0.5 * e / tau
 
     g = 1. / math.sqrt(cube(2 * math.pi * tau)) * np.exp(-e1) * ( 1 + (1 - tau) / tau * (e1 - 1.5) )
 
     g /= np.sum(vol*g) / np.sum(vol*f)
 
-    sum_f = np.sum( vol * f * sqr(e) )
-    sum_g = np.sum( vol * g * sqr(e) )
+    sum_f = np.sum( vol * f * e**7 )
+    sum_g = np.sum( vol * g * e**7 )
 
     time.append(t)
     mom_f.append(sum_f)
     mom_g.append(sum_g)
 
-#plt.plot(time, mom_f, 'b')
-#plt.plot(time, mom_g, 'g')
+plt.plot(time, mom_f, 'b')
+plt.plot(time, mom_g, 'g')
 
 d = np.abs(np.array(mom_f) - np.array(mom_g)) / np.array(mom_g)
 err = np.trapz(x=time, y=d)
 print err
 
-plt.plot(time, d, 'g')
+#plt.plot(time, d, 'g')
 
 with open("out1.txt", "w") as out:
     for u, v in zip(time, mom_g):
