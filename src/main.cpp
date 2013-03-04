@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <limits>
 
 #include "property_tree/property_tree.hpp"
 #include "logger/logger.hpp"
@@ -74,7 +75,11 @@ int main(int argc, char** argv)
     LOG(INFO) << "rep = " << rep;
 
     Printer printer(prop_tree["printer"]);
-    for (int i = 0; i < 200001; i++) {
+
+    int num_time_steps = prop_tree.isMember("num_steps") ?
+                         prop_tree["num_steps"].asInt() : std::numeric_limits<int>::max();
+
+    for (int i = 0; i < num_time_steps; i++) {
 
         LOG(INFO) << i;
 

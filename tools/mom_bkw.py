@@ -51,6 +51,9 @@ time  = []
 mom_f = []
 mom_g = []
 
+mom_p = [2, 4, 6]
+mom_d = [15, 945, 135135]
+
 #for ffilename in ffilenames:
 for i in range(int(ffilenames[0])):
     ffilename = ffilenames[1] % i
@@ -82,28 +85,36 @@ for i in range(int(ffilenames[0])):
 
     g /= np.sum(vol*g) / np.sum(vol*f)
 
-    sum_f = np.sum( vol * f * e**7 )
-    sum_g = np.sum( vol * g * e**7 )
+    sum_f = [np.sum( vol * f * e**p ) * d3v / d for p, d in zip(mom_p, mom_d)]
+    sum_g = [np.sum( vol * g * e**p ) * d3v / d for p, d in zip(mom_p, mom_d)]
 
     time.append(t)
     mom_f.append(sum_f)
     mom_g.append(sum_g)
 
-plt.plot(time, mom_f, 'b')
-plt.plot(time, mom_g, 'g')
+mom_f = zip(*mom_f)
+mom_g = zip(*mom_g)
 
-d = np.abs(np.array(mom_f) - np.array(mom_g)) / np.array(mom_g)
-err = np.trapz(x=time, y=d)
+"""
+for mf, mg in zip(mom_f, mom_g):
+    plt.plot(time, mf, 'b')
+    plt.plot(time, mg, 'g')
+"""
+
+d = [np.abs(np.array(mf) - np.array(mg)) / np.array(mg)
+        for mf, mg in zip(mom_f, mom_g)]
+err = [np.trapz(x=time, y=y) for y in d]
 print err
 
-#plt.plot(time, d, 'g')
+for y in d:
+    plt.plot(time, y)
 
 with open("out1.txt", "w") as out:
-    for u, v in zip(time, mom_g):
-        out.writelines(str(u) + ' ' + str(v) + '\n')
+    for u, v in zip(time, zip(*mom_f)):
+        out.writelines(str(u) + ' ' + ' '.join(map(str, v)) + '\n')
 
 with open("out2.txt", "w") as out:
-    for u, v in zip(time, d):
-        out.writelines(str(u) + ' ' + str(v) + '\n')
+    for u, v in zip(time, zip(*d)):
+        out.writelines(str(u) + ' ' + ' '.join(map(str, v)) + '\n')
 
 plt.show()

@@ -85,8 +85,6 @@ void ciGen(const double time_step, const int p,
             ++n_nu;
         if ((type == GoodOne) || (type == GoodTwo))
             nc.push_back(node);
-        if (n_nu % 10000 == 0)
-            std::cout << "n_nu = " << n_nu << std::endl;
     }
 
     std::cout << "n_calc = " << nc.size() << " n_nu = " << n_nu << std::endl;
@@ -418,8 +416,9 @@ inline double delta(const double fv, const double fw,
 }
 
 template <typename DF, typename Nodes>
-void ciIter(DF& f, const Nodes& nodes)
+int ciIter(DF& f, const Nodes& nodes)
 {
+    int k = 0, l = 0;
     for (typename Nodes::const_iterator p = nodes.begin(); p != nodes.end(); ++p) {
         typename Nodes::const_reference n = *p;
         if (n.type == 2) {
@@ -465,6 +464,38 @@ void ciIter(DF& f, const Nodes& nodes)
                 f[n.i2m] = z.d[1];
                 f[n.i1 ] = rr5;
                 f[n.i2 ] = rr6;
+
+                d = 2 * rr5 * rr6 * n.c;
+
+                dl = (1. - n.r) * d;
+                dm = n.r * d;
+
+                f[n.i1l] += dl;
+                f[n.i2l] += dl;
+                f[n.i1m] += dm;
+                f[n.i2m] += dm;
+                f[n.i1]  -= d;
+                f[n.i2]  -= d;
+
+                if ((f[n.i1l] < 0) ||
+                    (f[n.i1m] < 0) ||
+                    (f[n.i2l] < 0) ||
+                    (f[n.i2m] < 0) ||
+                    (f[n.i1]  < 0) || 
+                    (f[n.i2]  < 0))
+                {
+                    f[n.i1l] = x.d[0];
+                    f[n.i1m] = x.d[1];
+                    f[n.i2l] = z.d[0];
+                    f[n.i2m] = z.d[1];
+                    f[n.i1 ] = rr5;
+                    f[n.i2 ] = rr6;
+
+                    ++k;
+                }
+                else {
+                    ++l;
+                }
             }
         }
         else {
@@ -489,9 +520,13 @@ void ciIter(DF& f, const Nodes& nodes)
                 f[n.i2] = g2;
                 f[n.i1m] = g3;
                 f[n.i2m] = g4;
+                ++k;
             }
         }
     }
+    std::cout << "k / nodes.size() = " << static_cast<double>(k) / nodes.size() << std::endl;
+    std::cout << "l / nodes.size() = " << static_cast<double>(l) / nodes.size() << std::endl;
+    return k;
 }
 
 #endif

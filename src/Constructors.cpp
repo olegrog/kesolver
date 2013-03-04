@@ -63,8 +63,8 @@ makeVV(const std::vector<double>& vs,
        const std::vector<double>& vols2);
 
 template <>
-std::pair<typename SymmetryTrait<Cartesian>::VVd,
-          typename SymmetryTrait<Cartesian>::VVd>
+std::pair<SymmetryTrait<Cartesian>::VVd,
+          SymmetryTrait<Cartesian>::VVd>
 makeVV<Cartesian>(const std::vector<double>& vs, 
                   const std::vector<double>& vols,
                   const std::vector<double>& vs2, 
@@ -75,8 +75,8 @@ makeVV<Cartesian>(const std::vector<double>& vs,
 }
 
 template <>
-std::pair<typename SymmetryTrait<Cylindrical>::VVd,
-          typename SymmetryTrait<Cylindrical>::VVd>
+std::pair<SymmetryTrait<Cylindrical>::VVd,
+          SymmetryTrait<Cylindrical>::VVd>
 makeVV<Cylindrical>(const std::vector<double>& vs, 
                     const std::vector<double>& vols,
                     const std::vector<double>& vs2, 
