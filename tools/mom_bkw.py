@@ -58,17 +58,20 @@ mom_d = [15, 945, 135135]
 for i in range(int(ffilenames[0])):
     ffilename = ffilenames[1] % i
 
-    with open(ffilename, 'rb') as fd:
-        data = fd.read(4+4)
-        i, size = struct.unpack('=ii', data)
+    try:
+        with open(ffilename, 'rb') as fd:
+            data = fd.read(4+4)
+            i, size = struct.unpack('=ii', data)
 
-        f = np.zeros_like(r)
-        a = array.array('d')
-        circl = r < cut*cut
-        size = np.sum(circl)
-        a.fromfile(fd, size)
+            f = np.zeros_like(r)
+            a = array.array('d')
+            circl = r < cut*cut
+            size = np.sum(circl)
+            a.fromfile(fd, size)
 
-        f[circl] = np.array(a)
+            f[circl] = np.array(a)
+    except IOError: 
+        continue
 
     f = f / vol
 
@@ -95,25 +98,29 @@ for i in range(int(ffilenames[0])):
 mom_f = zip(*mom_f)
 mom_g = zip(*mom_g)
 
-"""
-for mf, mg in zip(mom_f, mom_g):
-    plt.plot(time, mf, 'b')
-    plt.plot(time, mg, 'g')
-"""
 
 d = [np.abs(np.array(mf) - np.array(mg)) / np.array(mg)
         for mf, mg in zip(mom_f, mom_g)]
 err = [np.trapz(x=time, y=y) for y in d]
 print err
 
-for y in d:
-    plt.plot(time, y)
+if False:
+    for y in d:
+        plt.plot(time, y)
+else:
+    for mf, mg in zip(mom_f, mom_g):
+        plt.plot(time, mf, 'b')
+        plt.plot(time, mg, 'g')
 
-with open("out1.txt", "w") as out:
+with open("outf.txt", "w") as out:
     for u, v in zip(time, zip(*mom_f)):
         out.writelines(str(u) + ' ' + ' '.join(map(str, v)) + '\n')
 
-with open("out2.txt", "w") as out:
+with open("outg.txt", "w") as out:
+    for u, v in zip(time, zip(*mom_g)):
+        out.writelines(str(u) + ' ' + ' '.join(map(str, v)) + '\n')
+
+with open("outd.txt", "w") as out:
     for u, v in zip(time, zip(*d)):
         out.writelines(str(u) + ' ' + ' '.join(map(str, v)) + '\n')
 
