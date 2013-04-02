@@ -75,6 +75,7 @@ struct MacroMixture {
             Vm q;
             boost::tie(n, v, temp, t, q) = macro(f, mesh,
                                          mesh.offset(j), mesh.offset(j+1));
+            std::cout << MacroSimple<symmetry>(n, v, temp, t, q) << std::endl;
             macros.push_back(MacroSimple<symmetry>(n, v, temp, t, q));
         }
     }
@@ -94,9 +95,9 @@ struct MacroMixture {
                 n    += f[i];
                 m    += f[i] * mesh.m(i);
                 v    += f[i] * mesh.p(i);
-                temp += f[i] * mesh.e(i);
+                temp += f[i] * sqr(mesh[i]);
                 t    += f[i] * mesh.m(i) * mesh[i] * mesh[i];
-                v    += f[i] * 0.5 * mesh.p(i) * mesh.e(i);
+                q    += f[i] * 0.5 * mesh.p(i) * mesh.e(i);
             }
             v /= m;
             q *= n / m;

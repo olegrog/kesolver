@@ -18,5 +18,6 @@ if __name__ == "__main__":
         
     # dump in .kei file
     with open(sys.argv[-1], 'wb') as fd: 
-        json.dump(data, fd)
+#        json.dump(data, fd)
+        json.dump(data, fd, indent=2, sort_keys=True)
 

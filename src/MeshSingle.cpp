@@ -1,6 +1,6 @@
 #include "MeshSingle.hpp"
 
-MeshSingle::MeshSingle(MeshBase* mesh) :
+MeshSingle::MeshSingle(int argc, char** argv, MeshBase* mesh) :
     time_step(mesh->getTimeStep()),
     cells(mesh->getCells()),
     facets(mesh->getFacets())

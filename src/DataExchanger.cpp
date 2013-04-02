@@ -52,6 +52,8 @@ void DataExchanger::prepareSendRecv2(std::vector<Polygon*>& cells, int rank)
 
 void DataExchanger::cleanSendRecv()
 {
+    LABEL
+
     for(size_t i = 0; i < _send_tetr.size(); i++) {
         int k = 0;
         for(size_t j = 0; j < i; j++)

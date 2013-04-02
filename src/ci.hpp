@@ -524,8 +524,8 @@ int ciIter(DF& f, const Nodes& nodes)
             }
         }
     }
-    std::cout << "k / nodes.size() = " << static_cast<double>(k) / nodes.size() << std::endl;
-    std::cout << "l / nodes.size() = " << static_cast<double>(l) / nodes.size() << std::endl;
+//    std::cout << "k / nodes.size() = " << static_cast<double>(k) / nodes.size() << std::endl;
+//    std::cout << "l / nodes.size() = " << static_cast<double>(l) / nodes.size() << std::endl;
     return k;
 }
 

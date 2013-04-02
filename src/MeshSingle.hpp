@@ -7,7 +7,7 @@
 
 class MeshSingle : public Mesh {
     public:
-        MeshSingle(MeshBase* mesh_ptr);
+        MeshSingle(int argc, char** argv, MeshBase* mesh);
             
         Cells&  getAllCells()      { return cells; }
         Cells&  getFlowingCells()  { return cells; }

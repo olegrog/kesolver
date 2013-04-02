@@ -1,11 +1,11 @@
 #include <iostream>
 
-#include "MeshSingle.hpp"
+#include "MeshMpi.hpp"
 #include "solver.hpp"
 
 int main(int argc, char** argv)
 {
-    Solver<MeshSingle>(argc, argv);
+    Solver<MeshMpi>(argc, argv);
 
     return 0;
 }

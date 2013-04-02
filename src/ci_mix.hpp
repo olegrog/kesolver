@@ -96,13 +96,13 @@ stencilMulti(XiMeshMix<Cylindrical>::Vi vj, const XiMeshMix<Cylindrical>& )
 template <Volume volume, Symmetry symmetry> 
 Stencil<symmetry, volume, double> makeRSwarm(const typename SymmetryTrait<symmetry>::Vd x,
                                              const Stencil<symmetry, volume, int> j,
-                                             const XiMeshMix<symmetry> mesh)
+                                             const XiMeshMix<symmetry>& mesh)
 {
     return makeRSwarm<volume>(x);
 }
 
 template <Symmetry symmetry>
-double normRSwarm(const int i, const XiMeshMix<symmetry> ximesh)
+double normRSwarm(const int i, const XiMeshMix<symmetry>& ximesh)
 {
     return ximesh.a(i);
 }
@@ -190,7 +190,9 @@ class ColliderMix {
 
         void gen(const double time_step, const int p,
                  const XiMeshMixType& ximesh,
-                 const SimpleSection* section) {
+                 const SimpleSection* section)
+        {
+            LABEL
             ciGen(time_step, p, ximesh, nc, section);
         }
 

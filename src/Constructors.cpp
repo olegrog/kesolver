@@ -35,6 +35,7 @@ const std::vector<double> readMasses(const PropertyTree& tree) {
         while (ss >> mass)
             masses.push_back(mass);
     }
+    std::cout << "masses.size() = " << masses.size() << std::endl;
     return masses;
 }
 
@@ -232,6 +233,7 @@ Gas* gasSymmetry(const PropertyTree& tree, const std::string& type,
 
 void GasConstructor(const PropertyTree& tree, Gas** gas_pp)
 {
+    LABEL
     const std::string type = tree["type"].asString();
     std::cout << "type = " << type << std::endl;
 
