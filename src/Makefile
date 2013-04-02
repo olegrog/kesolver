@@ -1,9 +1,8 @@
-CXX      :=  c++
-MPICXX   :=  mpic++ -DMPI_ON
+MPICXX   :=  mpic++
+CXX      :=  g++
 CXXFLAGS :=  -O3 -Wall -march=native # -fprofile-use
 
-SOURCE   :=  main.cpp
-SOURCE   +=  Constructors.cpp
+SOURCE   :=  Constructors.cpp
 
 SOURCE   += SpeedFunction.cpp
 
@@ -31,16 +30,22 @@ SOURCE   +=  logger/logger.cpp
 MPISOURCE := MeshMpi.cpp
 MPISOURCE += DataExchanger.cpp
 
-OBJ    = $(SOURCE:.cpp=.o)
-MPIOBJ = $(MPISOURCE:.cpp=.o)
+MPIOBJ_ALL := $(SOURCE:.cpp=.o)
+
+SOURCE    +=  main.cpp
+MPISOURCE +=  main-mpi.cpp
+
+OBJ        := $(SOURCE:.cpp=.o)
+MPIOBJ     := $(MPISOURCE:.cpp=.o)
+MPIOBJ_ALL += $(MPISOURCE:.cpp=.o)
 
 INCLUDES := -I .
 INCLUDES += -I ../JsonCpp/include
 
 LIBS     := -L ../JsonCpp/lib/ -ljsoncpp
 
-DEP    = $(SOURCE:.cpp=.d)
-MPIDEP = $(MPISOURCE:.cpp=.d)
+DEP    := $(SOURCE:.cpp=.d)
+MPIDEP := $(MPISOURCE:.cpp=.d)
 
 .PHONY : all debug clean
 
@@ -56,27 +61,28 @@ clean :
 kes : $(OBJ)
 	$(CXX) -o kes $(OBJ) $(CXXFLAGS) $(LIBS)
 
-kes-mpi : $(OBJ) $(MPIOBJ)
-	$(MPICXX) -o kes-mpi $(OBJ) $(MPIOBJ) $(CXXFLAGS) $(LIBS)
+kes-mpi : $(MPIOBJ_ALL)
+	$(MPICXX) -o kes-mpi $(MPIOBJ_ALL) $(CXXFLAGS) $(LIBS)
 
 -include $(DEP)
 -include $(MPIDEP)
 
-%.d: %.cpp
-	@set -e; rm -f $@; \
-	$(CXX) -MM $(CXXFLAGS) $(INCLUDES) $< > $@.$$$$; \
-	sed 's,\($(notdir $*)\)\.o[ :]*,$(dir $*)\1.o $@ : ,g' < $@.$$$$ > $@; \
-	rm -f $@.$$$$
+define make_dep
+	@set -e; rm -f $1; \
+	$3 -MM $(CXXFLAGS) $(INCLUDES) $< > $1.$$$$; \
+	sed 's,\($(notdir $2)\)\.o[ :]*,$(dir $2)\1.o $1 : ,g' < $1.$$$$ > $1; \
+	rm -f $1.$$$$
+endef
 
-MeshMpi.o : MeshMpi.cpp
-	$(MPICXX) -c $< -o $@ $(CXXFLAGS) $(INCLUDES)
+$(DEP): %.d: %.cpp
+	$(call make_dep,$@,$*,$(CXX))
 
-DataExchanger.o : DataExchanger.cpp
-	$(MPICXX) -c $< -o $@ $(CXXFLAGS) $(INCLUDES)
+$(MPIDEP): %.d: %.cpp
+	$(call make_dep,$@,$*,$(MPICXX))
 
-base64/base64.o: base64/base64.cpp
-	$(CXX) $(CXXFLAGS) -Wno-char-subscripts $(INCLUDES) -c $< -o $@
-
-.cpp.o:
+$(OBJ): %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+$(MPIOBJ): %.o: %.cpp
+	$(MPICXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
