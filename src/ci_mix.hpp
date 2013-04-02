@@ -192,7 +192,6 @@ class ColliderMix {
                  const XiMeshMixType& ximesh,
                  const SimpleSection* section)
         {
-            LABEL
             ciGen(time_step, p, ximesh, nc, section);
         }
 
