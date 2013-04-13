@@ -333,6 +333,12 @@ template <typename T> inline const T sqr(const V2<T>& u) {
 	return dot(u, u);
 }
 
+template <typename T> inline const V2<T> abs(V2<T> u) {
+    if (u[0] < 0) u[0] = - u[0];
+    if (u[1] < 0) u[1] = - u[1];
+    return u;
+}
+
 template <typename T> inline T max(const V2<T>& u) {
     if (u[0] > u[1]) return u[0];
     else             return u[1];

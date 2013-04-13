@@ -20,7 +20,6 @@ void Integral::collide(double t,
         if (order == 1)
         {
             gas.ciGen(2*t, p, section);
-            LABEL
             for(size_t i = 0; i < cells.size(); i++) {
                 gas.ciIter(cells[i]->f().g());
                 cells[i]->f().equategf();

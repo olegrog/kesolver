@@ -90,7 +90,7 @@ makeVV<Cylindrical>(const std::vector<double>& vs,
 template <Symmetry symmetry>
 std::pair<typename SymmetryTrait<symmetry>::VVd,
           typename SymmetryTrait<symmetry>::VVd>
-readVV(const PropertyTree& tree, int rad, double cut)
+makeVVByQ(const PropertyTree& tree, int rad, double cut)
 {
     double hcenter = tree["hcenter"].asDouble(); 
     double q = find_q(cut / hcenter, rad);
@@ -125,6 +125,78 @@ readVV(const PropertyTree& tree, int rad, double cut)
     return makeVV<symmetry>(vs, vols, vs2, vols2);
 }
 
+std::vector<double> readVectorFromBase64(const std::string& base64str)
+{
+    std::vector<unsigned char> bytes = base64::decode(base64str);
+    const double* doubles = reinterpret_cast<const double*>(&bytes.front());
+    const size_t size = bytes.size() / sizeof(double);
+    std::vector<double> vector(size);
+    for (size_t i = 0; i < size; ++i)
+        vector[i] = doubles[i];
+    return vector;
+}
+
+template <Symmetry symmetry>
+typename SymmetryTrait<symmetry>::VVd
+makeVFromRaw(int raw, const std::vector<double>& vs_raw);
+
+template <>
+SymmetryTrait<Cartesian>::VVd
+makeVFromRaw<Cartesian>(int rad, const std::vector<double>& vs_raw)
+{
+    std::vector<double> vxs(2 * rad);
+    std::vector<double> vys(2 * rad);
+    std::vector<double> vzs(2 * rad);
+    for (int i = 0; i < 2 * rad; ++i)
+    {
+        vxs[i] = vs_raw[i];
+        vys[i] = vs_raw[i + 2 * rad];
+        vzs[i] = vs_raw[i + 4 * rad];
+    }
+    return SymmetryTrait<Cartesian>::VVd(vxs, vys, vzs);
+}
+
+template <>
+SymmetryTrait<Cylindrical>::VVd
+makeVFromRaw<Cylindrical>(int rad, const std::vector<double>& vs_raw)
+{
+    std::vector<double> vxs(2 * rad);
+    for (int i = 0; i < 2 * rad; ++i)
+        vxs[i] = vs_raw[i];
+    std::vector<double> vrs(rad);
+    for (int i = 0; i < rad; ++i)
+        vrs[i] = vs_raw[i + 2 * rad];
+    return SymmetryTrait<Cylindrical>::VVd(vxs, vrs);
+}
+
+template <Symmetry symmetry>
+std::pair<typename SymmetryTrait<symmetry>::VVd,
+          typename SymmetryTrait<symmetry>::VVd>
+makeVVread(const PropertyTree& tree, int rad)
+{
+    std::vector<double> vs_raw(readVectorFromBase64(tree["vs"].asString()));
+    for (size_t i = 0; i < vs_raw.size(); ++i) 
+        std::cout << vs_raw[i] << std::endl;
+    typename SymmetryTrait<symmetry>::VVd vs(makeVFromRaw<symmetry>(rad, vs_raw));
+
+    std::vector<double> vvs_raw(readVectorFromBase64(tree["vvs"].asString()));
+    for (size_t i = 0; i < vvs_raw.size(); ++i) 
+        std::cout << vvs_raw[i] << std::endl;
+    typename SymmetryTrait<symmetry>::VVd vvs(makeVFromRaw<symmetry>(rad, vvs_raw));
+
+    return std::make_pair(vs, vvs); 
+}
+
+template <Symmetry symmetry>
+std::pair<typename SymmetryTrait<symmetry>::VVd,
+          typename SymmetryTrait<symmetry>::VVd>
+readVV(const PropertyTree& tree, int rad, double cut)
+{
+    if (tree.isMember("hcenter"))
+        return makeVVByQ<symmetry>(tree, rad, cut);
+    else 
+        return makeVVread<symmetry>(tree, rad);
+}
 
 template <Symmetry symmetry, Volume volume, TimeScheme scheme>
 Gas* gasMixScheme(const PropertyTree& tree, 
@@ -225,7 +297,15 @@ Gas* gasSymmetry(const PropertyTree& tree, const std::string& type,
 
         XiMeshRect<symmetry> ximesh(vv, vvol);
 
-        return new GasType(ximesh);
+        const std::string volume = 
+            tree.isMember("volume") ? tree["volume"].asString() : "Tight";
+
+        if (volume == "Symmetric")
+            return new GasTemplate<symmetry, XiMeshRect, ColliderRect<symmetry, Symmetric> > (ximesh);
+        else if (volume == "Tight")
+            return new GasTemplate<symmetry, XiMeshRect, ColliderRect<symmetry, Tight> >     (ximesh);
+        else
+            throw std::invalid_argument("Unknown rect volume type");
     }
     else
         throw std::invalid_argument("Unknown gas type");

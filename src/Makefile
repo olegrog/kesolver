@@ -1,4 +1,4 @@
-MPICXX   :=  mpic++
+MPICXX   :=  mpic++.openmpi
 CXX      :=  g++
 CXXFLAGS :=  -O3 -Wall -march=native # -fprofile-use
 

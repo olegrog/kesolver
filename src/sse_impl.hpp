@@ -168,7 +168,7 @@ namespace sse {
 		__m128d fpart, expipart, expfpart;
 
 		x = _mm_min_pd(x, _mm_set1_pd( 1025.0));
-		x = _mm_max_pd(x, _mm_set1_pd(-1022.99999999999999));
+		x = _mm_max_pd(x, _mm_set1_pd(-1022.99999));
 
 		// ipart = int(x - 0.5) 
 		ipart = _mm_cvtpd_epi32(_mm_sub_pd(x, _mm_set1_pd(0.5)));

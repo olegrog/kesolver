@@ -198,6 +198,7 @@ double exp<FastSSE>(const double g1, const double g2) {
     x.d[0] = g1;
     x.d[1] = g2;
     x = sse::exp(x);
+
     return x.d[0] * x.d[1];
 }
 
@@ -232,7 +233,7 @@ void ciIterMultiCont(DF& f, const Nodes& nodes)
 
 //        std::cout << "g1 = " << g1 << std::endl;
 //        std::cout << "g2 = " << g2 << std::endl;
-
+/*
         if ((g1 != g1) || (g2 != g2)) {
             LABEL
 
@@ -244,12 +245,31 @@ void ciIterMultiCont(DF& f, const Nodes& nodes)
 
             exit(-1);
         }
-
+*/
         const double ff1 = aff<Node::symmetry>(exp<powmethod>(g1, g2), n);
+/*
+        if (ff1 != ff1) {
+            LABEL
+
+            std::cout << "g1 = " << g1 << std::endl;
+            std::cout << "g2 = " << g2 << std::endl;
+
+            exit(-1);
+        }
+*/
         const double ff = fi1 * fi2;
 
         const double d = ( - ff1 + ff ) * n.c; 	
+/*
+        if (d != d) {
+            LABEL
 
+            std::cout << "ff1 = " << ff1 << std::endl;
+            std::cout << "ff  = " << ff  << std::endl;
+
+            exit(-1);
+        }
+*/
         const Sd d1 = r1 * d;
         const Sd d2 = r2 * d;
 

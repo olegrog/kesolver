@@ -2112,8 +2112,6 @@ struct MakeRSwarm<Symmetric, Cartesian, XiMeshType> {
     {
         Stencil<symmetry, volume, double> s;
 
-//        std::cout << x << ' ' << t.b << ' ' << t.f << std::endl;
-
         V3d hf, hb;
 
         hf[0] =   0.5 * ( ximesh.vvoli(j.i, 0) + ximesh.vvoli(j.o, 0) );
@@ -2132,11 +2130,79 @@ struct MakeRSwarm<Symmetric, Cartesian, XiMeshType> {
 
         s.o  =  1 - s.i - s.j - s.k - s.l - s.m - s.n;
 
-//        std::cout << s << std::endl;
+        return s;
+    }
+};
+template <template <Symmetry> class XiMeshType>
+struct MakeRSwarm<Tight, Cylindrical, XiMeshType> {
+    static const Symmetry symmetry = Cylindrical;
+    static const Volume volume = Tight;
+    const Stencil<symmetry, volume, double> 
+            make(const typename SymmetryTrait<symmetry>::Vd x,
+                 const Stencil<symmetry, volume, int> j,
+                 const XiMeshType<symmetry>& ximesh) const
+    {
+        Stencil<symmetry, volume, double> s;
+
+        V2d hf, hb;
+
+        hf[0] =   0.5 * ( ximesh.vvoli(j.i, 0) + ximesh.vvoli(j.o, 0) );
+        hb[0] = - 0.5 * ( ximesh.vvoli(j.x, 0) + ximesh.vvoli(j.o, 0) );
+        hf[1] =   0.5 * ( ximesh.vvoli(j.j, 1) + ximesh.vvoli(j.o, 1) );
+        hb[1] = - 0.5 * ( ximesh.vvoli(j.x, 1) + ximesh.vvoli(j.o, 1) );
+
+        V2d ax = abs(x);
+
+        s.x = dot(ax, hf - ax) / dot(hb, hf - hb);
+
+        V2d sij = (ax - hb * s.x) / hf;
+        
+        s.i  =  sij[0];
+        s.j  =  sij[1];
+
+        s.o  =  1 - s.i - s.j - s.x;
 
         return s;
     }
 };
+
+template <template <Symmetry> class XiMeshType>
+struct MakeRSwarm<Tight, Cartesian, XiMeshType> {
+    static const Symmetry symmetry = Cartesian;
+    static const Volume volume = Tight;
+    const Stencil<symmetry, volume, double> 
+            make(const typename SymmetryTrait<symmetry>::Vd x,
+                 const Stencil<symmetry, volume, int> j,
+                 const XiMeshType<symmetry>& ximesh) const
+    {
+        Stencil<symmetry, volume, double> s;
+
+        V3d hf, hb;
+
+        hf[0] =   0.5 * ( ximesh.vvoli(j.i, 0) + ximesh.vvoli(j.o, 0) );
+        hb[0] = - 0.5 * ( ximesh.vvoli(j.x, 0) + ximesh.vvoli(j.o, 0) );
+        hf[1] =   0.5 * ( ximesh.vvoli(j.j, 1) + ximesh.vvoli(j.o, 1) );
+        hb[1] = - 0.5 * ( ximesh.vvoli(j.x, 1) + ximesh.vvoli(j.o, 1) );
+        hf[2] =   0.5 * ( ximesh.vvoli(j.k, 2) + ximesh.vvoli(j.o, 2) );
+        hb[2] = - 0.5 * ( ximesh.vvoli(j.x, 2) + ximesh.vvoli(j.o, 2) );
+
+        V3d ax = abs(x);
+
+        s.x = - dot(ax, hf - ax) / dot(hb, hf - hb);
+
+        V3d sijk = (ax - hb * s.x) / hf;
+        
+        s.i  =  sijk[0];
+        s.j  =  sijk[1];
+        s.k  =  sijk[2];
+
+        s.o  =  1 - s.i - s.j - s.k - s.x;
+
+        return s;
+    }
+};
+
+
 template <Volume volume, Symmetry symmetry, template <Symmetry> class XiMeshType>
 Stencil<symmetry, volume, double> doMakeRSwarm(const typename SymmetryTrait<symmetry>::Vd x,
                                              const Stencil<symmetry, volume, int> j,
