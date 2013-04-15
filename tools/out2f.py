@@ -19,20 +19,19 @@ ax = fig.add_subplot(111, projection='3d')
 with open(sys.argv[1], 'rb') as fd:
     data = json.load(fd)
 
-symmetry, rad, cut, xyz, vol, r, d3v = read_ximesh(data)
+symmetry, rad, circl, xyz, vol, r, d3v = read_ximesh(data)
 
 with open(sys.argv[2], 'rb') as fd:
     while fd:
         data = fd.read(4+4)
         i, size = struct.unpack('=ii', data)
 
-        print i, size
+        print i, "size (file) = ", size
 
         f = np.zeros_like(r)
         a = array.array('d')
-        circl = r < cut*cut
         size = np.sum(circl)
-        print size
+        print "size (ximesh) = ", size
         a.fromfile(fd, size)
 
         if i == int(sys.argv[3]):

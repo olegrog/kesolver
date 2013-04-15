@@ -31,7 +31,7 @@ timestep      = float(sys.argv[4])
 with open(keifilename, 'rb') as fd:
     data = json.load(fd)
 
-symmetry, rad, cut, xyz, vol, r, d3v = read_ximesh(data)
+symmetry, rad, circl, xyz, vol, r, d3v = read_ximesh(data)
 
 # calculate lambda
 
@@ -56,7 +56,6 @@ with open(ffilename, 'rb') as fd:
 
     f = np.zeros_like(r)
     a = array.array('d')
-    circl = r < cut*cut
     size = np.sum(circl)
     a.fromfile(fd, size)
 
