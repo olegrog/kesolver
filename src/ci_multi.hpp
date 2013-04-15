@@ -3,29 +3,13 @@
 
 #include "stencil.hpp"
 
-template <Symmetry symmetry, Volume volume>
-struct CollisionNodeMulti;
-
-template <Volume volume_>
-struct CollisionNodeMulti<Cartesian, volume_> {
+template <Symmetry symmetry_, Volume volume_>
+struct CollisionNodeMulti {
     static const Volume   volume   = volume_;
-    static const Symmetry symmetry = Cartesian;
-    typedef Stencil<symmetry, volume_, int>    Si;
-    typedef Stencil<symmetry, volume_, double> Sd;
-    typedef Stencil<symmetry, volume_, double> Xd;
-    int i1, i2;
-    Si  j1, j2;
-    Xd  x1, x2;
-    double c;
-};
-
-template <Volume volume_>
-struct CollisionNodeMulti<Cylindrical, volume_> {
-    static const Volume   volume   = volume_;
-    static const Symmetry symmetry = Cylindrical;
-    typedef Stencil<symmetry, volume_, int>    Si;
-    typedef Stencil<symmetry, volume_, double> Sd;
-    typedef Stencil<symmetry, volume_, double> Xd;
+    static const Symmetry symmetry = symmetry_;
+    typedef Stencil<symmetry, volume, int>    Si;
+    typedef Stencil<symmetry, volume, double> Sd;
+    typedef Stencil<symmetry, volume, double> Xd;
     int i1, i2;
     Si  j1, j2;
     Xd  x1, x2;
@@ -43,6 +27,8 @@ makeNode(const int i1 , const int i2,
     CollisionNodeMulti<Cartesian, volume> node;
     Stencil<Cartesian, volume, double> r1 = makeRSwarm<volume>(x1, j1, ximesh);
     Stencil<Cartesian, volume, double> r2 = makeRSwarm<volume>(x2, j2, ximesh);
+    node.a  = ximesh.vol(i1) * ximesh.vol(i2) / 
+              (interpVol(j1, r1, ximesh) * interpVol(j2, r2, ximesh));
     node.x1 = r1;
     node.x2 = r2;
     return node;
@@ -170,7 +156,7 @@ CollisionType calcNode(const Point& p,
 
 template <typename CollisionNodeType>
 inline double aff(const double ff, const CollisionNodeType n, SymmetryTrait<Cartesian>) {
-    return ff;
+    return n.a * ff;
 }
 
 template <typename CollisionNodeType>
