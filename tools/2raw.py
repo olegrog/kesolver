@@ -25,7 +25,7 @@ if __name__ == "__main__":
     with open(sys.argv[-2], 'rb') as fd:
         data = json.load(fd)
 
-    symmetry, rad, cut, ax, vol, r, d3v = read_ximesh(data)
+    symmetry, rad, circl, ax, vol, r, d3v = read_ximesh(data)
 
     def str_to_u(symm, u):
         if symm == "Cylindrical":
@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
             f = np.exp( - 0.5 * e / T )
             f *= vol
-            lin_f = f[r < sqr(cut)]
+            lin_f = f[circl]
             s = np.sum(lin_f) * d3v
             lin_f = n * lin_f / s
 
@@ -63,11 +63,11 @@ if __name__ == "__main__":
             f = 1. / math.sqrt(cube(2 * math.pi * tau)) * np.exp(-e1) * ( 1 + (1 - tau) / tau * (e1 - 1.5) )
             f *= vol
 
-            lin_f = f[r < sqr(cut)]
+            lin_f = f[circl]
 
         if value["type"] == "sum":
 
-            lin_f = np.zeros_like(x)[sqr(x) + sqr(y) < sqr(cut)]
+            lin_f = np.zeros_like(x)[circl]
 
             for macrodata in value["maxwellians"]:
 
