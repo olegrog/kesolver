@@ -114,6 +114,8 @@ def read_ximesh(data):
                 ax = (x, y, z)
                 d3v = 1. 
 
+            circle = r < cut*cut
+
         else:
             
             vs_str  = data["gas"]["vs"]
@@ -134,6 +136,17 @@ def read_ximesh(data):
                 r = x*x + y*y 
                 ax = (x, y)
                 d3v = 2 * math.pi
+
+                cut_x, cut_y = 0, 0
+                for i in range(2*rad):
+                    xi = abs(vs[i]) + 0.5 * vvs[i]
+                    if cut_x < xi:
+                        cut_x = xi
+                for j in range(rad):
+                    xi = abs(vs[j + 2*rad]) + 0.5 * vvs[j + 2*rad]
+                    if cut_y < xi:
+                        cut_y = xi
+                circle = ((x / cut_x)**2 + (y / cut_y)**2) < 1 
 
             elif symmetry == "Cartesian":
                 dim = (2*rad, 2*rad, 2*rad)
@@ -157,33 +170,20 @@ def read_ximesh(data):
                 ax = (x, y, z)
                 d3v = 1.0
 
-        if symmetry == "Cylindrical":
-            cut_x, cut_y = 0, 0
-            for i in range(2*rad):
-                xi = abs(vs[i]) + 0.5 * vvs[i]
-                if cut_x < xi:
-                    cut_x = xi
-            for j in range(rad):
-                xi = abs(vs[j + 2*rad]) + 0.5 * vvs[j + 2*rad]
-                if cut_y < xi:
-                    cut_y = xi
-            circle = ((x / cut_x)**2 + (y / cut_y)**2) < 1 
-
-        elif symmetry == "Cartesian":
-            cut_x, cut_y, cut_z = 0.0, 0.0, 0.0
-            for i in range(2*rad):
-                xi = abs(vs[i]) + 0.5 * vvs[i]
-                if cut_x < xi:
-                    cut_x = xi
-            for j in range(2*rad):
-                xi = abs(vs[j + 2*rad]) + 0.5 * vvs[j + 2*rad]
-                if cut_y < xi:
-                    cut_y = xi
-            for k in range(2*rad):
-                xi = abs(vs[k + 4*rad]) + 0.5 * vvs[k + 4*rad]
-                if cut_y < xi:
-                    cut_y = xi
-            circle = ((x / cut_x)**2 + (y / cut_y)**2 + (z / cut_z)**2) < 1 
+                cut_x, cut_y, cut_z = 0.0, 0.0, 0.0
+                for i in range(2*rad):
+                    xi = abs(vs[i]) + 0.5 * vvs[i]
+                    if cut_x < xi:
+                        cut_x = xi
+                for j in range(2*rad):
+                    xi = abs(vs[j + 2*rad]) + 0.5 * vvs[j + 2*rad]
+                    if cut_y < xi:
+                        cut_y = xi
+                for k in range(2*rad):
+                    xi = abs(vs[k + 4*rad]) + 0.5 * vvs[k + 4*rad]
+                    if cut_y < xi:
+                        cut_y = xi
+                circle = ((x / cut_x)**2 + (y / cut_y)**2 + (z / cut_z)**2) < 1  
 
     return symmetry, rad, circle, ax, vol, r, d3v
 

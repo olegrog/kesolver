@@ -98,7 +98,7 @@ mom_f = zip(*mom_f)
 mom_g = zip(*mom_g)
 
 
-d = [np.abs(np.array(mf) - np.array(mg)) / np.array(mg)
+d = [np.abs(np.array(mf) - np.array(mg))
         for mf, mg in zip(mom_f, mom_g)]
 err = [np.trapz(x=time, y=y) for y in d]
 print err
