@@ -69,7 +69,10 @@ def read_ximesh(data):
                     q += dq
                 return q
 
-            q = find_q(cut / hcenter, rad)
+            if cut == rad * hcenter:
+                q = 1
+            else:
+                q = find_q(cut / hcenter, rad)
             print "q = ", q
 
             vs, vols = [], []

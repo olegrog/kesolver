@@ -42,6 +42,7 @@ const std::vector<double> readMasses(const PropertyTree& tree) {
 double find_q(double d, int n, double err = 1e-10)
 {
     // first approx
+    if (d == n) return 1.;
     double q = 2 * d / n - 1;
     while (true) {
         double qq = std::pow(q, n-1);
