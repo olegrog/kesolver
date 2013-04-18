@@ -2,6 +2,7 @@ import json
 from array import array
 
 import numpy
+import math
 
 from base64 import b64decode
 from kepy.element import element
@@ -39,4 +40,22 @@ def write_elements(cells):
              'phys_name':  cell.phys_index,
              'part_index': cell.part_index,
              'neigbors':   cell.neigbors} for cell in cells]
+
+def calc_timestep(data, cells, nodes):
+
+    def sqr(x):
+        return numpy.dot(x, x)
+
+    def lMin(cell, nodes):
+        l_min = min( [ sqr(nodes[cell.nodes[i]]-nodes[cell.nodes[j]]) 
+                       for i in range(len(cell.nodes)) 
+                           for j in range(i+1, len(cell.nodes)) ] )
+        return math.sqrt(l_min)
+
+    l_min    = min( [ lMin(cell, nodes) for cell in cells ] )
+    curnt    = data['curnt_limit']
+    cut      = data["gas"]["cut"]
+    timestep = curnt * l_min / cut * 2
+
+    return timestep
 

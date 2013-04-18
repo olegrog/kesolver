@@ -10,23 +10,38 @@ import matplotlib.pyplot as plt
 from scipy.integrate import quad
 
 from kepy.ximesh import read_ximesh, make_e
+from kepy.io import readNodesElems, calc_timestep
 
 def sqr(x):
-    return x * x
+    if type(x) == np.ndarray:
+        return np.dot(x, x)
+    else:
+        return x * x
 
 def cube(x):
     return x * x * x
 
 keifilename   = sys.argv[1]
 maoutfilename = sys.argv[2]
-timestep      = float(sys.argv[3])
-ffilenames    = sys.argv[4:]
+ffilenames    = sys.argv[3:]
 
 # open .kei file
 with open(keifilename, 'rb') as fd:
-    data = json.load(fd)
+    kei_data = json.load(fd)
 
-symmetry, rad, circl, xyz, vol, r, d3v = read_ximesh(data)
+symmetry, rad, circl, xyz, vol, r, d3v = read_ximesh(kei_data)
+
+nodes, cells, facets = readNodesElems(keifilename)
+timestep = calc_timestep(kei_data, cells, nodes)
+
+def read_xi(kei_data):
+    for k, v in kei_data['initial_conditions'].iteritems():
+        if 'xi' in v:
+            return v['xi']
+    return 0.4 # default value
+
+xi = read_xi(kei_data)
+print "xi = ", xi
 
 # calculate lambda
 
@@ -75,9 +90,8 @@ for i in range(int(ffilenames[0])):
     f = f / vol
 
     file_i = int(re.search(r"(\d+)[^/]*$", ffilename).groups()[0])
-    t = file_i * timestep / math.sqrt(2) / math.pi
+    t = file_i * timestep / 2 / math.sqrt(2) / math.pi
 
-    xi = 0.4
     tau = 1. - xi * math.exp( - lamd * t )
 
     e = make_e(symmetry, xyz)

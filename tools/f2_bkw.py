@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from scipy.integrate import quad
 
 from kepy.ximesh import read_ximesh, make_e
+from kepy.io import readNodesElems, calc_timestep
 
 def sqr(x):
     return x * x
@@ -25,13 +26,26 @@ ax = fig.add_subplot(111, projection='3d')
 keifilename   = sys.argv[1]
 maoutfilename = sys.argv[2]
 ffilename     = sys.argv[3]
-timestep      = float(sys.argv[4])
 
 # open .kei file
 with open(keifilename, 'rb') as fd:
     data = json.load(fd)
 
 symmetry, rad, circl, xyz, vol, r, d3v = read_ximesh(data)
+
+nodes, cells, facets = readNodesElems(keifilename)
+timestep = calc_timestep(data, cells, nodes)
+
+print timestep
+
+def read_xi(kei_data):
+    for k, v in kei_data['initial_conditions'].iteritems():
+        if 'xi' in v:
+            return v['xi']
+    return 0.4 # default value
+
+xi = read_xi(data)
+print "xi = ", xi
 
 # calculate lambda
 
@@ -70,9 +84,8 @@ f = np.ma.masked_where(f == 0.0, f)
 
 file_i = int(re.search(r"(\d+)[^/]*$", ffilename).groups()[0])
 print file_i
-time = file_i * timestep / math.sqrt(2) / math.pi
+time = file_i * timestep / 2 / math.sqrt(2) / math.pi
 
-xi = 0.4
 tau = 1. - xi * math.exp( - lamd * time )
 
 e = make_e(symmetry, xyz)
