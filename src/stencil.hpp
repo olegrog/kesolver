@@ -2188,7 +2188,7 @@ struct MakeRSwarm<Tight, Cartesian, XiMeshType> {
 
         V3d ax = abs(x);
 
-        s.x = - dot(ax, hf - ax) / dot(hb, hf - hb);
+        s.x = dot(ax, hf - ax) / dot(hb, hf - hb);
 
         V3d sijk = (ax - hb * s.x) / hf;
         

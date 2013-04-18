@@ -247,6 +247,11 @@ void ciIterMultiCont(DF& f, const Nodes& nodes)
 
         const double d = ( - ff1 + ff ) * n.c; 	
 /*
+        std::cout << "fi1 = " << fi1 << std::endl;
+        std::cout << "fi2 = " << fi2 << std::endl;
+        std::cout << "d = " << d << std::endl;
+*/
+/*
         if (d != d) {
             LABEL
 
