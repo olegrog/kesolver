@@ -156,6 +156,7 @@ CollisionType calcNode(const Point& p,
 
 template <typename CollisionNodeType>
 inline double aff(const double ff, const CollisionNodeType n, SymmetryTrait<Cartesian>) {
+//    std::cout << "n.a = " << n.a << std::endl;
     return n.a * ff;
 }
 
@@ -211,6 +212,10 @@ void ciIterMultiCont(DF& f, const Nodes& nodes)
         const Sd r1 = n.x1; 
         const Sd r2 = n.x2; 
 
+//        const double e = interpF(n.e1, r1) + interpF(n.e2, r2) - n.ei1 - n.ei2;
+//        std::cout << "e = " << e << std::endl;
+
+
 //        std::cout << "r1 = " << r1 << std::endl;
 //        std::cout << "r2 = " << r2 << std::endl;
 
@@ -246,6 +251,39 @@ void ciIterMultiCont(DF& f, const Nodes& nodes)
         const double ff = fi1 * fi2;
 
         const double d = ( - ff1 + ff ) * n.c; 	
+
+/*
+        const Sd y1 = div(f1, n.v1); 
+        const Sd y2 = div(f2, n.v2); 
+
+        const Sd ly1 = mylog<powmethod>(y1);
+        const Sd ly2 = mylog<powmethod>(y2);
+
+        const double z1 = interpF(ly1, r1);
+        const double z2 = interpF(ly2, r2);
+
+        double zz = aff<Node::symmetry>(exp<powmethod>(z1, z2), n);
+        zz *=  n.vi1 * n.vi2 / n.a;
+        
+        double h1 = d * (std::log(fi1/n.vi1) + std::log(fi2/n.vi2) - z1 - z2);
+
+        if (h1 < 0) 
+        {
+            std::cout << "h1 = " << h1 << std::endl;
+            std::cout << "fi1 = " << fi1 << std::endl;
+            std::cout << "fi2 = " << fi2 << std::endl;
+            std::cout << "g1 =  " << g1 << std::endl;
+            std::cout << "g2 =  " << g2 << std::endl;
+            std::cout << "r1 =  " << r1 << std::endl;
+            std::cout << "r2 =  " << r2 << std::endl;
+            std::cout << "n.a = " << n.a << std::endl;
+            std::cout << "vi1 = " << n.vi1 << std::endl;
+            std::cout << "vi2 = " << n.vi2 << std::endl;
+            std::cout << "v1  = " << n.v1 << std::endl;
+            std::cout << "v2  = " << n.v2 << std::endl;
+            std::cout << "zz, ff1 = " << zz << ' ' << ff1 << std::endl;
+        }
+*/
 /*
         std::cout << "fi1 = " << fi1 << std::endl;
         std::cout << "fi2 = " << fi2 << std::endl;

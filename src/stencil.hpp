@@ -1228,6 +1228,458 @@ inline double interpF(const Stencil<Cartesian, Grad, double> f,
 }
 
 template <typename XiMesh>
+inline Stencil<Cylindrical, Symmetric, double> makeE
+(
+    const Stencil<Cylindrical, Symmetric, int> j,
+    const XiMesh& ximesh
+)
+{
+    Stencil<Cylindrical, Symmetric, double> s;
+    
+    s.o = ximesh.e(j.o);
+    s.i = ximesh.e(j.i); 
+    s.j = ximesh.e(j.j); 
+    s.l = ximesh.e(j.l); 
+    s.m = ximesh.e(j.m);
+
+    return s;
+}
+
+template <typename XiMesh>
+inline Stencil<Cartesian, Symmetric, double> makeE
+(
+    const Stencil<Cartesian, Symmetric, int> j,
+    const XiMesh& ximesh
+)
+{
+    Stencil<Cartesian, Symmetric, double> s;
+    
+    s.o = ximesh.e(j.o);
+    s.i = ximesh.e(j.i); 
+    s.j = ximesh.e(j.j); 
+    s.k = ximesh.e(j.k); 
+    s.l = ximesh.e(j.l); 
+    s.m = ximesh.e(j.m);
+    s.n = ximesh.e(j.n);
+
+    return s;
+}
+
+template <typename XiMesh>
+inline Stencil<Cylindrical, Tight, double> makeE
+(
+    const Stencil<Cylindrical, Tight, int> j,
+    const XiMesh& ximesh
+)
+{
+    Stencil<Cylindrical, Tight, double> s;
+    
+    s.o = ximesh.e(j.o);
+    s.i = ximesh.e(j.i); 
+    s.j = ximesh.e(j.j); 
+    s.x = ximesh.e(j.x); 
+
+    return s;
+}
+
+template <typename XiMesh>
+inline Stencil<Cartesian, Tight, double> makeE
+(
+    const Stencil<Cartesian, Tight, int> j,
+    const XiMesh& ximesh
+)
+{
+    Stencil<Cartesian, Tight, double> s;
+    
+    s.o = ximesh.e(j.o);
+    s.i = ximesh.e(j.i); 
+    s.j = ximesh.e(j.j); 
+    s.k = ximesh.e(j.k); 
+    s.x = ximesh.e(j.x); 
+
+    return s;
+}
+
+template <typename XiMesh>
+inline Stencil<Cylindrical, Tight2, double> makeE
+(
+    const Stencil<Cylindrical, Tight2, int> j,
+    const XiMesh& ximesh
+)
+{
+    Stencil<Cylindrical, Tight2, double> s;
+    
+    s.o  = ximesh.e(j.o);
+    s.i  = ximesh.e(j.i); 
+    s.j  = ximesh.e(j.j); 
+    s.l  = ximesh.e(j.l); 
+    s.m  = ximesh.e(j.m); 
+    s.ij = ximesh.e(j.ij); 
+
+    return s;
+}
+
+template <typename XiMesh>
+inline Stencil<Cartesian, Tight2, double> makeE
+(
+    const Stencil<Cartesian, Tight2, int> j,
+    const XiMesh& ximesh
+)
+{
+    Stencil<Cartesian, Tight2, double> s;
+    
+    s.o  = ximesh.e(j.o);
+    s.i  = ximesh.e(j.i); 
+    s.j  = ximesh.e(j.j); 
+    s.k  = ximesh.e(j.k); 
+    s.l  = ximesh.e(j.l); 
+    s.m  = ximesh.e(j.m); 
+    s.n  = ximesh.e(j.n); 
+    s.ij = ximesh.e(j.ij); 
+    s.ik = ximesh.e(j.ik); 
+    s.jk = ximesh.e(j.jk); 
+
+    return s;
+}
+
+template <typename XiMesh>
+inline Stencil<Cylindrical, Wide, double> makeE
+(
+    const Stencil<Cylindrical, Wide, int> j,
+    const XiMesh& ximesh
+)
+{
+    Stencil<Cylindrical, Wide, double> s;
+    
+    s.o  = ximesh.e(j.o);
+
+    s.i  = ximesh.e(j.i); 
+    s.j  = ximesh.e(j.j); 
+    s.l  = ximesh.e(j.l); 
+    s.m  = ximesh.e(j.m); 
+
+    s.ij = ximesh.e(j.ij); 
+    s.im = ximesh.e(j.im); 
+    s.lj = ximesh.e(j.lj); 
+    s.lm = ximesh.e(j.lm); 
+
+    return s;
+}
+
+template <typename XiMesh>
+inline Stencil<Cartesian, Wide, double> makeE
+(
+    const Stencil<Cartesian, Wide, int> j,
+    const XiMesh& ximesh
+)
+{
+    Stencil<Cartesian, Wide, double> s;
+    
+    s.o  = ximesh.e(j.o);
+    s.i  = ximesh.e(j.i); 
+    s.j  = ximesh.e(j.j); 
+    s.k  = ximesh.e(j.k); 
+    s.l  = ximesh.e(j.l); 
+    s.m  = ximesh.e(j.m); 
+    s.n  = ximesh.e(j.n); 
+
+    s.ij = ximesh.e(j.ij); 
+    s.im = ximesh.e(j.im); 
+    s.ik = ximesh.e(j.ik); 
+    s.in = ximesh.e(j.in); 
+
+    s.lj = ximesh.e(j.lj); 
+    s.lm = ximesh.e(j.lm); 
+    s.lk = ximesh.e(j.lk); 
+    s.ln = ximesh.e(j.ln); 
+
+    s.jk = ximesh.e(j.jk); 
+    s.jn = ximesh.e(j.jn); 
+
+    s.mk = ximesh.e(j.mk); 
+    s.mn = ximesh.e(j.mn); 
+
+    return s;
+}
+template <typename XiMesh>
+inline Stencil<Cylindrical, Grad, double> makeE
+(
+    const Stencil<Cylindrical, Grad, int> j,
+    const XiMesh& ximesh
+)
+{
+    Stencil<Cylindrical, Grad, double> s;
+    
+    s.o  = ximesh.e(j.o);
+
+    s.i  = ximesh.e(j.i); 
+    s.j  = ximesh.e(j.j); 
+    s.l  = ximesh.e(j.l); 
+    s.m  = ximesh.e(j.m); 
+
+    s.ij = ximesh.e(j.ij); 
+
+    s.ii = ximesh.e(j.ii); 
+    s.jj = ximesh.e(j.jj); 
+
+    return s;
+}
+
+template <typename XiMesh>
+inline Stencil<Cartesian, Grad, double> makeE
+(
+    const Stencil<Cartesian, Grad, int> j,
+    const XiMesh& ximesh
+)
+{
+    Stencil<Cartesian, Grad, double> s;
+    
+    s.o  = ximesh.e(j.o);
+    s.i  = ximesh.e(j.i); 
+    s.j  = ximesh.e(j.j); 
+    s.k  = ximesh.e(j.k); 
+    s.l  = ximesh.e(j.l); 
+    s.m  = ximesh.e(j.m); 
+    s.n  = ximesh.e(j.n); 
+
+    s.ij = ximesh.e(j.ij); 
+    s.ik = ximesh.e(j.ik); 
+    s.jk = ximesh.e(j.jk); 
+
+    s.ii = ximesh.e(j.ii); 
+    s.jj = ximesh.e(j.jj); 
+    s.kk = ximesh.e(j.kk); 
+
+    return s;
+}
+
+template <typename XiMesh>
+inline Stencil<Cylindrical, Symmetric, double> makeVol
+(
+    const Stencil<Cylindrical, Symmetric, int> j,
+    const XiMesh& ximesh
+)
+{
+    Stencil<Cylindrical, Symmetric, double> s;
+    
+    s.o = ximesh.vol(j.o);
+    s.i = ximesh.vol(j.i); 
+    s.j = ximesh.vol(j.j); 
+    s.l = ximesh.vol(j.l); 
+    s.m = ximesh.vol(j.m);
+
+    return s;
+}
+
+template <typename XiMesh>
+inline Stencil<Cartesian, Symmetric, double> makeVol
+(
+    const Stencil<Cartesian, Symmetric, int> j,
+    const XiMesh& ximesh
+)
+{
+    Stencil<Cartesian, Symmetric, double> s;
+    
+    s.o = ximesh.vol(j.o);
+    s.i = ximesh.vol(j.i); 
+    s.j = ximesh.vol(j.j); 
+    s.k = ximesh.vol(j.k); 
+    s.l = ximesh.vol(j.l); 
+    s.m = ximesh.vol(j.m);
+    s.n = ximesh.vol(j.n);
+
+    return s;
+}
+
+template <typename XiMesh>
+inline Stencil<Cylindrical, Tight, double> makeVol
+(
+    const Stencil<Cylindrical, Tight, int> j,
+    const XiMesh& ximesh
+)
+{
+    Stencil<Cylindrical, Tight, double> s;
+    
+    s.o = ximesh.vol(j.o);
+    s.i = ximesh.vol(j.i); 
+    s.j = ximesh.vol(j.j); 
+    s.x = ximesh.vol(j.x); 
+
+    return s;
+}
+
+template <typename XiMesh>
+inline Stencil<Cartesian, Tight, double> makeVol
+(
+    const Stencil<Cartesian, Tight, int> j,
+    const XiMesh& ximesh
+)
+{
+    Stencil<Cartesian, Tight, double> s;
+    
+    s.o = ximesh.vol(j.o);
+    s.i = ximesh.vol(j.i); 
+    s.j = ximesh.vol(j.j); 
+    s.k = ximesh.vol(j.k); 
+    s.x = ximesh.vol(j.x); 
+
+    return s;
+}
+
+template <typename XiMesh>
+inline Stencil<Cylindrical, Tight2, double> makeVol
+(
+    const Stencil<Cylindrical, Tight2, int> j,
+    const XiMesh& ximesh
+)
+{
+    Stencil<Cylindrical, Tight2, double> s;
+    
+    s.o  = ximesh.vol(j.o);
+    s.i  = ximesh.vol(j.i); 
+    s.j  = ximesh.vol(j.j); 
+    s.l  = ximesh.vol(j.l); 
+    s.m  = ximesh.vol(j.m); 
+    s.ij = ximesh.vol(j.ij); 
+
+    return s;
+}
+
+template <typename XiMesh>
+inline Stencil<Cartesian, Tight2, double> makeVol
+(
+    const Stencil<Cartesian, Tight2, int> j,
+    const XiMesh& ximesh
+)
+{
+    Stencil<Cartesian, Tight2, double> s;
+    
+    s.o  = ximesh.vol(j.o);
+    s.i  = ximesh.vol(j.i); 
+    s.j  = ximesh.vol(j.j); 
+    s.k  = ximesh.vol(j.k); 
+    s.l  = ximesh.vol(j.l); 
+    s.m  = ximesh.vol(j.m); 
+    s.n  = ximesh.vol(j.n); 
+    s.ij = ximesh.vol(j.ij); 
+    s.ik = ximesh.vol(j.ik); 
+    s.jk = ximesh.vol(j.jk); 
+
+    return s;
+}
+
+template <typename XiMesh>
+inline Stencil<Cylindrical, Wide, double> makeVol
+(
+    const Stencil<Cylindrical, Wide, int> j,
+    const XiMesh& ximesh
+)
+{
+    Stencil<Cylindrical, Wide, double> s;
+    
+    s.o  = ximesh.vol(j.o);
+
+    s.i  = ximesh.vol(j.i); 
+    s.j  = ximesh.vol(j.j); 
+    s.l  = ximesh.vol(j.l); 
+    s.m  = ximesh.vol(j.m); 
+
+    s.ij = ximesh.vol(j.ij); 
+    s.im = ximesh.vol(j.im); 
+    s.lj = ximesh.vol(j.lj); 
+    s.lm = ximesh.vol(j.lm); 
+
+    return s;
+}
+
+template <typename XiMesh>
+inline Stencil<Cartesian, Wide, double> makeVol
+(
+    const Stencil<Cartesian, Wide, int> j,
+    const XiMesh& ximesh
+)
+{
+    Stencil<Cartesian, Wide, double> s;
+    
+    s.o  = ximesh.vol(j.o);
+    s.i  = ximesh.vol(j.i); 
+    s.j  = ximesh.vol(j.j); 
+    s.k  = ximesh.vol(j.k); 
+    s.l  = ximesh.vol(j.l); 
+    s.m  = ximesh.vol(j.m); 
+    s.n  = ximesh.vol(j.n); 
+
+    s.ij = ximesh.vol(j.ij); 
+    s.im = ximesh.vol(j.im); 
+    s.ik = ximesh.vol(j.ik); 
+    s.in = ximesh.vol(j.in); 
+
+    s.lj = ximesh.vol(j.lj); 
+    s.lm = ximesh.vol(j.lm); 
+    s.lk = ximesh.vol(j.lk); 
+    s.ln = ximesh.vol(j.ln); 
+
+    s.jk = ximesh.vol(j.jk); 
+    s.jn = ximesh.vol(j.jn); 
+
+    s.mk = ximesh.vol(j.mk); 
+    s.mn = ximesh.vol(j.mn); 
+
+    return s;
+}
+template <typename XiMesh>
+inline Stencil<Cylindrical, Grad, double> makeVol
+(
+    const Stencil<Cylindrical, Grad, int> j,
+    const XiMesh& ximesh
+)
+{
+    Stencil<Cylindrical, Grad, double> s;
+    
+    s.o  = ximesh.vol(j.o);
+
+    s.i  = ximesh.vol(j.i); 
+    s.j  = ximesh.vol(j.j); 
+    s.l  = ximesh.vol(j.l); 
+    s.m  = ximesh.vol(j.m); 
+
+    s.ij = ximesh.vol(j.ij); 
+
+    s.ii = ximesh.vol(j.ii); 
+    s.jj = ximesh.vol(j.jj); 
+
+    return s;
+}
+
+template <typename XiMesh>
+inline Stencil<Cartesian, Grad, double> makeVol
+(
+    const Stencil<Cartesian, Grad, int> j,
+    const XiMesh& ximesh
+)
+{
+    Stencil<Cartesian, Grad, double> s;
+    
+    s.o  = ximesh.vol(j.o);
+    s.i  = ximesh.vol(j.i); 
+    s.j  = ximesh.vol(j.j); 
+    s.k  = ximesh.vol(j.k); 
+    s.l  = ximesh.vol(j.l); 
+    s.m  = ximesh.vol(j.m); 
+    s.n  = ximesh.vol(j.n); 
+
+    s.ij = ximesh.vol(j.ij); 
+    s.ik = ximesh.vol(j.ik); 
+    s.jk = ximesh.vol(j.jk); 
+
+    s.ii = ximesh.vol(j.ii); 
+    s.jj = ximesh.vol(j.jj); 
+    s.kk = ximesh.vol(j.kk); 
+
+    return s;
+}
+
+template <typename XiMesh>
 inline double interpVol(const Stencil<Cylindrical, Symmetric, int>    j,
                         const Stencil<Cylindrical, Symmetric, double> r,
                         const XiMesh& ximesh) {
@@ -2114,13 +2566,23 @@ struct MakeRSwarm<Symmetric, Cartesian, XiMeshType> {
 
         V3d hf, hb;
 
+        hf[0] = ximesh[j.i][0] - ximesh[j.o][0];
+        hb[0] = ximesh[j.l][0] - ximesh[j.o][0];
+        hf[1] = ximesh[j.j][1] - ximesh[j.o][1];
+        hb[1] = ximesh[j.m][1] - ximesh[j.o][1];
+        hf[2] = ximesh[j.k][2] - ximesh[j.o][2];
+        hb[2] = ximesh[j.n][2] - ximesh[j.o][2];
+        
+//        std::cout << "hf, hb = " << hf << ' ' << hb << std::endl;
+
+/*
         hf[0] =   0.5 * ( ximesh.vvoli(j.i, 0) + ximesh.vvoli(j.o, 0) );
         hb[0] = - 0.5 * ( ximesh.vvoli(j.l, 0) + ximesh.vvoli(j.o, 0) );
         hf[1] =   0.5 * ( ximesh.vvoli(j.j, 1) + ximesh.vvoli(j.o, 1) );
         hb[1] = - 0.5 * ( ximesh.vvoli(j.m, 1) + ximesh.vvoli(j.o, 1) );
         hf[2] =   0.5 * ( ximesh.vvoli(j.k, 2) + ximesh.vvoli(j.o, 2) );
         hb[2] = - 0.5 * ( ximesh.vvoli(j.n, 2) + ximesh.vvoli(j.o, 2) );
-
+*/
         s.i  =   x[0] * (x[0] - hb[0]) / hf[0] / (hf[0] - hb[0]);
         s.l  = - x[0] * (x[0] - hf[0]) / hb[0] / (hf[0] - hb[0]);
         s.j  =   x[1] * (x[1] - hb[1]) / hf[1] / (hf[1] - hb[1]);

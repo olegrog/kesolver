@@ -31,8 +31,11 @@ with open(keifilename, 'rb') as fd:
 
 symmetry, rad, circl, xyz, vol, r, d3v = read_ximesh(kei_data)
 
+print "size = ", np.sum(circl)
+
 nodes, cells, facets = readNodesElems(keifilename)
 timestep = calc_timestep(kei_data, cells, nodes)
+print 'time_step = ', timestep
 
 def read_xi(kei_data):
     for k, v in kei_data['initial_conditions'].iteritems():
@@ -89,20 +92,22 @@ for i in range(int(ffilenames[0])):
 
     f = f / vol
 
+    e = make_e(symmetry, xyz)
+#    print "e = ", np.sum( vol[circl] * f[circl] * e[circl] )
+#    print "n = ", np.sum( vol[circl] * f[circl] ) 
+    sum2_f = np.sum( vol[circl] * f[circl] * e[circl] ) / \
+         3 / np.sum( vol[circl] * f[circl] ) 
+    m2 = 1 / sum2_f
+    print m2
+
     file_i = int(re.search(r"(\d+)[^/]*$", ffilename).groups()[0])
     t = file_i * timestep / 2 / math.sqrt(2) / math.pi
 
     tau = 1. - xi * math.exp( - lamd * t )
 
-    e = make_e(symmetry, xyz)
-    e1 = 0.5 * e / tau
-
-    g = 1. / math.sqrt(cube(2 * math.pi * tau)) * np.exp(-e1) * ( 1 + (1 - tau) / tau * (e1 - 1.5) )
-
-    g /= np.sum(vol*g) / np.sum(vol*f)
-
     sum_f = [np.sum( vol * f * e**p ) * d3v / d for p, d in zip(mom_p, mom_d)]
-    sum_g = [np.sum( vol * g * e**p ) * d3v / d for p, d in zip(mom_p, mom_d)]
+#    sum_g = [np.sum( vol * g * e**p ) * d3v / d for p, d in zip(mom_p, mom_d)]
+    sum_g = [ tau**(p-1) * (1 + (p-1) * xi * math.exp( - lamd * t )) / m2 for p in mom_p ]
 
     time.append(t)
     mom_f.append(sum_f)

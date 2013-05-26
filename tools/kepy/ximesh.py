@@ -126,7 +126,7 @@ def read_ximesh(data):
 
             vs  = array('d', b64decode(vs_str))
             vvs = array('d', b64decode(vvs_str))
-
+            
             if symmetry == "Cylindrical":
                 dim = (2*rad, rad) 
                 x = np.array( [ [ vs[i]
@@ -184,9 +184,10 @@ def read_ximesh(data):
                         cut_y = xi
                 for k in range(2*rad):
                     xi = abs(vs[k + 4*rad]) + 0.5 * vvs[k + 4*rad]
-                    if cut_y < xi:
-                        cut_y = xi
+                    if cut_z < xi:
+                        cut_z = xi
                 circle = ((x / cut_x)**2 + (y / cut_y)**2 + (z / cut_z)**2) < 1  
+                print cut_x, cut_y, cut_z
 
     return symmetry, rad, circle, ax, vol, r, d3v
 

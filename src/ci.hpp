@@ -444,6 +444,19 @@ int ciIter(DF& f, const Nodes& nodes)
             double dl = (1. - n.r) * d;
             double dm = n.r * d;
 
+/*
+            double d1 = delta(rr5, rr6, std::pow(f[n.i1l] * f[n.i2l], 1-n.r),
+                                        std::pow(f[n.i1m] * f[n.i2m], n.r), *p);
+
+            double h = d1 * ( std::log(f[n.i1])  + std::log(f[n.i2])   - 
+                   (1-n.r) * (std::log(f[n.i1l]) + std::log(f[n.i2l])) -
+                      n.r  * (std::log(f[n.i1m]) + std::log(f[n.i2m])) );
+
+            if (h < 0) {
+                std::cout << "h = " << h << std::endl;
+            }
+*/
+
             f[n.i1l] += dl;
             f[n.i2l] += dl;
             f[n.i1m] += dm;

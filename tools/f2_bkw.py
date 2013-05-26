@@ -93,6 +93,11 @@ e1 = 0.5 * e / tau
 
 g = 1. / math.sqrt(cube(2 * math.pi * tau)) * np.exp(-e1) * ( 1 + (1 - tau) / tau * (e1 - 1.5) )
 
+g /= np.sum(vol[circl]*g[circl]) / np.sum(vol[circl]*f[circl])
+
+print "sums = ", np.sum(vol[circl]*g[circl]), np.sum(vol[circl]*f[circl])
+print "temps = ", np.sum(vol[circl]*g[circl]*e[circl]), np.sum(vol[circl]*f[circl]*e[circl])
+
 # prepare data for plotting
 
 def p(symm, xyz, f):

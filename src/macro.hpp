@@ -102,13 +102,12 @@ struct MacroMixture {
                 n    += f[i];
                 m    += f[i] * mesh.m(i);
                 v    += f[i] * mesh.p(i);
-                temp += f[i] * sqr(mesh[i]);
+                temp += f[i] * mesh.m(i) * sqr(mesh[i]);
                 t    += f[i] * mesh.m(i) * mesh[i] * mesh[i];
-                q    += f[i] * 0.5 * mesh.p(i) * mesh.e(i);
+                q    += f[i] * 0.5 * mesh.p(i) * mesh.e(i) / mesh.m(i);
                 h    += f[i] * log(f[i]);
             }
             v /= m;
-            q *= n / m;
             temp = (temp - m * sqr(v)) / 3 / n;
             Vd u = vm2vd(v);
             t    = (t    - m * u * u) * SymmetryTrait<symmetry>::t_mult() / n;
