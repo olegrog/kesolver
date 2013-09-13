@@ -78,35 +78,6 @@ calcNodeCollide(const int i1, const int i2,
     return calcNodeCollideSimple(i1, i2, v, w, n, ximesh);
 }
 
-inline
-std::vector< XiMeshRect<Cartesian>::Vi >
-stencilMulti(XiMeshRect<Cartesian>::Vi vj, const XiMeshRect<Cartesian>& )
-{
-    typedef XiMeshRect<Cartesian>::Vi Vi;
-    std::vector<Vi> stencil;
-    for (int s1 = -1; s1 < 2; ++s1)
-        for (int s2 = -1; s2 < 2; ++s2)
-            for (int s3 = -1; s3 < 2; ++s3) {
-                const int s = std::abs(s1) + std::abs(s2) + std::abs(s3);
-                if ( (s > 0) && (s < 3) ) 
-                    stencil.push_back(vj + V3i(s1, s2, s3));
-            }
-    return stencil;
-}
-
-inline
-std::vector< XiMeshRect<Cylindrical>::Vi >
-stencilMulti(XiMeshRect<Cylindrical>::Vi vj, const XiMeshRect<Cylindrical>& )
-{
-    typedef XiMeshRect<Cylindrical>::Vi Vi;
-    std::vector<Vi> stencil;
-    for (int s1 = -1; s1 < 2; ++s1)
-        for (int s2 = -1; s2 < 2; ++s2)
-            if (std::abs(s1) + std::abs(s2) > 0)
-                stencil.push_back(vj + V2i(s1, s2));
-    return stencil;
-}
-
 template <Volume volume, Symmetry symmetry> 
 Stencil<symmetry, volume, double> makeRSwarm(const typename SymmetryTrait<symmetry>::Vd x,
                                              const Stencil<symmetry, volume, int> j,

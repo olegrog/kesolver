@@ -5,7 +5,7 @@ import pylab
 
 from out2 import *
 
-O = numpy.array( [0.012, 0.011, 0.01] )
+O = numpy.array( [0.00012, 0.00011, 0.0001] )
 u = numpy.array( [1.,  0.,    0.] )
 
 show = True

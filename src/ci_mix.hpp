@@ -65,34 +65,6 @@ inline boost::tuple<XiMeshMix<Cylindrical>::Vi,
     return boost::make_tuple(vj, wj, v1, w1);
 }
 
-inline
-std::vector< XiMeshMix<Cartesian>::Vi >
-stencilMulti(XiMeshMix<Cartesian>::Vi vj, const XiMeshMix<Cartesian>& )
-{
-    typedef XiMeshMix<Cartesian>::Vi Vi;
-    std::vector<Vi> stencil;
-    for (int s1 = -1; s1 < 2; ++s1)
-        for (int s2 = -1; s2 < 2; ++s2)
-            for (int s3 = -1; s3 < 2; ++s3) {
-                const int s = std::abs(s1) + std::abs(s2) + std::abs(s3);
-                if ( (s > 0) && (s < 3) ) 
-                    stencil.push_back(Vi(vj.vi + V3i(s1, s2, s3), vj.i));
-            }
-    return stencil;
-}
-
-inline
-std::vector< XiMeshMix<Cylindrical>::Vi >
-stencilMulti(XiMeshMix<Cylindrical>::Vi vj, const XiMeshMix<Cylindrical>& )
-{
-    typedef XiMeshMix<Cylindrical>::Vi Vi;
-    std::vector<Vi> stencil;
-    for (int s1 = -1; s1 < 2; ++s1)
-        for (int s2 = -1; s2 < 2; ++s2)
-            if (std::abs(s1) + std::abs(s2) > 0)
-                stencil.push_back(Vi(vj.vi + V2i(s1, s2), vj.i));
-    return stencil;
-}
 template <Volume volume, Symmetry symmetry> 
 Stencil<symmetry, volume, double> makeRSwarm(const typename SymmetryTrait<symmetry>::Vd x,
                                              const Stencil<symmetry, volume, int> j,

@@ -52,6 +52,71 @@ makeNode(const int i1 , const int i2,
     return node;
 }
 
+template <Volume volume>
+struct VolumeConsts {
+    static const int rad = 1;
+};
+
+template <>
+struct VolumeConsts<Grad> {
+    static const int rad = 2;
+};
+
+
+template <Volume volume>
+std::vector<V3i> makeStencil(V3i vj)
+{
+    V3i Vi;
+    std::vector<V3i> stencil;
+    const int rad = VolumeConsts<volume>::rad;
+    for (int s1 = -rad; s1 <= rad; ++s1)
+        for (int s2 = -rad; s2 <= rad; ++s2)
+            for (int s3 = -rad; s3 <= rad; ++s3) {
+                const int s = std::abs(s1) + std::abs(s2) + std::abs(s3);
+                if ( (s > 0) && (s <= rad) ) 
+                    stencil.push_back(vj + V3i(s1, s2, s3));
+            }
+    return stencil;
+}
+
+template <Volume volume>
+std::vector<V2i> makeStencil(V2i vj)
+{
+    V2i Vi;
+    std::vector<V2i> stencil;
+    const int rad = VolumeConsts<volume>::rad;
+    for (int s1 = -rad; s1 <= rad; ++s1)
+        for (int s2 = -rad; s2 <= rad; ++s2) {
+            const int s = std::abs(s1) + std::abs(s2);
+            if ( (s > 0) && (s <= rad) )
+                stencil.push_back(vj + V2i(s1, s2));
+        }
+    return stencil;
+}
+
+template <Volume volume, Symmetry symmetry>
+std::vector< typename XiMeshMix<symmetry>::Vi >
+stencilMulti(typename XiMeshMix<symmetry>::Vi vj, const XiMeshMix<symmetry>& )
+{
+    typedef typename SymmetryTrait<symmetry>::Vi Vi_simple;
+    std::vector<Vi_simple> points = makeStencil<volume>(vj.vi);
+
+    typedef typename XiMeshMix<symmetry>::Vi Vi;
+    std::vector<Vi> stencil;
+
+    for (size_t i = 0; i < points.size(); ++i)
+        stencil.push_back(Vi(points[i], vj.i));
+
+    return stencil;
+}
+
+template <Volume volume, Symmetry symmetry>
+std::vector< typename XiMeshRect<symmetry>::Vi >
+stencilMulti(typename XiMeshRect<symmetry>::Vi vj, const XiMeshRect<symmetry>& )
+{
+    return makeStencil<volume>(vj);
+}
+
 template <Volume volume, Symmetry symmetry, template <Symmetry> class XiMeshType>
 boost::tuple< bool, typename CollisionNodeMulti<symmetry, volume>::Si, 
                   typename XiMeshType<symmetry>::Vd >
@@ -66,7 +131,7 @@ searchMulti(typename XiMeshType<symmetry>::Vd v1, typename XiMeshType<symmetry>:
     if (lessZero(j1)) {
         bool b = false;
         double q = std::numeric_limits<double>::max();
-        const std::vector<Vi> stencil = stencilMulti(vj, ximesh);
+        const std::vector<Vi> stencil = stencilMulti<volume, symmetry>(vj, ximesh);
         for (typename std::vector<Vi>::const_iterator p = stencil.begin(); p != stencil.end(); ++p)
         {
             const Vi& vj1 = *p;

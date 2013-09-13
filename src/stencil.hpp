@@ -623,21 +623,22 @@ Stencil<Cylindrical, Grad, double> makeRSwarm<Grad>(const V2d r) {
     double y = templ_abs(r[1]);
 
     double xy = x * y;
+    double r1 = 1 - sqr(r);
 
-    double qx = x * ( 1 - x*x );
-    double qy = y * ( 1 - y*y );
+    double qx = x * r1;
+    double qy = y * r1;
 
-    s.o  =  1 - sqr(r) + xy - 0.5 * (qx + qy);
+    s.ii =  - 1. / 6. * (qx + xy);
+    s.jj =  - 1. / 6. * (qy + xy);
 
-    s.i  =  0.5 * x * (x + 1) - xy + qx / 2;
-    s.l  =  0.5 * x * (x - 1)      + qx / 6;
-    s.j  =  0.5 * y * (y + 1) - xy + qy / 2;
-    s.m  =  0.5 * y * (y - 1)      + qy / 6;
+    s.o  =  1 - sqr(r) - 0.5 * (qx + qy);
+
+    s.i  =  0.5 * x * (x + 1) - xy - 3 * s.ii;
+    s.l  =  0.5 * x * (x - 1)      -     s.ii;
+    s.j  =  0.5 * y * (y + 1) - xy - 3 * s.jj;
+    s.m  =  0.5 * y * (y - 1)      -     s.jj;
 
     s.ij =  xy;
-
-    s.ii =  - qx / 6.;
-    s.jj =  - qy / 6.;
 
     return s;
 }
@@ -654,26 +655,28 @@ Stencil<Cartesian, Grad, double> makeRSwarm<Grad>(const V3d r) {
     double xz = x * z;
     double yz = y * z;
 
-    double qx = x * ( 1 - x*x );
-    double qy = y * ( 1 - y*y );
-    double qz = z * ( 1 - z*z );
+    double r1 = 1 - sqr(r);
 
-    s.o  =  1 - sqr(r) + xy + xz + yz - 0.5 * (qx + qy + qz);
+    double qx = x * r1;
+    double qy = y * r1;
+    double qz = z * r1;
 
-    s.i  =  0.5 * x * (x + 1) - (xy + xz) + qx / 2;
-    s.l  =  0.5 * x * (x - 1)             + qx / 6;
-    s.j  =  0.5 * y * (y + 1) - (xy + yz) + qy / 2;
-    s.m  =  0.5 * y * (y - 1)             + qy / 6;
-    s.k  =  0.5 * z * (z + 1) - (xz + yz) + qz / 2;
-    s.n  =  0.5 * z * (z - 1)             + qz / 6;
+    s.ii =  - 1. / 6. * (qx + xy + xz);
+    s.jj =  - 1. / 6. * (qy + xy + yz);
+    s.kk =  - 1. / 6. * (qz + xz + yz);
+
+    s.o  =  1 - sqr(r) - 0.5 * (qx + qy + qz);
+
+    s.i  =  0.5 * x * (x + 1) - (xy + xz) - 3 * s.ii;
+    s.l  =  0.5 * x * (x - 1)             -     s.ii;
+    s.j  =  0.5 * y * (y + 1) - (xy + yz) - 3 * s.jj;
+    s.m  =  0.5 * y * (y - 1)             -     s.jj;
+    s.k  =  0.5 * z * (z + 1) - (xz + yz) - 3 * s.kk;
+    s.n  =  0.5 * z * (z - 1)             -     s.kk;
 
     s.ij =  xy;
     s.ik =  xz;
     s.jk =  yz;
-
-    s.ii =  - qx / 6.;
-    s.jj =  - qy / 6.;
-    s.kk =  - qz / 6.;
 
     return s;
 }
