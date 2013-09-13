@@ -17,12 +17,13 @@ class XiMeshRect {
         typedef Vd Vx;
         typedef typename SymmetryTrait<symmetry>::VVd VVd;
 
-        XiMeshRect(const VVd& vv, const VVd& vvol);
+        XiMeshRect(double cut, const Vm v_,
+                   const VVd& vv, const VVd& vvol);
 
         size_t size() const { return xis.size(); }
 
         const Vi radius() const { return rad; }
-        double cut() const { return max(cut_); }
+        double cut() const { return cut_; }
         double vol() const { return vol_; }
         double vol(const int i) const 
                 { return vols[i]; }
@@ -58,7 +59,8 @@ class XiMeshRect {
 
     private:
         Vi rad;
-        Vd cut_;
+        double cut_;
+        Vd shift;
         double vol_;
         VVd vv, vvol;
         std::vector<Vd>  xis;
@@ -154,14 +156,16 @@ inline int  XiMeshRect<Cylindrical>::mirror(const int i, const int a) const {
     return mirr[i];
 }
 
-
 template <>
-inline XiMeshRect<Cartesian>::XiMeshRect(const VVd& vv, const VVd& vvol) : 
+inline XiMeshRect<Cartesian>::XiMeshRect(double cut, const Vm v_,
+                                         const VVd& vv, const VVd& vvol) : 
+        cut_(cut), shift(vm2vd(v_)),
         vol_(1.), vv(vv), vvol(vvol)
 {
     rad  = Vi(vv[0].size() / 2, vv[1].size() / 2, vv[2].size() / 2);
     size_t size = 8 * rad[0] * rad[1] * rad[2];
  
+/*
     for (int i = 0; i < 3; ++i) {
         double x = 0.;
         for (size_t j = 0; j < vv[i].size(); ++j) {
@@ -170,7 +174,8 @@ inline XiMeshRect<Cartesian>::XiMeshRect(const VVd& vv, const VVd& vvol) :
         }
         cut_[i] = x;
     }
-    
+*/
+
     std::cout << "vol_ = " << vol_ << std::endl;
     xyzmap.resize(size);
     int i = 0;
@@ -180,7 +185,7 @@ inline XiMeshRect<Cartesian>::XiMeshRect(const VVd& vv, const VVd& vvol) :
                 V3i xi(i1, i2, i3);
                 V3d v = i2xi(xi);
                 int j = flatten(xi);
-                if (sqr(v / cut_) < 1) {
+                if (sqr(v - shift) < sqr(cut_)) {
                     xis.push_back(v);
                     vis.push_back(xi);
                     double vol = vvol[0][i1] * vvol[1][i2] * vvol[2][i3];
@@ -207,13 +212,17 @@ inline XiMeshRect<Cartesian>::XiMeshRect(const VVd& vv, const VVd& vvol) :
     }
 }
 
+
 template <>
-inline XiMeshRect<Cylindrical>::XiMeshRect(const VVd& vv, const VVd& vvol) : 
+inline XiMeshRect<Cylindrical>::XiMeshRect(double cut, const Vm v_,
+                                           const VVd& vv, const VVd& vvol) : 
+        cut_(cut), shift(vm2vd(v_)),
         vol_(2*M_PI), vv(vv), vvol(vvol)
 {
     rad  = Vi(vv[0].size() / 2, vv[1].size());
     size_t size = 2 * rad[0] * rad[1];
 
+/*
     for (int i = 0; i < 2; ++i) {
         double x = 0.;
         for (size_t j = 0; j < vv[i].size(); ++j) {
@@ -222,6 +231,7 @@ inline XiMeshRect<Cylindrical>::XiMeshRect(const VVd& vv, const VVd& vvol) :
         }
         cut_[i] = x;
     }
+*/
     
     std::cout << "vol_ = " << vol_ << std::endl;
     xyzmap.resize(size);
@@ -231,7 +241,7 @@ inline XiMeshRect<Cylindrical>::XiMeshRect(const VVd& vv, const VVd& vvol) :
             V2i xi(i1, i2);
             V2d v = i2xi(xi);
             int j = flatten(xi);
-            if (sqr(v / cut_) < 1) {
+            if (sqr(v - shift) < sqr(cut_)) {
                 xis.push_back(v);
                 vis.push_back(xi);
                 double vol = v[1] * vvol[0][i1] * vvol[1][i2];

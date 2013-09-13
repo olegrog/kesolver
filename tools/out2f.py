@@ -38,7 +38,6 @@ with open(sys.argv[2], 'rb') as fd:
             f[circl] = np.array(a)
 
             f = f / vol
-            f = np.ma.masked_where(f == 0.0, f)
 
             if symmetry == "Cartesian":
                 xp = xyz[0][:, rad:, rad]
@@ -46,6 +45,8 @@ with open(sys.argv[2], 'rb') as fd:
                 fp = f[:, rad:, rad]
             elif symmetry == "Cylindrical":
                 xp, yp, fp = xyz[0], xyz[1], f
+
+            fp = np.ma.masked_where(fp == 0.0, fp)
             surf = ax.plot_wireframe(xp, yp, fp, color='k')
 
             break

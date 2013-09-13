@@ -59,7 +59,8 @@ double find_q(double d, int n, double err = 1e-10)
 template <Symmetry symmetry>
 std::pair<typename SymmetryTrait<symmetry>::VVd,
           typename SymmetryTrait<symmetry>::VVd>
-makeVV(const std::vector<double>& vs, 
+makeVV(const typename SymmetryTrait<symmetry>::Vm v,
+       const std::vector<double>& vs, 
        const std::vector<double>& vols,
        const std::vector<double>& vs2, 
        const std::vector<double>& vols2);
@@ -67,31 +68,41 @@ makeVV(const std::vector<double>& vs,
 template <>
 std::pair<SymmetryTrait<Cartesian>::VVd,
           SymmetryTrait<Cartesian>::VVd>
-makeVV<Cartesian>(const std::vector<double>& vs, 
+makeVV<Cartesian>(const typename SymmetryTrait<Cartesian>::Vm v,
+                  const std::vector<double>& vs, 
                   const std::vector<double>& vols,
                   const std::vector<double>& vs2, 
                   const std::vector<double>& vols2)
 {
-    return std::make_pair(SymmetryTrait<Cartesian>::VVd(vs2), 
-                          SymmetryTrait<Cartesian>::VVd(vols2));
+    typedef typename SymmetryTrait<Cartesian>::VVd VVd;
+    VVd vvs(vs2);
+    for (int i = 0; i < 3; ++i)
+        for (size_t j = 0; j < vvs[i].size(); ++j)
+            vvs[i][j] += v[i];
+    return std::make_pair(vvs, VVd(vols2));
 }
 
 template <>
 std::pair<SymmetryTrait<Cylindrical>::VVd,
           SymmetryTrait<Cylindrical>::VVd>
-makeVV<Cylindrical>(const std::vector<double>& vs, 
+makeVV<Cylindrical>(const typename SymmetryTrait<Cylindrical>::Vm v,
+                    const std::vector<double>& vs, 
                     const std::vector<double>& vols,
                     const std::vector<double>& vs2, 
                     const std::vector<double>& vols2)
 {
-    return std::make_pair(SymmetryTrait<Cylindrical>::VVd(vs2, vs), 
-                          SymmetryTrait<Cylindrical>::VVd(vols2, vols));
+    typedef typename SymmetryTrait<Cylindrical>::VVd VVd;
+    VVd vvs(vs2, vs);
+    for (size_t j = 0; j < vvs[0].size(); ++j)
+        vvs[0][j] += v;
+    return std::make_pair(vvs, VVd(vols2, vols));
 }
 
 template <Symmetry symmetry>
 std::pair<typename SymmetryTrait<symmetry>::VVd,
           typename SymmetryTrait<symmetry>::VVd>
-makeVVByQ(const PropertyTree& tree, int rad, double cut)
+makeVVByQ(const PropertyTree& tree, int rad, double cut,
+          const typename SymmetryTrait<symmetry>::Vm v)
 {
     double hcenter = tree["hcenter"].asDouble(); 
     double q = find_q(cut / hcenter, rad);
@@ -118,12 +129,14 @@ makeVVByQ(const PropertyTree& tree, int rad, double cut)
         vols2.push_back(vols[i]);
     }
 
+/*
     for (size_t i = 0; i < vs2.size(); ++i) 
         std::cout << vs2[i] << std::endl;
     for (size_t i = 0; i < vols2.size(); ++i) 
         std::cout << vols2[i] << std::endl;
+*/
 
-    return makeVV<symmetry>(vs, vols, vs2, vols2);
+    return makeVV<symmetry>(v, vs, vols, vs2, vols2);
 }
 
 std::vector<double> readVectorFromBase64(const std::string& base64str)
@@ -191,10 +204,11 @@ makeVVread(const PropertyTree& tree, int rad)
 template <Symmetry symmetry>
 std::pair<typename SymmetryTrait<symmetry>::VVd,
           typename SymmetryTrait<symmetry>::VVd>
-readVV(const PropertyTree& tree, int rad, double cut)
+readVV(const PropertyTree& tree, int rad, double cut,
+       const typename SymmetryTrait<symmetry>::Vm v)
 {
     if (tree.isMember("hcenter"))
-        return makeVVByQ<symmetry>(tree, rad, cut);
+        return makeVVByQ<symmetry>(tree, rad, cut, v);
     else 
         return makeVVread<symmetry>(tree, rad);
 }
@@ -202,14 +216,9 @@ readVV(const PropertyTree& tree, int rad, double cut)
 template <Symmetry symmetry, Volume volume, TimeScheme scheme>
 Gas* gasMixScheme(const PropertyTree& tree, 
                   const int rad, const double cut,
+                  const typename SymmetryTrait<symmetry>::Vm v,
                   const std::vector<double>& masses)
 {
-    typedef typename SymmetryTrait<symmetry>::Vm Vm;
-    Vm v;
-    if (tree.isMember("v")) 
-        v = strTo<Vm>(tree["v"].asString());
-    else 
-        v = 0.;
     std::vector<double> adds;
     if (tree.isMember("adds")) {
         std::istringstream ss(tree["adds"].asString());
@@ -221,6 +230,7 @@ Gas* gasMixScheme(const PropertyTree& tree,
         for (size_t i = 0; i < masses.size(); ++i)
             adds.push_back(0.0);
     }
+
     typedef GasTemplate<symmetry, XiMeshMix, ColliderMix<symmetry, volume, scheme> > GasType;
     return new GasType(XiMeshMix<symmetry>(rad, cut, masses, v, adds));
 }
@@ -228,6 +238,7 @@ Gas* gasMixScheme(const PropertyTree& tree,
 template <Symmetry symmetry, Volume volume>
 Gas* gasMixVolume(const PropertyTree& tree, 
                   const int rad, const double cut,
+                  const typename SymmetryTrait<symmetry>::Vm v,
                   const std::vector<double>& masses)
 {
     std::string scheme;
@@ -237,27 +248,36 @@ Gas* gasMixVolume(const PropertyTree& tree,
         scheme = "Continues";
 
     if      (scheme == "Euler") 
-        return gasMixScheme<symmetry, volume, Euler>     (tree, rad, cut, masses);
+        return gasMixScheme<symmetry, volume, Euler>     (tree, rad, cut, v, masses);
     else if (scheme == "Continues")
-        return gasMixScheme<symmetry, volume, Continues> (tree, rad, cut, masses);
+        return gasMixScheme<symmetry, volume, Continues> (tree, rad, cut, v, masses);
     else
         throw std::invalid_argument("Unknown time scheme type");
 }
 
 template <Symmetry symmetry>
-Gas* gasSymmetry(const PropertyTree& tree, const std::string& type, 
-                 const int rad, const double cut)
+Gas* gasSymmetry(const PropertyTree& tree)
 {
     LABEL
+
+    const std::string type = tree["type"].asString();
+    std::cout << "type = " << type << std::endl;
+
+    int    rad = tree["rad"].asInt();
+    double cut = tree["cut"].asDouble();
+    std::cout << "rad, cut = " << rad << ' ' << cut << std::endl;
+
+    typedef typename SymmetryTrait<symmetry>::Vm Vm;
+    Vm v;
+    if (tree.isMember("v")) 
+        v = strTo<Vm>(tree["v"].asString());
+    else 
+        v = 0.;
+    std::cout << "v = " << v << std::endl;
+
     if (type == "Simple") {
         LABEL
-        typedef typename SymmetryTrait<symmetry>::Vm Vm;
-        Vm v;
-        if (tree.isMember("v")) 
-            v = strTo<Vm>(tree["v"].asString());
-        else 
-            v = 0.;
-        std::cout << "v = " << v << std::endl;
+
         typedef GasTemplate<symmetry, XiMesh, ColliderSimple<symmetry> > GasType;
         return new GasType(XiMesh<symmetry>(rad, cut, v));
     }
@@ -277,15 +297,15 @@ Gas* gasSymmetry(const PropertyTree& tree, const std::string& type,
         const std::vector<double> masses = readMasses(tree);
         const std::string volume = tree["volume"].asString();
         if      (volume == "Wide") 
-            return gasMixVolume<symmetry, Wide>      (tree, rad, cut, masses);
+            return gasMixVolume<symmetry, Wide>      (tree, rad, cut, v, masses);
         else if (volume == "Symmetric")
-            return gasMixVolume<symmetry, Symmetric> (tree, rad, cut, masses);
+            return gasMixVolume<symmetry, Symmetric> (tree, rad, cut, v, masses);
         else if (volume == "Tight")
-            return gasMixVolume<symmetry, Tight>     (tree, rad, cut, masses);
+            return gasMixVolume<symmetry, Tight>     (tree, rad, cut, v, masses);
         else if (volume == "Tight2")
-            return gasMixVolume<symmetry, Tight2>    (tree, rad, cut, masses);
+            return gasMixVolume<symmetry, Tight2>    (tree, rad, cut, v, masses);
         else if (volume == "Grad")
-            return gasMixVolume<symmetry, Grad>      (tree, rad, cut, masses);
+            return gasMixVolume<symmetry, Grad>      (tree, rad, cut, v, masses);
         else
             throw std::invalid_argument("Unknown mix volume type");
     }
@@ -293,18 +313,26 @@ Gas* gasSymmetry(const PropertyTree& tree, const std::string& type,
         typedef GasTemplate<symmetry, XiMeshRect, ColliderRect<symmetry> > GasType;
 
         typedef typename SymmetryTrait<symmetry>::VVd VVd;
-        std::pair<VVd, VVd> vpair = readVV<symmetry>(tree, rad, cut);
+        std::pair<VVd, VVd> vpair = readVV<symmetry>(tree, rad, cut, v);
         VVd vv(vpair.first), vvol(vpair.second);
 
-        XiMeshRect<symmetry> ximesh(vv, vvol);
+        XiMeshRect<symmetry> ximesh(cut, v, vv, vvol);
 
         const std::string volume = 
             tree.isMember("volume") ? tree["volume"].asString() : "Tight";
 
         if (volume == "Symmetric")
-            return new GasTemplate<symmetry, XiMeshRect, ColliderRect<symmetry, Symmetric> > (ximesh);
+            return new GasTemplate <
+                                     symmetry, XiMeshRect,
+                                     ColliderRect<symmetry, Symmetric>
+                                   > (ximesh);
         else if (volume == "Tight")
-            return new GasTemplate<symmetry, XiMeshRect, ColliderRect<symmetry, Tight> >     (ximesh);
+            return new GasTemplate <
+                                     symmetry, XiMeshRect,
+                                     ColliderRect<symmetry, Tight>
+                                   > (ximesh);
+//        else if (volume == "Grad")
+//            return new GasTemplate<symmetry, XiMeshRect, ColliderRect<symmetry, Grad> >     (ximesh);
         else
             throw std::invalid_argument("Unknown rect volume type");
     }
@@ -315,12 +343,6 @@ Gas* gasSymmetry(const PropertyTree& tree, const std::string& type,
 void GasConstructor(const PropertyTree& tree, Gas** gas_pp)
 {
     LABEL
-    const std::string type = tree["type"].asString();
-    std::cout << "type = " << type << std::endl;
-
-    int    rad = tree["rad"].asInt();
-    double cut = tree["cut"].asDouble();
-    std::cout << "rad, cut = " << rad << ' ' << cut << std::endl;
 
     std::string symm;
     if (tree.isMember("symmetry"))
@@ -331,9 +353,9 @@ void GasConstructor(const PropertyTree& tree, Gas** gas_pp)
 
     Gas* gas_p;
     if (symm == "Cylindrical")
-        gas_p = gasSymmetry<Cylindrical>(tree, type, rad, cut);
+        gas_p = gasSymmetry<Cylindrical>(tree);
     else if (symm == "Cartesian")
-        gas_p = gasSymmetry<Cartesian>(tree, type, rad, cut);
+        gas_p = gasSymmetry<Cartesian>(tree);
     else
         throw std::invalid_argument("Unknown symmetry type");
 
