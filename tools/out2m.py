@@ -2,22 +2,13 @@
 
 import sys, numpy, out2
 
-nodes, cells, indexes = out2.readNodesCellsIndexes(sys.argv[1])
+nodes, cells = out2.readNodesCells(sys.argv[1])
 volumes = [out2.cellVolume(cell, nodes) for cell in cells]
-data = out2.readMacros(sys.argv[2], len(cells))
+data    = out2.readMacros(sys.argv[2], len(cells))
+
+indexes = [cell.phys_index for cell in cells]
 
 print "sumvol = ", sum(volumes)
-
-filters = [lambda x: x[0] < -5.0, lambda x: x[0] > 5.0]
-filters = []
-if filters:
-    def get_index(x, filters):
-        for i, f in enumerate(filters):
-            if f(x):
-                return i
-        return -1
-    centers = [out2.center([nodes[i] for i in cell.vertexes]) for cell in cells]
-    indexes = [get_index(x, filters) for x in centers]
 
 masses = {}
 for index, volume, macro in zip(indexes, volumes, zip(*data)):
@@ -27,9 +18,8 @@ for index, volume, macro in zip(indexes, volumes, zip(*data)):
     else:
         masses[index] = mass
 
-print "summass = ", sum(masses.values())
-
 with open(sys.argv[3], "w") as fd:
     for key, mass in zip(masses.keys(), masses.values()):
         if key >= 0:
-            fd.writelines("%d %s\n" % ( key, ' '.join(map(str, mass)) ))
+            fd.writelines("%s %s\n" % ( key, ' '.join(map(str, mass)) ))
+
