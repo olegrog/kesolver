@@ -46,8 +46,10 @@ MeshMpi::MeshMpi(int argc, char** argv, MeshBase* mesh) :
 
 void MeshMpi::newStep()
 {
-    if (not mpi_init)
+    if (not mpi_init) {
         data_exchanger.mpiInit(cells); 
+        mpi_init = true;
+    }
 	data_exchanger.swap();
 }
 
