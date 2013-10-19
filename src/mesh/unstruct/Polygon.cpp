@@ -25,7 +25,7 @@ void Polygon::prepareForNextStep() {
     std::copy ( function.f().begin(), function.f().end(), function.getFMax().begin() );
 
     std::fill( function.getGradient().begin(), function.getGradient().end(), V3d(0., 0., 0.) );
-    std::fill( function.getPhi().begin(), function.getPhi().end(), 0. );
+    std::fill( function.getPhi().begin(), function.getPhi().end(), 1. );
 
 }
 
