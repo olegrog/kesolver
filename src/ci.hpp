@@ -49,12 +49,12 @@ struct GridType;
 
 template <>
 struct GridType<Cartesian> {
-    typedef crand::Grid Grid;
+    typedef korobov::Grid Grid;
 };
 
 template <>
 struct GridType<Cylindrical> {
-    typedef crand::Grid Grid;
+    typedef korobov::Grid Grid;
 };
 
 template <Symmetry symmetry, template <Symmetry symmetry> class XiMeshType, typename Nodes>
@@ -418,7 +418,8 @@ inline double delta(const double fv, const double fw,
 template <typename DF, typename Nodes>
 int ciIter(DF& f, const Nodes& nodes)
 {
-    int k = 0, l = 0;
+    int k = 0;
+//    int l = 0;
     for (typename Nodes::const_iterator p = nodes.begin(); p != nodes.end(); ++p) {
         typename Nodes::const_reference n = *p;
         if (n.type == 2) {
@@ -477,7 +478,7 @@ int ciIter(DF& f, const Nodes& nodes)
                 f[n.i2m] = z.d[1];
                 f[n.i1 ] = rr5;
                 f[n.i2 ] = rr6;
-
+/*
                 d = 2 * rr5 * rr6 * n.c;
 
                 dl = (1. - n.r) * d;
@@ -509,6 +510,7 @@ int ciIter(DF& f, const Nodes& nodes)
                 else {
                     ++l;
                 }
+*/
             }
         }
         else {
