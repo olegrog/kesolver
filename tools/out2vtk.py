@@ -20,9 +20,9 @@ data = out2.readMacros(sys.argv[2], len(cells))
 centernodes = []
 for cell in cells:
     centernode = numpy.zeros(3)
-    for vertex in cell.vertexes:
+    for vertex in cell.nodes:
         centernode += nodes[vertex]
-    centernodes.append(centernode / len(cell.vertexes))
+    centernodes.append(centernode / len(cell.nodes))
 
 with open(sys.argv[3], "w") as fd:
     fd.writelines("# vtk DataFile Version 2.0\n")
@@ -36,9 +36,9 @@ with open(sys.argv[3], "w") as fd:
     for centernode in centernodes:
         fd.writelines("%f %f %f\n" % (centernode[0], centernode[1], centernode[2]) )
 
-    fd.writelines("CELLS %d %d\n" % ( len(cells), sum( [len(cell.vertexes)+1 for cell in cells] ) ))
+    fd.writelines("CELLS %d %d\n" % ( len(cells), sum( [len(cell.nodes)+1 for cell in cells] ) ))
     for cell in cells:
-        fd.writelines(listToStr(cell.vertexes)+'\n')
+        fd.writelines(listToStr(cell.nodes)+'\n')
 
     fd.writelines("CELL_TYPES %d\n" % len(cells))
     for cell in cells:
