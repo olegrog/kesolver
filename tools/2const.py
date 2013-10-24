@@ -88,7 +88,6 @@ if __name__ == "__main__":
     new_bcs = dict(bcs)
     for key, value in bcs.iteritems():
         if value["type"] == "diffusion":
-            print 'A'
             if not is_const([value['T'], value['u']]):
                 for facet in facets:
                     print key, facet.phys_index
