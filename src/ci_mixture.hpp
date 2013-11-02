@@ -38,7 +38,7 @@ class ColliderMixture {
         
 };
 
-inline boost::tuple<bool, double, V3d, V3d, V3i>
+inline std::tr1::tuple<bool, double, V3d, V3d, V3i>
         calcNodeAfter(const int i1, const int i2,
                       const V3d v2, const V3d w2, 
                       const V3d o,  const V3d nn,
@@ -50,15 +50,15 @@ inline boost::tuple<bool, double, V3d, V3d, V3i>
             ximesh.xi2i(XiMeshMixture<Cartesian>::Vx(w2, ximesh.i2ci(i2)));
 
     if ((ximesh(vi) < 0) || (ximesh(wi) < 0))
-        return boost::make_tuple(false, 0.0, V3d(0.0), V3d(0.0), V3i(0));
+        return std::tr1::make_tuple(false, 0.0, V3d(0.0), V3d(0.0), V3i(0));
 
     const double E = sqr(nn);
     const V3i xi = wi;
 
-    return boost::make_tuple(true, E, o * ximesh.m(i2), nn, xi);
+    return std::tr1::make_tuple(true, E, o * ximesh.m(i2), nn, xi);
 }
 
-inline boost::tuple<bool, double, V2d, V2d, V3i>
+inline std::tr1::tuple<bool, double, V2d, V2d, V3i>
         calcNodeAfter(const int i1, const int i2,
                       const V3d v2, const V3d w2, 
                       const V3d o,  const V3d nn,
@@ -73,16 +73,16 @@ inline boost::tuple<bool, double, V2d, V2d, V3i>
             ximesh.xi2i(XiMeshMixture<Cylindrical>::Vx(w1, ximesh.i2ci(i2)) );
 
     if ((ximesh(vi) < 0) || (ximesh(wi) < 0))
-        return boost::make_tuple(false, 0.0, V2d(0.0), V2d(0.0), V3i(0));
+        return std::tr1::make_tuple(false, 0.0, V2d(0.0), V2d(0.0), V3i(0));
 
     const V3i xi = V3d(wi.vi, vi.vi[1]);
     const double E = ximesh.e(i1) + ximesh.e(i2);
 
-    return boost::make_tuple(true, E, v1, w1, xi);
+    return std::tr1::make_tuple(true, E, v1, w1, xi);
 }
 
 
-inline boost::tuple<bool, 
+inline std::tr1::tuple<bool, 
                   XiMeshMixture<Cartesian>::Vi, 
                   XiMeshMixture<Cartesian>::Vi, 
                   double, double>
@@ -96,15 +96,15 @@ inline boost::tuple<bool,
     XiMeshMixture<Cartesian>::Vi xi1(vi.vi + wi.vi - xi, vi.i);
 
     if ((ximesh(xi1) < 0) || (ximesh(xi2) < 0))
-        return boost::make_tuple(false, xi1, xi2, 0.0, 0.0);
+        return std::tr1::make_tuple(false, xi1, xi2, 0.0, 0.0);
 
     V3d    n = ximesh.i2xi(xi2) - x;
     double e = sqr(n);
     double q = sqr(n - y);
-    return boost::make_tuple(true, xi1, xi2, e, q);
+    return std::tr1::make_tuple(true, xi1, xi2, e, q);
 }
 
-inline boost::tuple<bool, 
+inline std::tr1::tuple<bool, 
                   XiMeshMixture<Cylindrical>::Vi, 
                   XiMeshMixture<Cylindrical>::Vi, 
                   double, double>
@@ -122,7 +122,7 @@ inline boost::tuple<bool,
     const int i1 = ximesh(xi1);
     const int i2 = ximesh(xi2);
     if ((i1 < 0) || (i2 < 0))
-        return boost::make_tuple(false, xi1, xi2, 0.0, 0.0);
+        return std::tr1::make_tuple(false, xi1, xi2, 0.0, 0.0);
 
     const double e = ximesh.e(i1) + ximesh.e(i2);
 
@@ -130,11 +130,11 @@ inline boost::tuple<bool,
     V2d w(ximesh.i2xi(xi2));
 
     const double q = sqr(v - x) + sqr(w - y);
-    return boost::make_tuple(true, xi1, xi2, e, q);
+    return std::tr1::make_tuple(true, xi1, xi2, e, q);
 }
 
 template<Symmetry symmetry, template <Symmetry symmetry> class XiMeshMixtureType>
-boost::tuple<V3d, double, V3d, V3d, V3d, V3d>
+std::tr1::tuple<V3d, double, V3d, V3d, V3d, V3d>
 calcNodeCollideMixture(const int i1, const int i2,
                        const V3d v, const V3d w,
                        const V3d n,
@@ -149,11 +149,11 @@ calcNodeCollideMixture(const int i1, const int i2,
     const V3d    o = (v + w) / (m1 + m2);
     const V3d   v2 = m1 * o - nn;
     const V3d   w2 = m2 * o + nn;
-    return boost::make_tuple(u, g, o, nn, v2, w2);
+    return std::tr1::make_tuple(u, g, o, nn, v2, w2);
 }
 
 template<Symmetry symmetry>
-boost::tuple<V3d, double, V3d, V3d, V3d, V3d>
+std::tr1::tuple<V3d, double, V3d, V3d, V3d, V3d>
 calcNodeCollide(const int i1, const int i2,
                 const V3d v, const V3d w,
                 const V3d n,

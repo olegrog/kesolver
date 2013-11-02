@@ -40,7 +40,7 @@ class ColliderRect {
         
 };
 
-inline boost::tuple<XiMeshRect<Cartesian>::Vi,
+inline std::tr1::tuple<XiMeshRect<Cartesian>::Vi,
                     XiMeshRect<Cartesian>::Vi,
                     XiMeshRect<Cartesian>::Vd,
                     XiMeshRect<Cartesian>::Vd>
@@ -50,10 +50,10 @@ inline boost::tuple<XiMeshRect<Cartesian>::Vi,
 {
     const XiMeshRect<Cartesian>::Vi vj = ximesh.xi2i(v2);
     const XiMeshRect<Cartesian>::Vi wj = ximesh.xi2i(w2);
-    return boost::make_tuple(vj, wj, v2, w2);
+    return std::tr1::make_tuple(vj, wj, v2, w2);
 }
 
-inline boost::tuple<XiMeshRect<Cylindrical>::Vi,
+inline std::tr1::tuple<XiMeshRect<Cylindrical>::Vi,
                     XiMeshRect<Cylindrical>::Vi,
                     XiMeshRect<Cylindrical>::Vd,
                     XiMeshRect<Cylindrical>::Vd>
@@ -65,25 +65,17 @@ inline boost::tuple<XiMeshRect<Cylindrical>::Vi,
     const V2d w1(w2[0], norm(V2d(w2[1], w2[2])));
     const XiMeshRect<Cylindrical>::Vi vj = ximesh.xi2i(v1);
     const XiMeshRect<Cylindrical>::Vi wj = ximesh.xi2i(w1);
-    return boost::make_tuple(vj, wj, v1, w1);
+    return std::tr1::make_tuple(vj, wj, v1, w1);
 }
 
 template<Symmetry symmetry>
-boost::tuple<V3d, double, V3d, V3d, V3d, V3d>
+std::tr1::tuple<V3d, double, V3d, V3d, V3d, V3d>
 calcNodeCollide(const int i1, const int i2,
                    const V3d v, const V3d w,
                    const V3d n,
                    const XiMeshRect<symmetry>& ximesh)
 {
     return calcNodeCollideSimple(i1, i2, v, w, n, ximesh);
-}
-
-template <Volume volume, Symmetry symmetry> 
-Stencil<symmetry, volume, double> makeRSwarm(const typename SymmetryTrait<symmetry>::Vd x,
-                                             const Stencil<symmetry, volume, int> j,
-                                             const XiMeshRect<symmetry>& mesh)
-{
-    return doMakeRSwarm<volume>(x, j, mesh);
 }
 
 template <Symmetry symmetry>

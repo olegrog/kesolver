@@ -16,6 +16,22 @@ struct CollisionNodeMulti {
     double c, a;
 };
 
+template <Volume volume, Symmetry symmetry> 
+Stencil<symmetry, volume, double> createRSwarm(const typename SymmetryTrait<symmetry>::Vd x,
+                                               const Stencil<symmetry, volume, int> j,
+                                               const XiMeshMix<symmetry>& mesh)
+{
+    return makeRSwarm<volume>(x);
+}
+
+template <Volume volume, Symmetry symmetry> 
+Stencil<symmetry, volume, double> createRSwarm(const typename SymmetryTrait<symmetry>::Vd x,
+                                               const Stencil<symmetry, volume, int> j,
+                                               const XiMeshRect<symmetry>& mesh)
+{
+    return doMakeRSwarm<volume>(x, j, mesh);
+}
+
 template <Volume volume, template <Symmetry symmetry> class XiMeshType>
 const CollisionNodeMulti<Cartesian, volume>
 makeNode(const int i1 , const int i2,
@@ -25,8 +41,8 @@ makeNode(const int i1 , const int i2,
          const XiMeshType<Cartesian>& ximesh)
 {
     CollisionNodeMulti<Cartesian, volume> node;
-    Stencil<Cartesian, volume, double> r1 = makeRSwarm<volume>(x1, j1, ximesh);
-    Stencil<Cartesian, volume, double> r2 = makeRSwarm<volume>(x2, j2, ximesh);
+    Stencil<Cartesian, volume, double> r1 = createRSwarm<volume>(x1, j1, ximesh);
+    Stencil<Cartesian, volume, double> r2 = createRSwarm<volume>(x2, j2, ximesh);
     node.a  = ximesh.vol(i1) * ximesh.vol(i2) / 
               (interpVol(j1, r1, ximesh) * interpVol(j2, r2, ximesh));
     node.x1 = r1;
@@ -43,14 +59,15 @@ makeNode(const int i1 , const int i2,
          const XiMeshType<Cylindrical>& ximesh)
 {
     CollisionNodeMulti<Cylindrical, volume> node;
-    Stencil<Cylindrical, volume, double> r1 = makeRSwarm<volume>(x1, j1, ximesh);
-    Stencil<Cylindrical, volume, double> r2 = makeRSwarm<volume>(x2, j2, ximesh);
+    Stencil<Cylindrical, volume, double> r1 = createRSwarm<volume>(x1, j1, ximesh);
+    Stencil<Cylindrical, volume, double> r2 = createRSwarm<volume>(x2, j2, ximesh);
     node.a  = ximesh.vol(i1) * ximesh.vol(i2) / 
               (interpVol(j1, r1, ximesh) * interpVol(j2, r2, ximesh));
     node.x1 = r1;
     node.x2 = r2;
     return node;
 }
+
 
 template <Volume volume>
 struct VolumeConsts {
@@ -118,7 +135,7 @@ stencilMulti(typename XiMeshRect<symmetry>::Vi vj, const XiMeshRect<symmetry>& )
 }
 
 template <Volume volume, Symmetry symmetry, template <Symmetry> class XiMeshType>
-boost::tuple< bool, typename CollisionNodeMulti<symmetry, volume>::Si, 
+std::tr1::tuple< bool, typename CollisionNodeMulti<symmetry, volume>::Si, 
                   typename XiMeshType<symmetry>::Vd >
 searchMulti(typename XiMeshType<symmetry>::Vd v1, typename XiMeshType<symmetry>::Vi vj,
           const XiMeshType<symmetry>& ximesh)
@@ -147,9 +164,9 @@ searchMulti(typename XiMeshType<symmetry>::Vd v1, typename XiMeshType<symmetry>:
                 }
             }
         }
-        return boost::make_tuple(b, j1, x1);
+        return std::tr1::make_tuple(b, j1, x1);
     }
-    return boost::make_tuple(true, j1, x1);
+    return std::tr1::make_tuple(true, j1, x1);
 }
 
 template <typename Point, Volume volume, Symmetry symmetry, typename XiMeshType>
@@ -165,19 +182,19 @@ CollisionType calcNode(const Point& p,
     int i1, i2;
     Vi vi, wi;
     V3d v, w, n;
-    boost::tie(i1, i2, vi, wi, v, w, n) = calcNodeBefore(p, ximesh);
+    std::tr1::tie(i1, i2, vi, wi, v, w, n) = calcNodeBefore(p, ximesh);
 
 //    std::cout << "v, w = " << v << ' ' << w << std::endl;
 
     double g;
     V3d    u, o, nn, v2, w2;
-    boost::tie(u, g, o, nn, v2, w2) = calcNodeCollide(i1, i2, v, w, n, ximesh);
+    std::tr1::tie(u, g, o, nn, v2, w2) = calcNodeCollide(i1, i2, v, w, n, ximesh);
 
 //    std::cout << "u, g = " << u << ' ' << g << std::endl;
 
     Vi vj, wj;
     Vd v1, w1;
-    boost::tie(vj, wj, v1, w1) = calcNodeAfter(i1, i2, v2, w2, ximesh);
+    std::tr1::tie(vj, wj, v1, w1) = calcNodeAfter(i1, i2, v2, w2, ximesh);
 
 //    std::cout << "v1, w1 = " << v1 << ' ' << w1 << std::endl;
 
@@ -195,9 +212,9 @@ CollisionType calcNode(const Point& p,
     typename Node::Si j1, j2;
     Vd x1, x2;
     bool b;
-    boost::tie(b, j1, x1) = searchMulti<volume>(v1, vj, ximesh);
+    std::tr1::tie(b, j1, x1) = searchMulti<volume>(v1, vj, ximesh);
     if (not b) return BadSearch;
-    boost::tie(b, j2, x2) = searchMulti<volume>(w1, wj, ximesh);
+    std::tr1::tie(b, j2, x2) = searchMulti<volume>(w1, wj, ximesh);
     if (not b) return BadSearch;
 
 //    std::cout << "j1, j2 = " << j1 << ' ' << j2 << std::endl;

@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <algorithm>
-#include <boost/tuple/tuple.hpp>
+#include <tr1/tuple>
 #include <cassert>
 
 #include "symmetry.hpp"
@@ -109,7 +109,7 @@ void ciGen(const double time_step, const int p,
 }
 
 template <typename Point, template <Symmetry symmetry> class XiMeshType>
-inline boost::tuple<int, int, 
+inline std::tr1::tuple<int, int, 
                   typename XiMeshType<Cartesian>::Vi,
                   typename XiMeshType<Cartesian>::Vi,
                   V3d, V3d,
@@ -128,11 +128,11 @@ inline boost::tuple<int, int,
 
     const V3d n = randomSphere(V2d(p[2], p[3]));
 
-    return boost::make_tuple(i1, i2, vi, wi, v, w, n);
+    return std::tr1::make_tuple(i1, i2, vi, wi, v, w, n);
 }
 
 template <typename Point, template <Symmetry symmetry> class XiMeshType>
-inline boost::tuple<int, int, 
+inline std::tr1::tuple<int, int, 
                   typename XiMeshType<Cylindrical>::Vi,
                   typename XiMeshType<Cylindrical>::Vi,
                   V3d, V3d,
@@ -157,11 +157,11 @@ inline boost::tuple<int, int,
 
     const V3d n = randomSphere(V2d(p[4], p[5]));
 
-    return boost::make_tuple(i1, i2, vi, wi, v, w, n);
+    return std::tr1::make_tuple(i1, i2, vi, wi, v, w, n);
 }
 
 template<Symmetry symmetry, template <Symmetry symmetry> class XiMeshType>
-boost::tuple<V3d, double, V3d, V3d, V3d, V3d>
+std::tr1::tuple<V3d, double, V3d, V3d, V3d, V3d>
 calcNodeCollideSimple(const int i1, const int i2,
                       const V3d v, const V3d w,
                       const V3d n,
@@ -173,11 +173,11 @@ calcNodeCollideSimple(const int i1, const int i2,
     const V3d   nn = 0.5 * n * g;
     const V3d   v2 = o - nn;
     const V3d   w2 = o + nn;
-    return boost::make_tuple(u, g, o, nn, v2, w2);
+    return std::tr1::make_tuple(u, g, o, nn, v2, w2);
 }
 
 template<Symmetry symmetry, template<Symmetry symmetry> class XiMeshType>
-boost::tuple<int, double, 
+std::tr1::tuple<int, double, 
            typename XiMeshType<symmetry>::Vi, typename XiMeshType<symmetry>::Vi,
            typename XiMeshType<symmetry>::Vi, typename XiMeshType<symmetry>::Vi
            >
@@ -196,14 +196,14 @@ boost::tuple<int, double,
         Vi xi2l_, xi1l_;
         double el, ql;
         bool bl;
-        boost::tie(bl, xi1l_, xi2l_, el, ql) = fit(*pl, vi, wi, x, y, ximesh);
+        std::tr1::tie(bl, xi1l_, xi2l_, el, ql) = fit(*pl, vi, wi, x, y, ximesh);
         if (bl) {
             if (el > E) {
                 for (std::vector<V3i>::const_iterator pm = stencil.begin(); pm != stencil.end(); ++pm) {
                     Vi xi2m_, xi1m_;
                     double em, qm;
                     bool bm;
-                    boost::tie(bm, xi1m_, xi2m_, em, qm) = fit(*pm, vi, wi, x, y, ximesh);
+                    std::tr1::tie(bm, xi1m_, xi2m_, em, qm) = fit(*pm, vi, wi, x, y, ximesh);
                     if (bm) {
                         if (em <= E+1e-12) {
                             double r_ = (E-el)/(em-el);
@@ -225,13 +225,13 @@ boost::tuple<int, double,
     forend:
 
     if (r == std::numeric_limits<double>::max()) 	
-        return boost::make_tuple(0, 0.0, xi1l, xi2l, xi1m, xi2m);
+        return std::tr1::make_tuple(0, 0.0, xi1l, xi2l, xi1m, xi2m);
 
-    return boost::make_tuple(1, r, xi1l, xi2l, xi1m, xi2m);
+    return std::tr1::make_tuple(1, r, xi1l, xi2l, xi1m, xi2m);
 }
 
 template<Symmetry symmetry, template<Symmetry symmetry> class XiMeshType>
-boost::tuple<int, double, 
+std::tr1::tuple<int, double, 
            typename XiMeshType<symmetry>::Vi, typename XiMeshType<symmetry>::Vi,
            typename XiMeshType<symmetry>::Vi, typename XiMeshType<symmetry>::Vi
            >
@@ -252,13 +252,13 @@ boost::tuple<int, double,
     Vi xi2l_, xi1l_;
     double el, ql;
     bool bl;
-    boost::tie(bl, xi1l_, xi2l_, el, ql) = fit(*pl, vi, wi, x, y, ximesh);
+    std::tr1::tie(bl, xi1l_, xi2l_, el, ql) = fit(*pl, vi, wi, x, y, ximesh);
     if (bl) {
         for (std::vector<V3i>::const_iterator pm = stencil.begin(); pm != stencil.end(); ++pm) {
             Vi xi2m_, xi1m_;
             double em, qm;
             bool bm;
-            boost::tie(bm, xi1m_, xi2m_, em, qm) = fit(*pm, vi, wi, x, y, ximesh);
+            std::tr1::tie(bm, xi1m_, xi2m_, em, qm) = fit(*pm, vi, wi, x, y, ximesh);
             if (bm) {
                 double r_ = (E-el)/(em-el);
                 if ( (r_ >= 0) && (r_ < 1) ) {
@@ -277,9 +277,9 @@ boost::tuple<int, double,
     }
 
     if (r == std::numeric_limits<double>::max()) 	
-        return boost::make_tuple(0, 0.0, xi1l, xi2l, xi1m, xi2m);
+        return std::tr1::make_tuple(0, 0.0, xi1l, xi2l, xi1m, xi2m);
 
-    return boost::make_tuple(1, r, xi1l, xi2l, xi1m, xi2m);
+    return std::tr1::make_tuple(1, r, xi1l, xi2l, xi1m, xi2m);
 }
 
 template<template<Symmetry symmetry> class XiMeshType>
@@ -325,17 +325,17 @@ CollisionType calcNode(const Point& p,
     int i1, i2;
     Vi vi, wi;
     V3d v, w, n;
-    boost::tie(i1, i2, vi, wi, v, w, n) = calcNodeBefore(p, ximesh);
+    std::tr1::tie(i1, i2, vi, wi, v, w, n) = calcNodeBefore(p, ximesh);
 
     double g;
     V3d    u, o, nn, v2, w2;
-    boost::tie(u, g, o, nn, v2, w2) = calcNodeCollide(i1, i2, v, w, n, ximesh);
+    std::tr1::tie(u, g, o, nn, v2, w2) = calcNodeCollide(i1, i2, v, w, n, ximesh);
 
     Vd x, y;
     double E;
     V3i xi;
     bool b;
-    boost::tie(b, E, x, y, xi) = calcNodeAfter(i1, i2, v2, w2, o, nn, ximesh);
+    std::tr1::tie(b, E, x, y, xi) = calcNodeAfter(i1, i2, v2, w2, o, nn, ximesh);
 
     if (!b)
         return BadCollision;
@@ -353,7 +353,7 @@ CollisionType calcNode(const Point& p,
     double r;
     Vi xi1l, xi2l, xi1m, xi2m;
     int l;
-    boost::tie(l, r, xi1l, xi2l, xi1m, xi2m) = 
+    std::tr1::tie(l, r, xi1l, xi2l, xi1m, xi2m) = 
             search2(stencil, E, vi, wi, x, y, ximesh);
     if (l == 0)
         return BadSearch;
