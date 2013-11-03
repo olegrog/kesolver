@@ -68,7 +68,7 @@ makeVV(const typename SymmetryTrait<symmetry>::Vm v,
 template <>
 std::pair<SymmetryTrait<Cartesian>::VVd,
           SymmetryTrait<Cartesian>::VVd>
-makeVV<Cartesian>(const typename SymmetryTrait<Cartesian>::Vm v,
+makeVV<Cartesian>(const SymmetryTrait<Cartesian>::Vm v,
                   const std::vector<double>& vs, 
                   const std::vector<double>& vols,
                   const std::vector<double>& vs2, 
@@ -85,13 +85,13 @@ makeVV<Cartesian>(const typename SymmetryTrait<Cartesian>::Vm v,
 template <>
 std::pair<SymmetryTrait<Cylindrical>::VVd,
           SymmetryTrait<Cylindrical>::VVd>
-makeVV<Cylindrical>(const typename SymmetryTrait<Cylindrical>::Vm v,
+makeVV<Cylindrical>(const SymmetryTrait<Cylindrical>::Vm v,
                     const std::vector<double>& vs, 
                     const std::vector<double>& vols,
                     const std::vector<double>& vs2, 
                     const std::vector<double>& vols2)
 {
-    typedef typename SymmetryTrait<Cylindrical>::VVd VVd;
+    typedef SymmetryTrait<Cylindrical>::VVd VVd;
     VVd vvs(vs2, vs);
     for (size_t j = 0; j < vvs[0].size(); ++j)
         vvs[0][j] += v;
@@ -332,7 +332,10 @@ Gas* gasSymmetry(const PropertyTree& tree)
                                      ColliderRect<symmetry, Tight>
                                    > (ximesh);
 //        else if (volume == "Grad")
-//            return new GasTemplate<symmetry, XiMeshRect, ColliderRect<symmetry, Grad> >     (ximesh);
+//            return new GasTemplate <
+//                                     symmetry, XiMeshRect, 
+//                                     ColliderRect<symmetry, Grad> 
+//                                   > (ximesh);
         else
             throw std::invalid_argument("Unknown rect volume type");
     }
@@ -375,6 +378,7 @@ void GivePolygonMemoryAndInit(const PropertyTree& tree, const Gas& gas, Polygon*
         const double* doubles = reinterpret_cast<const double*>(&bytes.front());
         const size_t size = bytes.size() / sizeof(double);
         LOG(INFO) << "bytes.size() = " << bytes.size();
+        LOG(INFO) << "f().size() = " << size;
         std::vector<double> f(size);
         for (size_t i = 0; i < size; ++i)
             f[i] = doubles[i];
