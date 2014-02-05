@@ -69,8 +69,8 @@ time  = []
 mom_f = []
 mom_g = []
 
-mom_p = [2, 4, 6]
-mom_d = [15, 945, 135135]
+mom_p = [2, 3, 4, 6]
+mom_d = [15, 105, 945, 135135]
 
 #for ffilename in ffilenames:
 for i in range(int(ffilenames[0])):
@@ -98,16 +98,17 @@ for i in range(int(ffilenames[0])):
     sum2_f = np.sum( vol[circl] * f[circl] * e[circl] ) / \
          3 / np.sum( vol[circl] * f[circl] ) 
     m2 = 1 / sum2_f
-    print m2
+    m1 = 1 / (np.sum( vol[circl] * f[circl] ) * d3v)
+#    print m1, m2
 
     file_i = int(re.search(r"(\d+)[^/]*$", ffilename).groups()[0])
     t = file_i * timestep / 2 / math.sqrt(2) / math.pi
 
     tau = 1. - xi * math.exp( - lamd * t )
 
-    sum_f = [np.sum( vol * f * e**p ) * d3v / d for p, d in zip(mom_p, mom_d)]
+    sum_f = [m1 * np.sum( vol * f * (e * m2)**p ) * d3v / d for p, d in zip(mom_p, mom_d)]
 #    sum_g = [np.sum( vol * g * e**p ) * d3v / d for p, d in zip(mom_p, mom_d)]
-    sum_g = [ tau**(p-1) * (1 + (p-1) * xi * math.exp( - lamd * t )) / m2 for p in mom_p ]
+    sum_g = [ tau**(p-1) * (1 + (p-1) * xi * math.exp( - lamd * t )) for p in mom_p ]
 
     time.append(t)
     mom_f.append(sum_f)

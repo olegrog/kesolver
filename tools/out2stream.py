@@ -6,6 +6,10 @@ O = numpy.array( [0., 0.00013, 0.0001] )
 u = numpy.array( [1., 0., 0.] )
 v = numpy.array( [0., 0.997, 0.08] )
 
+O = numpy.array( [0.0012, 1.875, 3.2475] )
+u = numpy.array( [1., 0., 0.] )
+v = numpy.array( [0., 0.0675, 3.99] )
+
 #O = numpy.array( [0., 0., -0.001] )
 #u = numpy.array( [1., 0., 0.] )
 #v = numpy.array( [0., 1., 0.] )
@@ -131,7 +135,7 @@ grid_uv = numpy.sqrt(grid_u*grid_u + grid_v*grid_v)
 max_uv = numpy.nanmax(grid_uv)
 print max_uv
 w = 10.;
-m = numpy.logical_or(m, grid_uv < max_uv / w)
+#m = numpy.logical_or(m, grid_uv < max_uv / w)
 grid_u = numpy.ma.array(grid_u, mask=m)
 
 grid_u  = grid_u.transpose()

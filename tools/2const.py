@@ -34,7 +34,7 @@ def is_const(lines):
     return True
 
 def to_const_str(s, x, y, z):
-    return str(eval(s))
+    return "%.3f" % eval(s)
 
 def to_const_line(line, x, y, z):
     ws = []
@@ -90,7 +90,6 @@ if __name__ == "__main__":
         if value["type"] == "diffusion":
             if not is_const([value['T'], value['u']]):
                 for facet in facets:
-                    print key, facet.phys_index
                     if facet.phys_index == key:
                         x, y, z = center(facet, nodes)
                         newval = to_const_dict({'T': value['T'], 'u': value['u']}, x, y, z)
@@ -105,6 +104,6 @@ if __name__ == "__main__":
     data['boundary_conditions'] = new_bcs
     
     with open(sys.argv[-1], 'wb') as fd: 
-#        json.dump(data, fd)
-        json.dump(data, fd, indent=2, sort_keys=True)
+        json.dump(data, fd)
+#        json.dump(data, fd, indent=2, sort_keys=True)
 

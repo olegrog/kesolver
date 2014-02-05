@@ -4,7 +4,11 @@ import sys, math, numpy, out2
 
 O = numpy.array( [0., 0.0013, 0.001] )
 u = numpy.array( [1., 0., 0.] )
-v = numpy.array( [0., 0.997, 0.08] )
+v = numpy.array( [0., 1., 0.] )
+
+O = numpy.array( [0.0012, 1.875, 3.2475] )
+u = numpy.array( [1., 0., 0.] )
+v = numpy.array( [0., 0.0675, 3.99] )
 
 def intersect(O, u, v, cell, nodes):
 	g = out2.gamma(nodes[cell.nodes[0]] - O, u, v)	

@@ -8,7 +8,7 @@ from out2 import *
 O = numpy.array( [0.00012, 0.00011, 0.0001] )
 u = numpy.array( [1.,  0.,    0.] )
 
-show = True
+show = True # False # True
 save = True
 
 nodes, cells = readNodesCells(sys.argv[1])
