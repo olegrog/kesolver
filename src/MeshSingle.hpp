@@ -15,6 +15,7 @@ class MeshSingle : public Mesh {
 
         Facets& getAllFacets()     { return facets; }
         Facets& getFlowingFacets() { return facets; }
+        Facets& getMyFacets()      { return facets; }
 
         const Ints& getMyCellIndexes() const { return my_cell_indexes; }
 

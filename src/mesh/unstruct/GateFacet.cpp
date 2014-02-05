@@ -50,23 +50,45 @@ void GateFacet::doTransfer2(std::vector<Polygon*>& spacemesh, const Gas& gas)
 
     const std::vector<V3d>& vels = gas.vel();
 
-    V3d d_out = getCenter() - spacemesh[polygon[1]]->getCenter();
-    
     for (size_t i = 0; i < size; ++i) {
         double sppr = dot(vels[i], n);
-        if(sppr < 0.0) {
+        if (sppr < 0.0) {
             double dd = - 0.5 * dt * dot(vels[i], df_in[i]);
 //            double dd = 0.0;
             double d = (f1_in[i] + (dot(df_in[i], d_in) + dd)*phi_in[i])*sppr;
             f2_in[i] += d * mult_in;
             f2_out[i] -= d * mult_out; 
+            if ((f2_in[i] <= 0) || (f2_out[i] <= 0)) {
+                std::cout << "GateFacet1!" << std::endl;
+                std::cout << f1_in[i] << ' ' << f1_out[i] << std::endl;
+                std::cout << f1_out[i] + (dot(df_out[i], d_out) + dd)*phi_out[i] << std::endl;
+                std::cout << f2_in[i] << ' ' << f2_out[i] << std::endl;
+                std::cout << phi_out[i] << std::endl;
+                std::cout << f2.getFMax()[i] << ' ' << f2.getFMin()[i] << std::endl;
+                std::cout << polygon[0] << ' ' << polygon[1] << std::endl;
+                std::cout << i << std::endl;
+                std::cout << vels[i] << std::endl;
+                exit(-1);
+            }
         }
-        else{
+        else {
             double dd = - 0.5 * dt * dot(vels[i], df_out[i]);
 //            double dd = 0.0;
             double d = (f1_out[i] + (dot(df_out[i], d_out) + dd)*phi_out[i])*sppr;
             f2_in[i] += d * mult_in; 
             f2_out[i] -= d * mult_out;
+            if ((f2_in[i] <= 0) || (f2_out[i] <= 0)) {
+                std::cout << "GateFacet2!" << std::endl;
+                std::cout << f1_in[i] << ' ' << f1_out[i] << std::endl;
+                std::cout << f1_out[i] + (dot(df_out[i], d_out) + dd)*phi_out[i] << std::endl;
+                std::cout << f2_in[i] << ' ' << f2_out[i] << std::endl;
+                std::cout << phi_out[i] << std::endl;
+                std::cout << f2.getFMax()[i] << ' ' << f2.getFMin()[i] << std::endl;
+                std::cout << polygon[0] << ' ' << polygon[1] << std::endl;
+                std::cout << i << std::endl;
+                std::cout << vels[i] << std::endl;
+                exit(-1);
+            }
         }
     }
 }

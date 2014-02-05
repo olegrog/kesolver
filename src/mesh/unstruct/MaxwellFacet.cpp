@@ -68,8 +68,9 @@ void MaxwellFacet::doTransfer2(std::vector<Polygon*>& spacemesh, const Gas& gas)
 
     for (size_t i = 0; i < size; ++i) {
 		double xin = gas.dot(i, n);
-		if ( xin > 0. )
+		if ( xin > 0. ) {
 			f2_in[i] += f[i] * xin * mult_in;
+        }
 		else {
             double dd = - 0.5 * dt * gas.dot(i, df[i]);
 			f2_in[i] += (f1_in[i] + (dot(df[i], dis)+dd)*phi[i]) * xin * mult_in;

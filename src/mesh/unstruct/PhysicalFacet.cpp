@@ -87,6 +87,17 @@ void PhysicalFacet::transfer(std::vector<Polygon*>& spacemesh,
 void PhysicalFacet::transfer2(std::vector<Polygon*>& spacemesh,
                               const Gas& gas) 
 {
+    for (size_t j = 0; j < polygon.size(); ++j) {
+        for (size_t i = 0; i < spacemesh[polygon[j]]->f().f().size(); ++i) {
+            double f = spacemesh[polygon[j]]->f().f()[i];
+            if (f != f) {
+                LABEL
+                std::cout << polygon.size() << ' ' << i << std::endl;
+                std::cout << "nan bef " << polygon[j] << std::endl;
+                exit(-1);
+            }
+        }
+    }
     doTransfer2(spacemesh, gas);
 }
 void PhysicalFacet::findGradient(const std::vector<Polygon*>& spacemesh,
@@ -112,7 +123,7 @@ void PhysicalFacet::doFindPhi(const std::vector<Polygon*>& spacemesh,
         V3d cc = getCenter() - poly->getCenter();
         for(size_t i = 0; i < function.size(); i++) {
             V3d df = dfunc[i];
-            double dl = dot(df, cc + dd[i] * dt);
+            double dl = dot(df, cc) + dd[i] * dt;
             double d1 = fmax[i];
             double d2 = fmin[i];
             double phi;
@@ -123,7 +134,16 @@ void PhysicalFacet::doFindPhi(const std::vector<Polygon*>& spacemesh,
             }
             if (fphi[i] > phi)
                 fphi[i] = phi; 
-
+            /*
+            if ((i == 39) && (polygon[j] == 19368)) 
+            {
+                std::cout << df << std::endl;
+                std::cout << dot(df, cc) << ' ' << dd[i] * dt << std::endl;
+                std::cout << d1 << ' ' << d2 << std::endl;
+                std::cout << dl << std::endl;
+                std::cout << phi << ' ' << fphi[i] << std::endl;
+            }
+            */
         }
     }
 }

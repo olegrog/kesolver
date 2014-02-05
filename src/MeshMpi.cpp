@@ -14,6 +14,7 @@ MeshMpi::MeshMpi(int argc, char** argv, MeshBase* mesh) :
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
     std::vector<bool> is_cell_flowing(cells.size(), false);
+    std::vector<bool> is_cell_my(cells.size(), false);
 
     for (size_t i = 0; i < cells.size(); ++i) 
         if (cells[i]->getRank() == rank) {
@@ -21,6 +22,7 @@ MeshMpi::MeshMpi(int argc, char** argv, MeshBase* mesh) :
             my_cell_indexes.push_back(i);
             flowing_cells.push_back(cells[i]);
             is_cell_flowing[i] = true;
+            is_cell_my[i] = true;
         }
     
     data_exchanger.init2(cells, rank); // TODO
@@ -35,11 +37,16 @@ MeshMpi::MeshMpi(int argc, char** argv, MeshBase* mesh) :
     }
 
     for (size_t i = 0; i < facets.size(); ++i) {
-        bool push = true;
+        bool is_flowing = true;
         for (size_t j = 0; j < facets[i]->getNeigbors().size(); ++j) 
-            push &= is_cell_flowing[facets[i]->getNeigbors()[j]];
-        if (push)
+            is_flowing &= is_cell_flowing[facets[i]->getNeigbors()[j]];
+        if (is_flowing)
             flowing_facets.push_back(facets[i]);
+        bool is_my = false;
+        for (size_t j = 0; j < facets[i]->getNeigbors().size(); ++j) 
+            is_my |= is_cell_my[facets[i]->getNeigbors()[j]];
+        if (is_my)
+            my_facets.push_back(facets[i]);
     }
 
 }

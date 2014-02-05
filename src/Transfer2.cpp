@@ -28,8 +28,8 @@ void Transfer2::move(Mesh& mesh, const Gas& gas)
     for (size_t i = 0; i < mesh.getFlowingCells().size(); i++) {
         mesh.getFlowingCells()[i]->f().equatefg();
     }
-    for (size_t i = 0; i < mesh.getFlowingFacets().size(); i++) {
-        mesh.getFlowingFacets()[i]->transfer2(mesh.getAllCells(), gas);
+    for (size_t i = 0; i < mesh.getMyFacets().size(); i++) {
+        mesh.getMyFacets()[i]->transfer2(mesh.getAllCells(), gas);
     }
     for (size_t i = 0; i < mesh.getMyCells().size(); i++) 
         mesh.getMyCells()[i]->f().equategf();

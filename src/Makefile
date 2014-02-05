@@ -20,6 +20,7 @@ SOURCE   += mesh/unstruct/Prism.cpp mesh/unstruct/Tetrahedron.cpp mesh/unstruct/
 SOURCE   += mesh/unstruct/PhysicalFacet.cpp
 SOURCE   += mesh/unstruct/MirrorFacet.cpp mesh/unstruct/GateFacet.cpp
 SOURCE   += mesh/unstruct/WallMaxwellFacet.cpp mesh/unstruct/MaxwellFacet.cpp
+SOURCE   += mesh/unstruct/AlphaFacet.cpp
 
 SOURCE   += Printer.cpp
 

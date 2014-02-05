@@ -16,6 +16,7 @@ class Mesh {
 
         virtual Facets& getAllFacets() = 0; 
         virtual Facets& getFlowingFacets() = 0;
+        virtual Facets& getMyFacets() = 0;
 
         typedef std::vector<int> Ints;
 

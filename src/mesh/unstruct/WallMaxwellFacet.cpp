@@ -76,7 +76,6 @@ void WallMaxwellFacet::doTransfer(std::vector<Polygon*>& spacemesh,
         else
             f2_in[i] += f1_in[i] * sppr * mult_in;
     }
-
 }
 
 void WallMaxwellFacet::doTransfer2(std::vector<Polygon*>& spacemesh,

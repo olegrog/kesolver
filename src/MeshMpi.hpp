@@ -18,6 +18,7 @@ class MeshMpi : public Mesh {
 
         Facets& getAllFacets()     { return facets; }
         Facets& getFlowingFacets() { return flowing_facets; }
+        Facets& getMyFacets()      { return my_facets; }
 
         const Ints& getMyCellIndexes() const { return my_cell_indexes; }
 
@@ -46,6 +47,7 @@ class MeshMpi : public Mesh {
 
         Facets& facets;
         Facets  flowing_facets;  
+        Facets  my_facets;  
 
 		DataExchanger data_exchanger;
         int rank, size;
