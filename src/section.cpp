@@ -65,11 +65,8 @@ double LJSection::ker(const double g, const double cth) const
     std::cout << "th, j = " << th << ' ' << j << std::endl;
     std::cout << "sigma = " << sigma[i * ths.size() + j] << std::endl;
 */
-    return sigma[i * ths.size() + j] / M_PI;
+    return sigma[i * ths.size() + j]; // / M_PI;
 }
-
-
-
 
 MaSection::MaSection(const std::vector<double>& as,
                      const std::string& filename) : as(as)
@@ -143,5 +140,74 @@ double AnikinSection::section(const double g, const double cth,
 
     return sigma[l * ths.size() * gs.size() + i * ths.size() + j]
         / std::sin(th) * sqr(d);
+}
+
+AbInitioSection::AbInitioSection(double diam,
+                     double temp,
+                     const std::vector<std::string>& sigmafilenames)
+: diam_(diam), temp_(temp)
+{
+    size_t number_of_crosses = 0;
+    int n = 0;
+    while (number_of_crosses < sigmafilenames.size()) {
+        n++;
+        number_of_crosses += n;
+    }
+    if (number_of_crosses != sigmafilenames.size())
+       ; // TODO raise exception
+
+    number_of_components_ = n;
+
+    sigmas.resize(number_of_crosses);
+    for (size_t i = 0; i < number_of_crosses; ++i) 
+    {
+        const std::string& filename = sigmafilenames[i];
+        std::vector<double>& gs     = sigmas[i].gs;
+        std::vector<double>& ths    = sigmas[i].ths;
+        std::vector<double>& sigma  = sigmas[i].sigma;
+
+        std::ifstream fd(filename.c_str());
+        size_t m, n;
+        fd >> m >> n;
+
+        gs.reserve(m);
+        ths.reserve(n);
+        sigma.reserve(m*n);
+        for (size_t i = 0; i < m; ++i) {
+            double x;
+            fd >> x;
+            gs.push_back(x);
+        }
+        for (size_t i = 0; i < n; ++i) {
+            double x;
+            fd >> x;
+            ths.push_back(x);
+        }
+        for (size_t i = 0; i < m; ++i) 
+            for (size_t j = 0; j < n; ++j) {
+                double x;
+                fd >> x;
+                sigma.push_back(x);
+            }
+        fd.close();
+    }
+
+}
+
+double AbInitioSection::ker(const double g, const double cth, const int i1, const int i2) const
+{
+    const int j1 = std::min(i1, i2);
+    const int j2 = std::max(i1, i2);
+
+    int k = j2 - j1 + (number_of_components_ * j1 - (j1 - 1) * j1 / 2);
+
+    double g1 = g * sqrt(temp_);
+    int i = bin_search(g1, sigmas[k].gs);
+    double th = std::acos(cth);
+    int j = bin_search(th, sigmas[k].ths);
+
+    double sigma = sigmas[k].sigma[i * sigmas[k].ths.size() + j];
+
+    return  sigma * sqr(diam_);
 }
 

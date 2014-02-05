@@ -169,6 +169,26 @@ searchMulti(typename XiMeshType<symmetry>::Vd v1, typename XiMeshType<symmetry>:
     return std::tr1::make_tuple(true, j1, x1);
 }
 
+template <Symmetry symmetry> 
+double calculateSection(double g, double dot_un, int i1, int i2,
+                        const SimpleSection* section,
+                        const XiMeshMix<symmetry>& mesh)
+{
+    double m1 = mesh.m(i1);
+    double m2 = mesh.m(i2);
+    return g * section->section(g * std::sqrt(2 * m1 * m2 / (m1 + m2)),
+                                  dot_un,
+                                  mesh.i2ci(i1), mesh.i2ci(i2));
+}
+
+template <Symmetry symmetry> 
+double calculateSection(double g, double dot_un, int i1, int i2,
+                        const SimpleSection* section,
+                        const XiMeshRect<symmetry>& mesh)
+{
+    return g * section->section(g, dot_un);
+}
+
 template <typename Point, Volume volume, Symmetry symmetry, typename XiMeshType>
 CollisionType calcNode(const Point& p, 
                        const XiMeshType& ximesh,
@@ -231,7 +251,7 @@ CollisionType calcNode(const Point& p,
     node.j1  = j1;
     node.j2  = j2;
 
-    node.c = g * section->section(g, dot(u, n) / g);
+    node.c = calculateSection(g, dot(u, n) / g, i1, i2, section, ximesh);
     
     return GoodOne;
 }

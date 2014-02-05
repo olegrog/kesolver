@@ -74,7 +74,7 @@ makeVV<Cartesian>(const SymmetryTrait<Cartesian>::Vm v,
                   const std::vector<double>& vs2, 
                   const std::vector<double>& vols2)
 {
-    typedef typename SymmetryTrait<Cartesian>::VVd VVd;
+    typedef SymmetryTrait<Cartesian>::VVd VVd;
     VVd vvs(vs2);
     for (int i = 0; i < 3; ++i)
         for (size_t j = 0; j < vvs[i].size(); ++j)
@@ -412,8 +412,10 @@ Integral IntegralConstructor(const PropertyTree& tree)
             std::vector<double> ds;
             std::istringstream ss(tree["ds"].asString());
             double d;
-            while (ss >> d)
+            while (ss >> d) {
                 ds.push_back(d);
+                std::cout << "d = " << d << std::endl;
+            }
             section = new HSSection(ds);
             std::cout << "HSSection" << std::endl;
 
@@ -450,6 +452,18 @@ Integral IntegralConstructor(const PropertyTree& tree)
             std::string file_sigma = tree["file_sigma"].asString();
             section = new AnikinSection(d, e, file_teta, file_vel, file_sigma);
             std::cout << "AnikinSection" << std::endl;
+        }
+        else if (str == "AbInitio") {
+            double d    = tree["d"].asDouble();
+            double temp = tree["temp"].asDouble();
+
+            std::vector< std::string > filenames;
+            std::istringstream ss(tree["file"].asString());
+            std::string x;
+            while (ss >> x)
+                filenames.push_back(x);
+
+            section = new AbInitioSection(d, temp, filenames);
         }
         else
             throw std::invalid_argument("Unknown section");

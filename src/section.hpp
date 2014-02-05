@@ -93,4 +93,30 @@ class AnikinSection : public SimpleSection {
         std::vector<double> sigma;
 };
 
+class AbInitioSection : public SimpleSection {
+    public:
+        AbInitioSection(const double diam,
+                  const double temp,
+                  const std::vector<std::string>& sigmafilenames);
+        virtual double section(const double g, const double th) const {
+            return ker(g, th, 0, 0);
+        }
+        virtual double section(const double g, const double th,
+                               const int i1, const int i2) const {
+            return ker(g, th, i1, i2);
+        }
+    private:
+        double ker(const double g, const double th, int i1, int i2) const;
+
+        double diam_, temp_;
+        int number_of_components_;
+
+        struct SigmaData {
+            std::vector<double> gs, ths;
+            std::vector<double> sigma;
+        };
+
+        std::vector<SigmaData> sigmas;
+};
+
 #endif
