@@ -18,16 +18,16 @@ struct MacroSimple {
     Vm v;
     double temp;
     Vd t;
-    Vm q;
+    Vm q, p;
     double h;
 
     MacroSimple(const double n, const Vm v,
                 const double temp, const Vd t, 
-                const Vm q,
+                const Vm q, const Vm p,
                 const double h) :
             n(n), v(v),
             temp(temp), t(t),
-            q(q), h(h) {}
+            q(q), p(p), h(h) {}
 
     template <typename F, template <Symmetry > class XiMeshType>
     MacroSimple(const F& f, const XiMeshType<symmetry>& mesh)
@@ -36,6 +36,7 @@ struct MacroSimple {
         temp = 0;
         v = 0;
         q = 0;
+        p = 0;
         h = 0;
         for (size_t i = 0; i < mesh.size(); ++i) {
             n    += f[i];
@@ -43,6 +44,7 @@ struct MacroSimple {
             temp += mesh.e(i) * f[i];
             t    += mesh[i] * mesh[i] * f[i];
             q    += 0.5 * mesh.p(i) * mesh.e(i) * f[i];
+            p    += tr(mesh[i]) * f[i];
             h    += f[i] * std::log(f[i]);
         }
         v /= n;
@@ -51,6 +53,8 @@ struct MacroSimple {
         t    = (t    - n * u * u) * SymmetryTrait<symmetry>::t_mult() / n;
         n *= mesh.vol();
         q *= mesh.vol();
+        p *= mesh.vol();
+        p -= n*tr(u);
         h *= mesh.vol();
     }
 
@@ -64,32 +68,32 @@ struct MacroMixture {
     Vm v;
     double temp;
     Vd t;
-    Vm q;
+    Vm q, p;
     double h;
     std::vector< MacroSimple<symmetry> > macros;
 
     template <typename F, template <Symmetry > class XiMeshType>
     MacroMixture(const F& f, const XiMeshType<symmetry>& mesh)
     {
-        std::tr1::tie(n, v, temp, t, q, h) = macro(f, mesh, 0, mesh.size());
+        std::tr1::tie(n, v, temp, t, q, p, h) = macro(f, mesh, 0, mesh.size());
 
         macros.reserve(mesh.xiMeshes().size());
         for (size_t j = 0; j < mesh.xiMeshes().size(); ++j) {
             double n, temp;
             Vm v;
             Vd t;
-            Vm q;
+            Vm q, p;
             double h;
-            std::tr1::tie(n, v, temp, t, q, h) = macro(f, mesh,
+            std::tr1::tie(n, v, temp, t, q, p, h) = macro(f, mesh,
                                          mesh.offset(j), mesh.offset(j+1));
-            macros.push_back(MacroSimple<symmetry>(n, v, temp, t, q, h));
+            macros.push_back(MacroSimple<symmetry>(n, v, temp, t, q, p, h));
         }
     }
 
     private:
         
         template <typename F, template <Symmetry > class XiMeshType>
-        std::tr1::tuple<double, Vm, double, Vd, Vm, double> macro(const F&  f,
+        std::tr1::tuple<double, Vm, double, Vd, Vm, Vm, double> macro(const F&  f,
                                              const XiMeshType<symmetry>& mesh,
                                              const int i1, const int i2)
         {
@@ -97,6 +101,7 @@ struct MacroMixture {
             Vm v = 0;
             Vd t = 0;
             Vm q = 0;
+            Vm p = 0;
             double h = 0;
             for (int i = i1; i < i2; ++i) {
                 n    += f[i];
@@ -105,6 +110,7 @@ struct MacroMixture {
                 temp += f[i] * mesh.m(i) * sqr(mesh[i]);
                 t    += f[i] * mesh.m(i) * mesh[i] * mesh[i];
                 q    += f[i] * 0.5 * mesh.p(i) * mesh.e(i) / mesh.m(i);
+                p    += f[i] * mesh.m(i) * tr(mesh[i]);
                 h    += f[i] * log(f[i]);
             }
             v /= m;
@@ -113,8 +119,10 @@ struct MacroMixture {
             t    = (t    - m * u * u) * SymmetryTrait<symmetry>::t_mult() / n;
             n *= mesh.vol();
             q *= mesh.vol();
+            p -= m * tr(u);
+            p *= mesh.vol();
             h *= mesh.vol();
-            return std::tr1::make_tuple(n, v, temp, t, q, h);
+            return std::tr1::make_tuple(n, v, temp, t, q, p, h);
         }
 
 };
@@ -127,7 +135,7 @@ struct MacroRot {
     Vm v;
     double temp, t_rot;
     Vd t;
-    Vm q;
+    Vm q, p;
     double h;
 
     template <typename F, template <Symmetry > class XiMeshType>
@@ -137,6 +145,7 @@ struct MacroRot {
         temp = 0; t_rot = 0; t = 0;
         v = 0;
         q = 0;
+        p = 0;
         h = 0;
         for (size_t i = 0; i < mesh.size(); ++i) {
             n     += f[i];
@@ -145,6 +154,7 @@ struct MacroRot {
             t     += mesh[i] * mesh[i] * f[i];
             t_rot += mesh.erot(i) * f[i];
             q     += mesh.p(i) * mesh.e(i) * f[i];
+            p     += tr(mesh[i]) * f[i];
             h     += f[i] * std::log(f[i]);
         }
         v     /= n;
@@ -154,6 +164,8 @@ struct MacroRot {
         t      = (t    - n * u * u) * SymmetryTrait<symmetry>::t_mult() / n;
         n     *= mesh.vol();
         q     *= mesh.vol();
+        p     *= mesh.vol();
+        p     -= n * tr(u);
         h     *= mesh.vol();
     }
         
@@ -162,7 +174,8 @@ struct MacroRot {
 template <Symmetry symmetry> inline
 const std::string toStr(const MacroSimple<symmetry>& s) {
     std::ostringstream ss;
-    ss << "[ " << s.n << ' ' << s.v << ' ' << s.temp << ' ' << s.t << ' ' << s.q << ' ' << s.h << " ]";
+    ss << "[ " << s.n << ' ' << s.v << ' ' << s.temp << ' ' << s.t << ' ' 
+               << s.q << ' ' << s.p << ' ' << s.h << " ]";
     return ss.str();
 }
 
@@ -171,7 +184,8 @@ const std::string toStr(const MacroMixture<symmetry>& s) {
     std::ostringstream ss;
     ss <<  "[ " << 
             s.n << ' ' << s.v << ' ' << 
-            s.temp << ' ' << s.t << ' ' << s.q << ' ' << s.h << ' ';
+            s.temp << ' ' << s.t << ' ' << 
+            s.q << ' ' << s.p << ' ' << s.h << ' ';
         for (size_t i = 0; i < s.macros.size(); ++i)
             ss << ' ' << s.macros[i];
     ss << " ]";
@@ -184,7 +198,7 @@ const std::string toStr(const MacroRot<symmetry>& s) {
     ss << "[ " << 
            s.n << ' ' << s.v << ' ' << 
            s.temp << ' ' << s.t << ' ' << s.t_rot << ' ' << 
-           s.q << ' ' << s.h << 
+           s.q << ' ' << s.p << ' ' << s.h << 
          " ]";
     return ss.str();
 }
