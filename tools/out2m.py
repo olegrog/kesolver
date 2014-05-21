@@ -12,7 +12,7 @@ print "sumvol = ", sum(volumes)
 
 masses = {}
 for index, volume, macro in zip(indexes, volumes, zip(*data)):
-    mass = volume * numpy.array(macro[0::8])
+    mass = volume * numpy.array(macro[0::15])
     if index in masses:
         masses[index] += mass
     else:
