@@ -45,6 +45,13 @@ inline SymmetryTrait<Cylindrical>::Vd vm2vd(SymmetryTrait<Cylindrical>::Vm x) {
     return SymmetryTrait<Cylindrical>::Vd(x, 0.0);
 }
 
+inline SymmetryTrait<Cartesian>::Vm vd2vm(SymmetryTrait<Cartesian>::Vd x) {
+    return x;
+}
+inline SymmetryTrait<Cylindrical>::Vm vd2vm(SymmetryTrait<Cylindrical>::Vd x) {
+    return SymmetryTrait<Cylindrical>::Vm(x[0]);
+}
+
 template <Symmetry symmetry>
 inline typename SymmetryTrait<symmetry>::Vm x2vm(const double x);
 

@@ -148,8 +148,12 @@ template <typename T> inline V3<T> cross(const V3<T>& u, const V3<T>& v) {
 					u[0]*v[1]-u[1]*v[0]);
 }
 
+template <typename T> inline V3<T> tr2(const V3<T>& u, const V3<T>& v) {
+	return V3<T>(u[1]*v[2], u[2]*v[0], u[0]*v[1]);
+}
+
 template <typename T> inline V3<T> tr(const V3<T>& u) {
-	return V3<T>(u[1]*u[2], u[2]*u[0], u[0]*u[1]);
+	return tr2(u, u);
 }
 
 template <typename T> inline V3<T> rot(const V3<T> u, const V3<T> v) {
@@ -337,8 +341,12 @@ template <typename T> inline const T sqr(const V2<T>& u) {
 	return dot(u, u);
 }
 
+template <typename T> inline const T tr2(const V2<T>& u, const V2<T>& v) {
+	return u[0]*v[1];
+}
+
 template <typename T> inline const T tr(const V2<T>& u) {
-	return u[0]*u[1];
+	return tr2(u, u);
 }
 
 template <typename T> inline const V2<T> abs(V2<T> u) {
@@ -408,5 +416,19 @@ std::ostream& operator<<(std::ostream& to, const V2<T>& v) {
 	to << "( " << v[0] << ' ' << v[1] << " )";
 	return to;
 }
+
+inline double tr2(double, double) {
+	return 0.0;
+}
+
+inline double tr(double) {
+	return 0.0;
+}
+
+inline double dot(double u, double v) {
+	return u*v;
+}
+
+
 
 #endif

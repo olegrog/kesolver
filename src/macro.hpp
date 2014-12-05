@@ -50,11 +50,12 @@ struct MacroSimple {
         v /= n;
         temp = (temp - n * sqr(v)) / 3 / n;
         Vd u = vm2vd(v);
-        t    = (t    - n * u * u) * SymmetryTrait<symmetry>::t_mult() / n;
+        t = (t - n*u*u) * SymmetryTrait<symmetry>::t_mult() / n;
         n *= mesh.vol();
-        q *= mesh.vol();
         p *= mesh.vol();
         p -= n*tr(u);
+        q *= mesh.vol();
+        q -= 0.5*n*v*(3*temp + 2*vd2vm(t) + sqr(v)) - tr2(p,v) - tr2(v,p);
         h *= mesh.vol();
     }
 
