@@ -37,7 +37,8 @@ if __name__ == "__main__":
 
     # supplementary
     Hxi, Hh = np.polynomial.hermite.hermgauss(2*rad)
-    Hh /= np.exp(-Hxi**2)
+    Hh *= np.sqrt(2)/np.exp(-Hxi**2)
+    Hxi *= np.sqrt(2)
     idx = np.arange(2*rad)
     Ch = lambda q: i2h(idx, q, rad) * h1(cut, q, rad)
     Cxi = lambda q: i2xi(idx, q, rad) * h1(cut, q, rad)
@@ -47,6 +48,7 @@ if __name__ == "__main__":
     for (i,q) in enumerate(q):
         h[i] = switch(q, Hh, Ch)
         xi[i] = switch(q, Hxi, Cxi)
+        print xi[i,0] - h[i,0]/2, xi[i,2*rad-1] + h[i,2*rad-1]/2
 
     # output data
     gas['type'] = "Rect"
