@@ -13,7 +13,7 @@
 
 void GasConstructor(const PropertyTree& tree, Gas** gas_pp);
 
-void GivePolygonMemoryAndInit(const PropertyTree& tree, const Gas& gas, Polygon* polygon); 
+void GivePolygonMemoryAndInit(const PropertyTree& tree, const Gas& gas, Polygon* polygon);
 
 Integral IntegralConstructor(const PropertyTree& tree);
 

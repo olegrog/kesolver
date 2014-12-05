@@ -47,12 +47,14 @@ Polygon* constructPolygon(const PropertyTree& celldata,
 
     polygon->calculateLength();
     polygon->calculateVolume();
-    polygon->calculateCenter();    
+    polygon->calculateCenter();
 
     int rank = celldata["part_index"].asInt();
+    int index = celldata["ord_index"].asInt();
     std::string phys_name = celldata["phys_name"].asString();
 
     polygon->setRank(rank);
+    polygon->setIndex(index);
     polygon->setPhysicalName(phys_name);
 
     return polygon;

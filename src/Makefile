@@ -1,6 +1,6 @@
 MPICXX   :=  mpic++.openmpi
 CXX      :=  g++
-CXXFLAGS :=  -O3 -Wall -march=native # -fprofile-use
+CXXFLAGS :=  -std=c++11 -O3 -g3 -Wall -march=native -mno-avx # -fprofile-use
 
 SOURCE   :=  Constructors.cpp
 

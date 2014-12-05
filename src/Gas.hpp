@@ -5,6 +5,7 @@
 
 #include "macro.hpp"
 #include "maxwell.hpp"
+#include "grad13.hpp"
 #include "distribution_function.hpp"
 #include "axis.hpp"
 #include "section.hpp"
@@ -16,6 +17,7 @@ class Gas {
         virtual const std::string macro(const DistributionFunction& f) const = 0;
 
         virtual const DistributionFunction maxwell(const PropertyTree& tree) const = 0;
+        virtual const DistributionFunction grad13(const PropertyTree& tree) const = 0;
 
         virtual double cut() const = 0;
         virtual double dot(const int i, const V3d n) const = 0;
@@ -50,6 +52,10 @@ class GasTemplate : public Gas {
 
         const DistributionFunction maxwell(const PropertyTree& tree) const {
             return Maxwell(tree, ximesh).func();
+        }
+
+        const DistributionFunction grad13(const PropertyTree& tree) const {
+            return Grad13(tree, ximesh).func();
         }
 
         double cut() const {

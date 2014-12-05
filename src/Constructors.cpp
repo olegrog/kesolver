@@ -370,8 +370,15 @@ void GivePolygonMemoryAndInit(const PropertyTree& tree, const Gas& gas, Polygon*
     const std::string name   = polygon->getPhysicalName();
     const PropertyTree& data = tree["initial_conditions"][name];
     const std::string type   = data["type"].asString();
+    const std::string index  = std::to_string(polygon->getIndex());
     if (type == "maxwell") {
         polygon->f().f(gas.maxwell(data));
+    }
+    else if (type == "maxwell-nonuniform") {
+        polygon->f().f(gas.maxwell(data["values"][index]));
+    }
+    else if (type == "grad13-nonuniform") {
+        polygon->f().f(gas.grad13(data["values"][index]));
     }
     else if (type == "raw") {
         std::vector<unsigned char> bytes = base64::decode(data["raw"].asString());
