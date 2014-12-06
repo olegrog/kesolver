@@ -5,6 +5,8 @@ import re
 import out2
 import numpy as np
 
+N = 15 # number of macroscopic variables
+
 def gmshTypeToVTKType(gmshtype):
     VTKTypes = [-1, -1, -1, -1, 10, 12, 13]
     return VTKTypes[gmshtype]
