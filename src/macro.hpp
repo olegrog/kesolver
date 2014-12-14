@@ -55,7 +55,7 @@ struct MacroSimple {
         p *= mesh.vol();
         p -= n*tr(u);
         q *= mesh.vol();
-        q -= 0.5*n*v*(3*temp + 2*vd2vm(t) + sqr(v)) - tr2(p,v) - tr2(v,p);
+        q -= 0.5*n*v*(3*temp + 2*vd2vm(t) + sqr(v)) + tr2(p,v) + tr2(v,p);
         h *= mesh.vol();
     }
 
