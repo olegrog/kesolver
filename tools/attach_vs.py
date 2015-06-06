@@ -64,19 +64,21 @@ if __name__ == "__main__":
     cut = gas['cut']
     qi = map(float, gas.get("q", "( 0. 0. 0. )")[1:-1].split())
     Ni = map(int, 2*gas.get("N", "( 0 0 0 )")[1:-1].split())
+    if np.dot(Ni, Ni) == 0:
+        print "No velocity grid has been attached."
+    else:
+        h, xi = np.ndarray((3,2*rad)), np.ndarray((3,2*rad))
 
-    h, xi = np.ndarray((3,2*rad)), np.ndarray((3,2*rad))
+        for (i, q) in enumerate(qi):
+            idx = np.arange(2*Ni[i])
+            xi[i], h[i] = extend_grid(i2xi(idx,q,cut,Ni[i]), i2h(idx,q,cut,Ni[i]), cut, rad)
+            print (xi[i])/np.sqrt(2), h[i]/np.sqrt(2)
 
-    for (i, q) in enumerate(qi):
-        idx = np.arange(2*Ni[i])
-        xi[i], h[i] = extend_grid(i2xi(idx,q,cut,Ni[i]), i2h(idx,q,cut,Ni[i]), cut, rad)
-        print (xi[i])/np.sqrt(2), h[i]/np.sqrt(2)
-
-    # output data
-    gas['type'] = "Rect"
-    gas['v'] = vecToStr([0,0,0])
-    gas['vs'] = b64encode(xi.flatten())
-    gas['vvs'] = b64encode(h.flatten())
+        # output data
+        gas['type'] = "Rect"
+        gas['v'] = vecToStr([0,0,0])
+        gas['vs'] = b64encode(xi.flatten())
+        gas['vvs'] = b64encode(h.flatten())
 
     # open resulting .kep file and dump the modified data 
     with open(sys.argv[2], 'w') as f:
