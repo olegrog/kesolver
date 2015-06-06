@@ -34,7 +34,7 @@ def is_const(lines):
     return True
 
 def to_const_str(s, x, y, z):
-    return "%.3f" % eval(s)
+    return "%.6g" % eval(s)
 
 def to_const_line(line, x, y, z):
     ws = []
