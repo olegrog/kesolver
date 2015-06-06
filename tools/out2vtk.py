@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-import sys, numpy
-import re
+import sys
 import out2
 import numpy as np
 
@@ -39,7 +38,7 @@ data = out2.readMacros(sys.argv[2], len(cells))
 
 centernodes = []
 for cell in cells:
-    centernode = numpy.zeros(3)
+    centernode = np.zeros(3)
     for vertex in cell.nodes:
         centernode += nodes[vertex]
     centernodes.append(centernode / len(cell.nodes))
@@ -53,6 +52,7 @@ with open(sys.argv[3], "w") as fd:
     fd.writelines("POINTS %d float\n" % (len(nodes)+len(centernodes)) )
     for node in nodes:
         fd.writelines("%f %f %f\n" % (node[0], node[1], node[2]) )
+
     for centernode in centernodes:
         fd.writelines("%f %f %f\n" % (centernode[0], centernode[1], centernode[2]) )
 
