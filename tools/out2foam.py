@@ -176,7 +176,8 @@ if mkdir_p('system'):
                             f.print_dict({
                                 'mean':         'on',
                                 'prime2Mean':   'on',
-                                'base':         'iteration'
+                                'base':         'iteration',
+                                'window':       0.15*(kei['num_steps'] - 1)/kei['printer']['savemacro']
                             })
     with open('system/fvSchemes', 'w') as f:
         print_header(f, 'dictionary', 'system', 'fvSchemes')
