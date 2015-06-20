@@ -5,6 +5,7 @@ import out2
 import numpy as np
 
 N = 15 # number of macroscopic variables
+_, keifile, mfile, vtkfile = sys.argv
 
 def gmshTypeToVTKType(gmshtype):
     VTKTypes = [-1, -1, -1, -1, 10, 12, 13]
@@ -33,8 +34,8 @@ def writeVector(name, data, pos):
         for vector in vectors:
             fd.writelines(list3ToStr(vector) + '\n')
 
-nodes, cells = out2.readNodesCells(sys.argv[1])
-data = out2.readMacros(sys.argv[2], len(cells))
+nodes, cells = out2.readNodesCells(keifile)
+data = out2.readMacros(mfile, len(cells))
 
 centernodes = []
 for cell in cells:
@@ -43,7 +44,7 @@ for cell in cells:
         centernode += nodes[vertex]
     centernodes.append(centernode / len(cell.nodes))
 
-with open(sys.argv[3], "w") as fd:
+with open(vtkfile, "w") as fd:
     fd.writelines("# vtk DataFile Version 2.0\n")
     fd.writelines("Velocity, MassFlux, HeatFlux, EnergyFlux.\n")    
     fd.writelines("ASCII\n")
