@@ -3,22 +3,35 @@
 import sys, os, json, errno, re
 import out2
 from kepy.io import readNodesElems
+from collections import namedtuple
 import numpy as np
 
 geom_params = {
     'scalar': { 'shift': 1, 'fmt': '%.6g' },
     'vector': { 'shift': 3, 'fmt': '(%.6g %.6g %.6g)' }
 }
-foam2kes_macro = { 'U': 'u', 'T': 'T' }
 kes2foam_type = {
-    'empty': 'empty',
-    'mirror': 'symmetryPlane',
-    'diffusion': 'fixedValue'
+    'scalar': {
+        'empty': 'empty',
+        'mirror': 'symmetryPlane',
+        'diffusion': 'extrapolatedGradient' # or use zeroGradient
+    },
+    'vector': {
+        'empty': 'empty',
+        'mirror': 'symmetryPlane',
+        'diffusion': 'slip'
+    },
 }
 kes2foam_type2 = {
     'empty': 'empty',
     'mirror': 'symmetryPlane',
     'diffusion': 'wall'
+}
+
+Field = namedtuple('Field', ['gtype', 'dimensions', 'pos', 'kes_name'])
+fields = {
+    'T': Field('scalar', [0,0,0,1,0,0,0], 4, 'T'),
+    'U': Field('vector', [0,1,-1,0,0,0,0], 1, 'u')
 }
 
 def mkdir_p(path):
@@ -67,7 +80,19 @@ class Nonuniform_list:
     def __exit__(self, type, value, traceback):
         self.out.write(')\n;\n')
 
-class Record:
+class List:
+    def __init__(self, out, name, shift=0):
+        out.write('%s%s\n%s(\n' % (' '*shift, name, ' '*shift))
+        self.out = out
+        self.shift = shift
+    def __enter__(self):
+        return self
+    def append(self, name):
+        return Dict(self.out, name, self.shift + 4)
+    def __exit__(self, type, value, traceback):
+        self.out.write('%s);\n' % (' '*self.shift))
+
+class Dict:
     def __init__(self, out, name, shift=0):
         out.write('%s%s\n%s{\n' % (' '*shift, name, ' '*shift))
         self.out = out
@@ -77,7 +102,9 @@ class Record:
     def print_dict(self, dict):
         print_dict(self.out, dict, shift=self.shift + 4)
     def child(self, name):
-        return Record(self.out, name, self.shift + 4)
+        return Dict(self.out, name, self.shift + 4)
+    def list(self, name):
+        return List(self.out, name, self.shift + 4)
     def nlist(self, key, gtype, size):
         return Nonuniform_list(self.out, key, gtype, size, self.shift + 4)
     def __exit__(self, type, value, traceback):
@@ -89,26 +116,28 @@ def print_internal_field(out, gtype, data, pos):
         nl.dump_data(data[pos:pos+p['shift']], p['fmt'])
 
 def print_boundary_field(out, gtype, kes_name, facets, bc):
-    with Record(out, 'boundaryField') as bfield:
+    with Dict(out, 'boundaryField') as bfield:
         boundary = filter(lambda f: f.phys_index != 'volume', facets)
         patches = set(map(lambda f: f.phys_index.split(':')[0], boundary))
         patches.add('defaultFaces')
         for patch in patches:
             with bfield.child(patch) as pfield:
-                foam_type = kes2foam_type[bc[patch]['type']]
+                foam_type = kes2foam_type[gtype][bc[patch]['type']]
                 pfield.print_dict({ 'type': foam_type })
                 if foam_type == 'fixedValue':
                     patch_facets = filter(lambda f: f.phys_index.split(':')[0] == patch, boundary)
                     values = map(lambda f: bc[f.phys_index][kes_name], patch_facets)
                     with pfield.nlist('value', gtype, len(patch_facets)) as nl:
                         nl.dump_data(values, '%s')
+                if foam_type == 'extrapolatedGradient':
+                    pfield.print_dict({ 'value': '$internalField' })
 
-def print_macro(foam_name, gtype, dim, data, pos, facets, bc):
-    with open('%s/%s' % (time, foam_name), 'w') as f:
-        print_header(f, 'vol%sField' % gtype.title(), time, foam_name)
+def print_field(name, gtype, dim, data, pos, facets, bc):
+    with open('%s/%s' % (time, name), 'w') as f:
+        print_header(f, 'vol%sField' % gtype.title(), time, name)
         print_dict(f, { 'dimensions': str(dim).replace(',', '') })
         print_internal_field(f, gtype, data, pos)
-        print_boundary_field(f, gtype, foam2kes_macro[foam_name], facets, bc)
+        print_boundary_field(f, gtype, fields[name].kes_name, facets, bc)
 
 #############################
 ### Start of instructions ###
@@ -125,19 +154,39 @@ if mkdir_p('system'):
     with open('system/controlDict', 'w') as f:
         print_header(f, 'dictionary', 'system', 'controlDict')
         print_dict(f, {
+            'startFrom':        'startTime',
+            'startTime':        0,
+            'stopAt':           'endTime',
+            'endTime':          kei['num_steps'] - 1,
             'deltaT':           kei['printer']['savemacro'],
             'writeInterval':    kei['printer']['savemacro'],
             'writeFormat':      'ascii'
         })
+        with Dict(f, 'functions') as funs:
+            with funs.child('fieldAverage') as fa:
+                fa.print_dict({
+                    'type':                 'fieldAverage',
+                    'functionObjectLibs':   '( "libfieldFunctionObjects.so" )',
+                    'enabled':              'true',
+                    'outputControl':        'timeStep'
+                })
+                with fa.list('fields') as fs:
+                    for name in fields.iterkeys():
+                        with fs.append(name) as f:
+                            f.print_dict({
+                                'mean':         'on',
+                                'prime2Mean':   'on',
+                                'base':         'iteration'
+                            })
     with open('system/fvSchemes', 'w') as f:
         print_header(f, 'dictionary', 'system', 'fvSchemes')
-        with Record(f, 'interpolationSchemes') as field:
+        with Dict(f, 'interpolationSchemes') as field:
             pass
-        with Record(f, 'divSchemes') as field:
+        with Dict(f, 'divSchemes') as field:
             pass
-        with Record(f, 'gradSchemes') as field:
-            pass
-        with Record(f, 'laplacianSchemes') as field:
+        with Dict(f, 'gradSchemes') as field:
+            field.print_dict({ 'default': 'Gauss' })
+        with Dict(f, 'laplacianSchemes') as field:
             pass
     with open('system/fvSolution', 'w') as f:
         print_header(f, 'dictionary', 'system', 'fvSolution')
@@ -173,6 +222,6 @@ for filename in filter(pattern, os.listdir(dirname)):
     time = re.search('[0-9]+', filename).group(0)
     if mkdir_p(time):
         data = out2.readMacros(os.path.join(dirname, filename), len(cells))
-        print_macro('T', 'scalar', [0,0,0,1,0,0,0], data, 4, facets, bc)
-        print_macro('U', 'vector', [0,1,-1,0,0,0,0], data, 1, facets, bc)
+        for name, field in fields.iteritems():
+            print_field(name, field.gtype, field.dimensions, data, field.pos, facets, bc)
 
