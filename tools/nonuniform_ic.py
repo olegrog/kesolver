@@ -25,14 +25,16 @@ if __name__ == "__main__":
     values = dict()
     for phys_index in init_data:
         if init_data[phys_index]['type'] == 'maxwell':
-            init_data[phys_index]['type'] = 'grad13-nonuniform'
+#            init_data[phys_index]['type'] = 'grad13-nonuniform'
+            init_data[phys_index]['type'] = 'maxwell-nonuniform'
             values[phys_index] = {}
             del init_data[phys_index]['n']
             del init_data[phys_index]['T']
             del init_data[phys_index]['u']
 
     for i, cell in enumerate(cells):
-        if init_data[cell.phys_index]['type'] == 'grad13-nonuniform':
+#        if init_data[cell.phys_index]['type'] == 'grad13-nonuniform':
+        if init_data[cell.phys_index]['type'] == 'maxwell-nonuniform':
             values[cell.phys_index][cell.ord_index] = {
                 'n': str(macro[i,0]), 'u': vecToStr(macro[i,1:4]), 'T': str(macro[i,4]),
                 't': vecToStr(macro[i,5:8]), 'q': vecToStr(macro[i,8:11]), 'p': vecToStr(macro[i,11:14])
