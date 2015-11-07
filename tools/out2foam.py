@@ -117,15 +117,14 @@ def print_internal_field(out, gtype, data, pos):
 
 def print_boundary_field(out, gtype, kes_name, facets, bc):
     with Dict(out, 'boundaryField') as bfield:
-        boundary = filter(lambda f: f.phys_index != 'volume', facets)
-        patches = set(map(lambda f: f.phys_index.split(':')[0], boundary))
+        patches = set(map(lambda f: f.split(':')[0], bc.keys()))
         patches.add('defaultFaces')
         for patch in patches:
             with bfield.child(patch) as pfield:
                 foam_type = kes2foam_type[gtype][bc[patch]['type']]
                 pfield.print_dict({ 'type': foam_type })
                 if foam_type == 'fixedValue':
-                    patch_facets = filter(lambda f: f.phys_index.split(':')[0] == patch, boundary)
+                    patch_facets = filter(lambda f: f.phys_index.split(':')[0] == patch, facets)
                     values = map(lambda f: bc[f.phys_index][kes_name], patch_facets)
                     with pfield.nlist('value', gtype, len(patch_facets)) as nl:
                         nl.dump_data(values, '%s')
