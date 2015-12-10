@@ -24,7 +24,8 @@ class ColliderMixture {
 
         template <typename DF>
         void iter(DF& f) const {
-            ciIter(f, nc);
+            const Interpolation interp = PowerInterp;
+            CiIter<interp, DF, NodeContainer>()(f, nc);
         }
 
     private:
@@ -33,8 +34,9 @@ class ColliderMixture {
         typedef typename XiMeshMixtureType::Vi Vi;
         typedef typename XiMeshMixtureType::Vd Vd;
         typedef Vd Vx;
+        typedef std::vector<Node> NodeContainer;
 
-        std::vector<Node> nc;
+        NodeContainer nc;
         
 };
 

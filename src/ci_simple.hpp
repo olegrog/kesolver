@@ -4,7 +4,7 @@
 #include "ci.hpp"
 
 
-template <Symmetry symmetry>
+template <Interpolation interp, Symmetry symmetry>
 class ColliderSimple {
     public:
         typedef XiMesh<symmetry> XiMeshType;
@@ -17,7 +17,7 @@ class ColliderSimple {
 
         template <typename DF>
         void iter(DF& f) const {
-            ciIter(f, nc);
+            CiIter<interp, DF, NodeContainer>()(f, nc);
         }
 
     private:
@@ -26,8 +26,9 @@ class ColliderSimple {
         typedef typename SymmetryTrait<symmetry>::Vi Vi;
         typedef typename SymmetryTrait<symmetry>::Vd Vd;
         typedef Vd Vx;
+        typedef std::vector<Node> NodeContainer;
 
-        std::vector<Node> nc;
+        NodeContainer nc;
 
 };
 

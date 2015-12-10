@@ -44,6 +44,14 @@ enum CollisionType {
     GoodTwo
 };
 
+enum Interpolation {
+    PowerInterp,
+    PowerAndSymmetricInterp,
+    LinearInterp,
+    SymmetricInterp,
+    NoInterp
+};
+
 template <Symmetry symmetry>
 struct GridType;
 
@@ -401,147 +409,216 @@ CollisionType calcNode(const Point& p,
     return type;
 }
 
-inline double delta(const double fv, const double fw,
-                    const double fv1, const double fw1, 
-                    const CollisionNode<Cartesian> nc)
+inline double delta(double loss, double gain,
+                    const CollisionNode<Cartesian>& nc)
 {
-    return ( - fv1 * fw1 + fv * fw) * nc.c;
+    return (loss - gain) * nc.c;
 }
 
-inline double delta(const double fv, const double fw,
-                    const double fv1, const double fw1, 
-                    const CollisionNode<Cylindrical> nc)
+inline double delta(double loss, double gain,
+                    const CollisionNode<Cylindrical>& nc)
 {
-    return ( - nc.a * fv1 * fw1 + fv * fw) * nc.c;
+    return (loss - nc.a * gain) * nc.c;
 }
+
+template <typename DF, typename Node>
+inline double PowerInterpolation(DF& f, const Node& n) {
+    sse::d2_t x, y, z, w, v;
+    x.d[0] = f[n.i1l]; x.d[1] = f[n.i1m];
+    z.d[0] = f[n.i2l]; z.d[1] = f[n.i2m];
+    w = sse::mul(x, z);
+    y.d[0] = 1. - n.r; y.d[1] = n.r;
+    v = sse::pow(w, y);
+    return v.d[0]*v.d[1];
+}
+
+template <typename DF, typename Node>
+inline double LinearInterpolation(DF& f, const Node& n) {
+    sse::d2_t x, y, z, w, v;
+    x.d[0] = f[n.i1l]; x.d[1] = f[n.i1m];
+    z.d[0] = f[n.i2l]; z.d[1] = f[n.i2m];
+    w = sse::mul(x, z);
+    y.d[0] = 1. - n.r; y.d[1] = n.r;
+    v = sse::mul(w, y);
+    return v.d[0] + v.d[1];
+}
+
+template <typename DF, typename Node>
+inline double SymmetricInterpolation(DF& f, const Node& n) {
+    sse::d2_t x, y, z, w, v;
+    x.d[0] = f[n.i1l]; x.d[1] = f[n.i1m];
+    z.d[0] = f[n.i2l]; z.d[1] = f[n.i2m];
+    w = sse::mul(x, z);
+    y.d[0] = n.r; y.d[1] = 1 - n.r;
+    v = sse::mul(w, y);
+    return w.d[0]*w.d[1]/(v.d[0] + v.d[1]);
+}
+
+template <typename DF, typename Node>
+inline bool iterOne(DF& f, const Node& n) {
+    double g1 = f[n.i1];
+    double g2 = f[n.i2];
+    double g3 = f[n.i1m];
+    double g4 = f[n.i2m];
+
+    double d = delta(g1*g2, g3*g4, n);
+
+    f[n.i1]  -= d;
+    f[n.i2]  -= d;
+    f[n.i1m] += d;
+    f[n.i2m] += d;
+
+    if ((f[n.i1m] < 0) ||
+        (f[n.i2m] < 0) ||
+        (f[n.i1]  < 0) ||
+        (f[n.i2]  < 0))
+    {
+        f[n.i1] = g1;
+        f[n.i2] = g2;
+        f[n.i1m] = g3;
+        f[n.i2m] = g4;
+        return false;
+    }
+    return true;
+}
+
+template <typename DF, typename Node>
+inline bool iterTwo(DF& f, const Node& n, double d) {
+    double dl = (1. - n.r) * d;
+    double dm = n.r * d;
+    double g1 = f[n.i1l];
+    double g2 = f[n.i2l];
+    double g3 = f[n.i1m];
+    double g4 = f[n.i2m];
+    double g5 = f[n.i1];
+    double g6 = f[n.i2];
+
+    f[n.i1l] += dl;
+    f[n.i2l] += dl;
+    f[n.i1m] += dm;
+    f[n.i2m] += dm;
+    f[n.i1]  -= d;
+    f[n.i2]  -= d;
+
+    if ((f[n.i1l] < 0) ||
+        (f[n.i2l] < 0) ||
+        (f[n.i1m] < 0) ||
+        (f[n.i2m] < 0) ||
+        (f[n.i1]  < 0) ||
+        (f[n.i2]  < 0))
+    {
+        f[n.i1l] = g1;
+        f[n.i2l] = g2;
+        f[n.i1m] = g3;
+        f[n.i2m] = g4;
+        f[n.i1 ] = g5;
+        f[n.i2 ] = g6;
+        return false;
+    }
+    return true;
+}
+
+template <Interpolation interp, typename DF, typename Nodes>
+struct CiIter {
+    int operator() (DF& f, const Nodes& nodes);
+};
 
 template <typename DF, typename Nodes>
-int ciIter(DF& f, const Nodes& nodes)
-{
-    int k = 0;
-//    int l = 0;
-    for (typename Nodes::const_iterator p = nodes.begin(); p != nodes.end(); ++p) {
-        typename Nodes::const_reference n = *p;
-        if (n.type == 2) {
-            sse::d2_t x, y, z, w, v;
-
-            x.d[0] = f[n.i1l];
-            x.d[1] = f[n.i1m];
-
-            z.d[0] = f[n.i2l];
-            z.d[1] = f[n.i2m];
-
-            w = sse::mul(x, z);
-        
-            y.d[0] = 1. - n.r;
-            y.d[1] = n.r;
-        
-            v = sse::pow(w, y);
-
-            double rr5 = f[n.i1];
-            double rr6 = f[n.i2];
-            double d = delta(rr5, rr6, v.d[0], v.d[1], *p);
-            
-            double dl = (1. - n.r) * d;
-            double dm = n.r * d;
-
-/*
-            double d1 = delta(rr5, rr6, std::pow(f[n.i1l] * f[n.i2l], 1-n.r),
-                                        std::pow(f[n.i1m] * f[n.i2m], n.r), *p);
-
-            double h = d1 * ( std::log(f[n.i1])  + std::log(f[n.i2])   - 
-                   (1-n.r) * (std::log(f[n.i1l]) + std::log(f[n.i2l])) -
-                      n.r  * (std::log(f[n.i1m]) + std::log(f[n.i2m])) );
-
-            if (h < 0) {
-                std::cout << "h = " << h << std::endl;
-            }
-*/
-
-            f[n.i1l] += dl;
-            f[n.i2l] += dl;
-            f[n.i1m] += dm;
-            f[n.i2m] += dm;
-            f[n.i1]  -= d;
-            f[n.i2]  -= d;
-
-            if ((f[n.i1l] < 0) ||
-                (f[n.i1m] < 0) ||
-                (f[n.i2l] < 0) ||
-                (f[n.i2m] < 0) ||
-                (f[n.i1]  < 0) || 
-                (f[n.i2]  < 0))
-            {
-                f[n.i1l] = x.d[0];
-                f[n.i1m] = x.d[1];
-                f[n.i2l] = z.d[0];
-                f[n.i2m] = z.d[1];
-                f[n.i1 ] = rr5;
-                f[n.i2 ] = rr6;
-/*
-                d = 2 * rr5 * rr6 * n.c;
-
-                dl = (1. - n.r) * d;
-                dm = n.r * d;
-
-                f[n.i1l] += dl;
-                f[n.i2l] += dl;
-                f[n.i1m] += dm;
-                f[n.i2m] += dm;
-                f[n.i1]  -= d;
-                f[n.i2]  -= d;
-
-                if ((f[n.i1l] < 0) ||
-                    (f[n.i1m] < 0) ||
-                    (f[n.i2l] < 0) ||
-                    (f[n.i2m] < 0) ||
-                    (f[n.i1]  < 0) || 
-                    (f[n.i2]  < 0))
-                {
-                    f[n.i1l] = x.d[0];
-                    f[n.i1m] = x.d[1];
-                    f[n.i2l] = z.d[0];
-                    f[n.i2m] = z.d[1];
-                    f[n.i1 ] = rr5;
-                    f[n.i2 ] = rr6;
-
-                    ++k;
-                }
-                else {
-                    ++l;
-                }
-*/
+struct CiIter<NoInterp, DF, Nodes> {
+    int operator() (DF& f, const Nodes& nodes)
+    {
+        int k = 0;
+        for (typename Nodes::const_iterator p = nodes.begin(); p != nodes.end(); ++p) {
+            typename Nodes::const_reference n = *p;
+            if (n.type == 2) {
+                double d = delta(2*f[n.i1]*f[n.i2], 0, n);
+                if (!iterTwo(f, n, d)) ++k;
+            } else {
+                if (!iterOne(f, n)) ++k;
             }
         }
-        else {
-            double g1 = f[n.i1];
-            double g2 = f[n.i2];
-            double g3 = f[n.i1m];
-            double g4 = f[n.i2m];
-
-            double d = delta(g1, g2, g3, g4, *p);
-
-            f[n.i1]  -= d;
-            f[n.i2]  -= d;
-            f[n.i1m] += d;
-            f[n.i2m] += d;
-
-            if ((f[n.i1m] < 0) || 
-                (f[n.i2m] < 0) || 
-                (f[n.i1]  < 0) || 
-                (f[n.i2]  < 0))
-            {
-                f[n.i1] = g1;
-                f[n.i2] = g2;
-                f[n.i1m] = g3;
-                f[n.i2m] = g4;
-                ++k;
-            }
-        }
+        //std::cout << "k / nodes.size(): " << k << " " << nodes.size() << " " << static_cast<double>(k) / nodes.size() << std::endl;
+        return k;
     }
-//    std::cout << "k / nodes.size() = " << static_cast<double>(k) / nodes.size() << std::endl;
-//    std::cout << "l / nodes.size() = " << static_cast<double>(l) / nodes.size() << std::endl;
-    return k;
-}
+};
+
+template <typename DF, typename Nodes>
+struct CiIter<PowerInterp, DF, Nodes> {
+    int operator() (DF& f, const Nodes& nodes)
+    {
+        int k = 0;
+        for (typename Nodes::const_iterator p = nodes.begin(); p != nodes.end(); ++p) {
+            typename Nodes::const_reference n = *p;
+            if (n.type == 2) {
+                double d = delta(f[n.i1]*f[n.i2], PowerInterpolation(f, n), n);
+                if (!iterTwo(f, n, d)) ++k;
+            } else {
+                if (!iterOne(f, n)) ++k;
+            }
+        }
+        //std::cout << "k / nodes.size(): " << k << " " << nodes.size() << " " << static_cast<double>(k) / nodes.size() << std::endl;
+        return k;
+    }
+};
+
+template <typename DF, typename Nodes>
+struct CiIter<PowerAndSymmetricInterp, DF, Nodes> {
+    int operator() (DF& f, const Nodes& nodes)
+    {
+        int k = 0;
+        for (typename Nodes::const_iterator p = nodes.begin(); p != nodes.end(); ++p) {
+            typename Nodes::const_reference n = *p;
+            if (n.type == 2) {
+                double d = delta(f[n.i1]*f[n.i2], PowerInterpolation(f, n), n);
+                if (!iterTwo(f, n, d)) {
+                    d = delta(f[n.i1]*f[n.i2], SymmetricInterpolation(f, n), n);
+                    if (!iterTwo(f, n, d)) ++k;
+                }
+            } else {
+                if (!iterOne(f, n)) ++k;
+            }
+        }
+        //std::cout << "k / nodes.size(): " << k << " " << nodes.size() << " " << static_cast<double>(k) / nodes.size() << std::endl;
+        return k;
+    }
+};
+
+template <typename DF, typename Nodes>
+struct CiIter<SymmetricInterp, DF, Nodes> {
+    int operator() (DF& f, const Nodes& nodes)
+    {
+        int k = 0;
+        for (typename Nodes::const_iterator p = nodes.begin(); p != nodes.end(); ++p) {
+            typename Nodes::const_reference n = *p;
+            if (n.type == 2) {
+                double d = delta(f[n.i1]*f[n.i2], SymmetricInterpolation(f, n), n);
+                if (!iterTwo(f, n, d)) ++k;
+            } else {
+                if (!iterOne(f, n)) ++k;
+            }
+        }
+        //std::cout << "k / nodes.size(): " << k << " " << nodes.size() << " " << static_cast<double>(k) / nodes.size() << std::endl;
+        return k;
+    }
+};
+
+template <typename DF, typename Nodes>
+struct CiIter<LinearInterp, DF, Nodes> {
+    int operator() (DF& f, const Nodes& nodes)
+    {
+        int k = 0;
+        for (typename Nodes::const_iterator p = nodes.begin(); p != nodes.end(); ++p) {
+            typename Nodes::const_reference n = *p;
+            if (n.type == 2) {
+                double d = delta(f[n.i1]*f[n.i2], LinearInterpolation(f, n), n);
+                if (!iterTwo(f, n, d)) ++k;
+            } else {
+                if (!iterOne(f, n)) ++k;
+            }
+        }
+        //std::cout << "k / nodes.size(): " << k << " " << nodes.size() << " " << static_cast<double>(k) / nodes.size() << std::endl;
+        return k;
+    }
+};
 
 #endif

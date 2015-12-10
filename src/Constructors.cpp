@@ -278,8 +278,30 @@ Gas* gasSymmetry(const PropertyTree& tree)
     if (type == "Simple") {
         LABEL
 
-        typedef GasTemplate<symmetry, XiMesh, ColliderSimple<symmetry> > GasType;
-        return new GasType(XiMesh<symmetry>(rad, cut, v));
+        std::string interp;
+        if (tree.isMember("interpolation"))
+            interp = tree["interpolation"].asString();
+        else
+            interp = "Power";
+
+        if (interp == "Power") {
+            typedef GasTemplate<symmetry, XiMesh, ColliderSimple<PowerInterp, symmetry> > GasType;
+            return new GasType(XiMesh<symmetry>(rad, cut, v));
+        } else if (interp == "PowerAndSymmetric") {
+            typedef GasTemplate<symmetry, XiMesh, ColliderSimple<PowerAndSymmetricInterp, symmetry> > GasType;
+            return new GasType(XiMesh<symmetry>(rad, cut, v));
+        } else if (interp == "Linear") {
+            typedef GasTemplate<symmetry, XiMesh, ColliderSimple<LinearInterp, symmetry> > GasType;
+            return new GasType(XiMesh<symmetry>(rad, cut, v));
+        } else if (interp == "Symmetric") {
+            typedef GasTemplate<symmetry, XiMesh, ColliderSimple<SymmetricInterp, symmetry> > GasType;
+            return new GasType(XiMesh<symmetry>(rad, cut, v));
+        } else if (interp == "None") {
+            typedef GasTemplate<symmetry, XiMesh, ColliderSimple<NoInterp, symmetry> > GasType;
+            return new GasType(XiMesh<symmetry>(rad, cut, v));
+        } else
+            throw std::invalid_argument("Unknown interpolation type");
+
     }
     else if (type == "Mixture") {
         typedef GasTemplate<symmetry, XiMeshMixture, ColliderMixture<symmetry> > GasType;
