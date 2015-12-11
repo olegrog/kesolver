@@ -68,7 +68,7 @@ void GateFacet::doTransfer2(std::vector<Polygon*>& spacemesh, const Gas& gas)
                 std::cout << polygon[0] << ' ' << polygon[1] << std::endl;
                 std::cout << i << std::endl;
                 std::cout << vels[i] << std::endl;
-                exit(-1);
+                //exit(-1);
             }
         }
         else {
@@ -87,7 +87,7 @@ void GateFacet::doTransfer2(std::vector<Polygon*>& spacemesh, const Gas& gas)
                 std::cout << polygon[0] << ' ' << polygon[1] << std::endl;
                 std::cout << i << std::endl;
                 std::cout << vels[i] << std::endl;
-                exit(-1);
+                //exit(-1);
             }
         }
     }
