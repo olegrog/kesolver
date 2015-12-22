@@ -565,21 +565,24 @@ template <typename DF, typename Nodes>
 struct CiIter<PowerAndSymmetricInterp, DF, Nodes> {
     int operator() (DF& f, const Nodes& nodes)
     {
-        int k = 0;
+        int i1 = 0, i2 = 0, i3 = 0, i4 = 0;
         for (typename Nodes::const_iterator p = nodes.begin(); p != nodes.end(); ++p) {
             typename Nodes::const_reference n = *p;
             if (n.type == 2) {
                 double d = delta(f[n.i1]*f[n.i2], PowerInterpolation(f, n), n);
                 if (!iterTwo(f, n, d)) {
                     d = delta(f[n.i1]*f[n.i2], SymmetricInterpolation(f, n), n);
-                    if (!iterTwo(f, n, d)) ++k;
+                    if (!iterTwo(f, n, d)) ++i3;
+                    ++i2;
                 }
             } else {
-                if (!iterOne(f, n)) ++k;
+                if (!iterOne(f, n)) ++i4;
             }
+            ++i1;
         }
-        //std::cout << "k / nodes.size(): " << k << " " << nodes.size() << " " << static_cast<double>(k) / nodes.size() << std::endl;
-        return k;
+        std::cout << "i1, i2, i3, i4 = " << i1 << ' ' << i2 << ' ' << i3 << ' ' << i4 << ' ' 
+            << (i2 + 0.0) / i1 << ' ' << (i3 + 0.0) / i1 << ' ' << (i4 + 0.0) / i1 << std::endl;
+        return i3;
     }
 };
 
