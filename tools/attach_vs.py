@@ -11,12 +11,10 @@ from base64 import b64encode
 
 def hermite(N):
     H_xi, H_h = np.polynomial.hermite.hermgauss(2*N)
-    H_h *= np.sqrt(2)/np.exp(-H_xi**2)
-    H_xi *= np.sqrt(2)
-    if np.sum(H_h) < 2*cut:
-        C = (2*cut) / np.sum(H_h)
-        H_xi *= C
-        H_h *= C
+    H_h /= np.exp(-H_xi**2)
+    C = (2*cut) / np.sum(H_h)
+    H_xi *= C
+    H_h *= C
     return lambda i: H_xi[i], lambda i: H_h[i]
 
 h1 = lambda q, cut, N: cut/N if q==1 else cut*(q-1)/(q**N-1)
@@ -75,7 +73,6 @@ if __name__ == "__main__":
             print (xi[i])/np.sqrt(2), h[i]/np.sqrt(2)
 
         # output data
-        gas['type'] = "Rect"
         gas['v'] = vecToStr([0,0,0])
         gas['vs'] = b64encode(xi.flatten())
         gas['vvs'] = b64encode(h.flatten())
