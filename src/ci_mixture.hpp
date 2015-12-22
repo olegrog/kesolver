@@ -23,9 +23,9 @@ class ColliderMixture {
         }
 
         template <typename DF>
-        void iter(DF& f) const {
+        double iter(DF& f) const {
             const Interpolation interp = PowerInterp;
-            CiIter<interp, DF, NodeContainer>()(f, nc);
+            return CiIter<interp, DF, NodeContainer>()(f, nc);
         }
 
     private:

@@ -39,7 +39,8 @@ void Printer::saveMacroParams(int i,
     std::ostringstream ss;
     for (unsigned int j = 0; j < mesh.getMyCells().size(); j++)
         ss << mesh.getMyCellIndexes()[j] << ' ' 
-           << gas.macro(mesh.getMyCells()[j]->f().f()) << std::endl;
+           << gas.macro(mesh.getMyCells()[j]->f().f()) << ' '
+           << mesh.getMyCells()[j]->getExcludedPoints() << std::endl;
 
     char macroFileName[256]; 
     sprintf(macroFileName, (dirname + filename).c_str(), i);

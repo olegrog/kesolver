@@ -24,9 +24,9 @@ class ColliderRect {
         }
 
         template <typename DF>
-        void iter(DF& f) const {
+        double iter(DF& f) const {
             const PowMethod powmethod = FastSSE;
-            ciIterMultiCont<powmethod>(f, nc, ximesh_);
+            return ciIterMultiCont<powmethod>(f, nc, ximesh_);
         }
 
     private:

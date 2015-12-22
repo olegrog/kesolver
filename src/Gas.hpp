@@ -31,7 +31,7 @@ class Gas {
                 const SimpleSection* section) = 0;
 
 
-        virtual void ciIter(DistributionFunction& f) const = 0;
+        virtual double ciIter(DistributionFunction& f) const = 0;
 };
 
 template <Symmetry symmetry, template<Symmetry> class XiMeshType, typename ColliderType>
@@ -85,8 +85,8 @@ class GasTemplate : public Gas {
             collider.gen(time_step, p, ximesh, section);
         }
 
-        void ciIter(DistributionFunction& f) const {
-            collider.iter(f);
+        double ciIter(DistributionFunction& f) const {
+            return collider.iter(f);
         }
 
     private:

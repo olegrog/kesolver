@@ -520,12 +520,12 @@ inline bool iterTwo(DF& f, const Node& n, double d) {
 
 template <Interpolation interp, typename DF, typename Nodes>
 struct CiIter {
-    int operator() (DF& f, const Nodes& nodes);
+    double operator() (DF& f, const Nodes& nodes);
 };
 
 template <typename DF, typename Nodes>
 struct CiIter<NoInterp, DF, Nodes> {
-    int operator() (DF& f, const Nodes& nodes)
+    double operator() (DF& f, const Nodes& nodes)
     {
         int k = 0;
         for (typename Nodes::const_iterator p = nodes.begin(); p != nodes.end(); ++p) {
@@ -537,14 +537,13 @@ struct CiIter<NoInterp, DF, Nodes> {
                 if (!iterOne(f, n)) ++k;
             }
         }
-        //std::cout << "k / nodes.size(): " << k << " " << nodes.size() << " " << static_cast<double>(k) / nodes.size() << std::endl;
-        return k;
+        return static_cast<double>(k) / nodes.size();
     }
 };
 
 template <typename DF, typename Nodes>
 struct CiIter<PowerInterp, DF, Nodes> {
-    int operator() (DF& f, const Nodes& nodes)
+    double operator() (DF& f, const Nodes& nodes)
     {
         int k = 0;
         for (typename Nodes::const_iterator p = nodes.begin(); p != nodes.end(); ++p) {
@@ -556,14 +555,13 @@ struct CiIter<PowerInterp, DF, Nodes> {
                 if (!iterOne(f, n)) ++k;
             }
         }
-        //std::cout << "k / nodes.size(): " << k << " " << nodes.size() << " " << static_cast<double>(k) / nodes.size() << std::endl;
-        return k;
+        return static_cast<double>(k) / nodes.size();
     }
 };
 
 template <typename DF, typename Nodes>
 struct CiIter<PowerAndSymmetricInterp, DF, Nodes> {
-    int operator() (DF& f, const Nodes& nodes)
+    double operator() (DF& f, const Nodes& nodes)
     {
         int i1 = 0, i2 = 0, i3 = 0, i4 = 0;
         for (typename Nodes::const_iterator p = nodes.begin(); p != nodes.end(); ++p) {
@@ -580,15 +578,17 @@ struct CiIter<PowerAndSymmetricInterp, DF, Nodes> {
             }
             ++i1;
         }
+        /*
         std::cout << "i1, i2, i3, i4 = " << i1 << ' ' << i2 << ' ' << i3 << ' ' << i4 << ' ' 
             << (i2 + 0.0) / i1 << ' ' << (i3 + 0.0) / i1 << ' ' << (i4 + 0.0) / i1 << std::endl;
-        return i3;
+        */
+        return static_cast<double>(i3+i4) / nodes.size();
     }
 };
 
 template <typename DF, typename Nodes>
 struct CiIter<SymmetricInterp, DF, Nodes> {
-    int operator() (DF& f, const Nodes& nodes)
+    double operator() (DF& f, const Nodes& nodes)
     {
         int k = 0;
         for (typename Nodes::const_iterator p = nodes.begin(); p != nodes.end(); ++p) {
@@ -600,14 +600,13 @@ struct CiIter<SymmetricInterp, DF, Nodes> {
                 if (!iterOne(f, n)) ++k;
             }
         }
-        //std::cout << "k / nodes.size(): " << k << " " << nodes.size() << " " << static_cast<double>(k) / nodes.size() << std::endl;
-        return k;
+        return static_cast<double>(k) / nodes.size();
     }
 };
 
 template <typename DF, typename Nodes>
 struct CiIter<LinearInterp, DF, Nodes> {
-    int operator() (DF& f, const Nodes& nodes)
+    double operator() (DF& f, const Nodes& nodes)
     {
         int k = 0;
         for (typename Nodes::const_iterator p = nodes.begin(); p != nodes.end(); ++p) {
@@ -619,8 +618,7 @@ struct CiIter<LinearInterp, DF, Nodes> {
                 if (!iterOne(f, n)) ++k;
             }
         }
-        //std::cout << "k / nodes.size(): " << k << " " << nodes.size() << " " << static_cast<double>(k) / nodes.size() << std::endl;
-        return k;
+        return static_cast<double>(k) / nodes.size();
     }
 };
 

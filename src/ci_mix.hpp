@@ -160,12 +160,13 @@ class ColliderMix {
         }
 
         template <typename DF>
-        void iter(DF& f) const {
+        double iter(DF& f) const {
             const PowMethod powmethod = FastSSE;
             if (timescheme == Continues)
-                ciIterMultiCont<powmethod>(f, nc, ximesh_);
-            else if (timescheme == Euler)
+                return ciIterMultiCont<powmethod>(f, nc, ximesh_);
+            if (timescheme == Euler)
                 ciIterMixEuler<powmethod>(f, nc);
+            return 0;
         }
 
     private:

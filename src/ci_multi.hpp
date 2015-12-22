@@ -292,7 +292,7 @@ double exp<FastSSE>(const double g1, const double g2) {
 }
 
 template <PowMethod powmethod, typename DF, class Nodes, class XiMeshType>
-void ciIterMultiCont(DF& f, const Nodes& nodes, const XiMeshType& ximesh)
+double ciIterMultiCont(DF& f, const Nodes& nodes, const XiMeshType& ximesh)
 {
     int i1 = 0, i2 = 0, i3 = 0;
     for (typename Nodes::const_iterator p = nodes.begin(); p != nodes.end(); ++p) {
@@ -446,7 +446,8 @@ void ciIterMultiCont(DF& f, const Nodes& nodes, const XiMeshType& ximesh)
         }
         ++i1;
     }
-    std::cout << "i1, i2, i3 = " << i1 << ' ' << i2 << ' ' << i3 << ' ' << (i2 + 0.0) / i1 << ' ' << (i3 + 0.0) / i1 << std::endl;
+    //std::cout << "i1, i2, i3 = " << i1 << ' ' << i2 << ' ' << i3 << ' ' << (i2 + 0.0) / i1 << ' ' << (i3 + 0.0) / i1 << std::endl;
+    return static_cast<double>(i3) / nodes.size();
 }
 
 #endif

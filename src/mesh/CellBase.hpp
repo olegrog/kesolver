@@ -22,6 +22,9 @@ class CellBase {
         void setPhysicalName(const std::string& name) { phys_name = name; }
         const std::string& getPhysicalName() const { return phys_name; }
 
+        void setExcludedPoints(double points) { excluded_points = points; }
+        double getExcludedPoints() const { return excluded_points; }
+
         // TOREMOVE:
         virtual SpeedFunction& f() = 0;
 
@@ -30,6 +33,7 @@ class CellBase {
         Ints neigbors;
         std::string phys_name;
         int rank;
+        double excluded_points;
 };
 
 #endif /* _CELLBASE_H_ */

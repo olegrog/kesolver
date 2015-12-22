@@ -21,8 +21,8 @@ void Integral::collide(double t,
         {
             gas.ciGen(2*t, p, section);
             for(size_t i = 0; i < cells.size(); i++) {
-                gas.ciIter(cells[i]->f().g());
-                // std::cout << " cell_center = " << cells[i]->getCenter() << std::endl;
+                double points = gas.ciIter(cells[i]->f().g());
+                cells[i]->setExcludedPoints(points);
                 cells[i]->f().equategf();
             }
         }

@@ -17,8 +17,8 @@ class ColliderSimple {
         }
 
         template <typename DF>
-        void iter(DF& f) const {
-            CiIter<interp, DF, NodeContainer>()(f, nc);
+        double iter(DF& f) const {
+            return CiIter<interp, DF, NodeContainer>()(f, nc);
         }
 
     private:

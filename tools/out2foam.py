@@ -32,7 +32,8 @@ Field = namedtuple('Field', ['foam_name', 'kes_name', 'gtype', 'dimensions', 'po
 fields = [
     Field('rho', '', 'scalar', [1,-3,0,0,0,0,0], 0),
     Field('U',  'u', 'vector', [0,1,-1,0,0,0,0], 1),
-    Field('T',  'T', 'scalar', [0,0,0,1,0,0,0],  4)
+    Field('T',  'T', 'scalar', [0,0,0,1,0,0,0],  4),
+    Field('ExcludedPoints',  '', 'scalar', [0,0,0,0,0,0,0], 15)
 ]
 aux_fields = [ 'p' ]
 
