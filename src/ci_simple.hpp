@@ -9,6 +9,7 @@ class ColliderSimple {
     public:
         typedef XiMesh<symmetry> XiMeshType;
 
+        ColliderSimple(const XiMeshType& ximesh) : ximesh_(ximesh) {}
         void gen(const double time_step, const int p,
                  const XiMeshType& ximesh,
                  const SimpleSection* section) {
@@ -29,7 +30,7 @@ class ColliderSimple {
         typedef std::vector<Node> NodeContainer;
 
         NodeContainer nc;
-
+        const XiMeshType& ximesh_;
 };
 
 inline std::tr1::tuple<bool, double, V3d, V3d, V3i>

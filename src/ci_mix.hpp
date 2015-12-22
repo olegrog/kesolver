@@ -145,7 +145,7 @@ class ColliderMix {
         typedef XiMeshMix<symmetry> XiMeshMixType;
         typedef XiMesh<symmetry> XiMeshType;
 
-        ColliderMix() {
+        ColliderMix(const XiMeshMixType& ximesh) : ximesh_(ximesh) {
             std::cout << "Mix: symmetry = "       << symmetry     << 
                               ", volume = "       << volume       <<
                               ",\ntimescheme = "  << timescheme   << 
@@ -163,7 +163,7 @@ class ColliderMix {
         void iter(DF& f) const {
             const PowMethod powmethod = FastSSE;
             if (timescheme == Continues)
-                ciIterMultiCont<powmethod>(f, nc);
+                ciIterMultiCont<powmethod>(f, nc, ximesh_);
             else if (timescheme == Euler)
                 ciIterMixEuler<powmethod>(f, nc);
         }
@@ -176,6 +176,7 @@ class ColliderMix {
         typedef Vd Vx;
 
         std::vector<Node> nc;
+        const XiMeshMixType& ximesh_;
         
 };
 

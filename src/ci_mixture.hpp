@@ -12,7 +12,7 @@ class ColliderMixture {
         typedef XiMeshMixture<symmetry> XiMeshMixtureType;
         typedef XiMesh<symmetry> XiMeshType;
 
-        ColliderMixture() {
+        ColliderMixture(const XiMeshMixtureType& ximesh) : ximesh_(ximesh) {
             std::cout << "Mixture: symmetry = " << symmetry << std::endl;
         }
 
@@ -37,7 +37,7 @@ class ColliderMixture {
         typedef std::vector<Node> NodeContainer;
 
         NodeContainer nc;
-        
+        const XiMeshMixtureType& ximesh_;
 };
 
 inline std::tr1::tuple<bool, double, V3d, V3d, V3i>

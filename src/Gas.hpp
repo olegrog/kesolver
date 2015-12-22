@@ -39,8 +39,8 @@ class GasTemplate : public Gas {
     public:
         typedef XiMeshType<symmetry> XiMesh;
 
-        GasTemplate(const XiMesh& ximesh) : 
-                ximesh(ximesh) {}
+        GasTemplate(const XiMesh& ximesh_) :
+                ximesh(ximesh_), collider(ximesh) {}
 
         size_t size() const {
             return ximesh.size();

@@ -11,7 +11,7 @@ class ColliderRect {
     public:
         typedef XiMeshRect<symmetry> XiMeshType;
 
-        ColliderRect() {
+        ColliderRect(const XiMeshType& ximesh) : ximesh_(ximesh) {
             std::cout << "Rect: symmetry = "      << symmetry     << 
                              ", volume = "        << volume       <<
                              ", sizeof(Node) = "  << sizeof(Node) << std::endl;
@@ -26,7 +26,7 @@ class ColliderRect {
         template <typename DF>
         void iter(DF& f) const {
             const PowMethod powmethod = FastSSE;
-            ciIterMultiCont<powmethod>(f, nc);
+            ciIterMultiCont<powmethod>(f, nc, ximesh_);
         }
 
     private:
@@ -37,7 +37,7 @@ class ColliderRect {
         typedef Vd Vx;
 
         std::vector<Node> nc;
-        
+        const XiMeshType& ximesh_;
 };
 
 inline std::tr1::tuple<XiMeshRect<Cartesian>::Vi,

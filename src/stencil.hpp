@@ -220,7 +220,7 @@ makeISwarm(const typename XiMeshType<Cylindrical>::Vi xi,
     i.l  = ximesh(xi - V2i( 1,  0));
     i.j  = ximesh(xi + V2i( 0,  1));
     i.m  = ximesh(xi - V2i( 0,  1));
-    
+
 //    std::cout << "i = " << i << std::endl;
 
     return i;
@@ -569,7 +569,7 @@ Stencil<Cartesian, Tight, double> makeRSwarm<Tight>(const V3d x) {
 template <>
 Stencil<Cylindrical, Tight2, double> makeRSwarm<Tight2>(const V2d r) {
     Stencil<Cylindrical, Tight2, double> s;
-    
+
     double x = templ_abs(r[0]);
     double y = templ_abs(r[1]);
 
@@ -590,7 +590,7 @@ Stencil<Cylindrical, Tight2, double> makeRSwarm<Tight2>(const V2d r) {
 template <>
 Stencil<Cartesian, Tight2, double> makeRSwarm<Tight2>(const V3d r) {
     Stencil<Cartesian, Tight2, double> s;
-    
+
     double x = templ_abs(r[0]);
     double y = templ_abs(r[1]);
     double z = templ_abs(r[2]);
@@ -618,7 +618,7 @@ Stencil<Cartesian, Tight2, double> makeRSwarm<Tight2>(const V3d r) {
 template <>
 Stencil<Cylindrical, Grad, double> makeRSwarm<Grad>(const V2d r) {
     Stencil<Cylindrical, Grad, double> s;
-    
+
     double x = templ_abs(r[0]);
     double y = templ_abs(r[1]);
 
@@ -646,7 +646,7 @@ Stencil<Cylindrical, Grad, double> makeRSwarm<Grad>(const V2d r) {
 template <>
 Stencil<Cartesian, Grad, double> makeRSwarm<Grad>(const V3d r) {
     Stencil<Cartesian, Grad, double> s;
-    
+
     double x = templ_abs(r[0]);
     double y = templ_abs(r[1]);
     double z = templ_abs(r[2]);
@@ -829,12 +829,12 @@ fAt(const F& f, const Stencil<Cartesian, Wide, int> j)
     s.lj = f[j.lj];
     s.lm = f[j.lm];
     s.im = f[j.im];
-                 
+
     s.ik = f[j.ik];
     s.lk = f[j.lk];
     s.ln = f[j.ln];
     s.in = f[j.in];
-                 
+
     s.jk = f[j.jk];
     s.mk = f[j.mk];
     s.mn = f[j.mn];
@@ -1006,12 +1006,12 @@ inline void fIs(F& f, const Stencil<Cartesian, Wide, int> j,
     f[j.lj] = s.lj;
     f[j.lm] = s.lm;
     f[j.im] = s.im;
-                  
+
     f[j.ik] = s.ik;
     f[j.lk] = s.lk;
     f[j.ln] = s.ln;
     f[j.in] = s.in;
-                  
+
     f[j.jk] = s.jk;
     f[j.mk] = s.mk;
     f[j.mn] = s.mn;
@@ -1238,7 +1238,7 @@ inline Stencil<Cylindrical, Symmetric, double> makeE
 )
 {
     Stencil<Cylindrical, Symmetric, double> s;
-    
+
     s.o = ximesh.e(j.o);
     s.i = ximesh.e(j.i); 
     s.j = ximesh.e(j.j); 
@@ -1256,7 +1256,7 @@ inline Stencil<Cartesian, Symmetric, double> makeE
 )
 {
     Stencil<Cartesian, Symmetric, double> s;
-    
+
     s.o = ximesh.e(j.o);
     s.i = ximesh.e(j.i); 
     s.j = ximesh.e(j.j); 
@@ -1276,7 +1276,7 @@ inline Stencil<Cylindrical, Tight, double> makeE
 )
 {
     Stencil<Cylindrical, Tight, double> s;
-    
+
     s.o = ximesh.e(j.o);
     s.i = ximesh.e(j.i); 
     s.j = ximesh.e(j.j); 
@@ -1293,7 +1293,7 @@ inline Stencil<Cartesian, Tight, double> makeE
 )
 {
     Stencil<Cartesian, Tight, double> s;
-    
+
     s.o = ximesh.e(j.o);
     s.i = ximesh.e(j.i); 
     s.j = ximesh.e(j.j); 
@@ -1311,7 +1311,7 @@ inline Stencil<Cylindrical, Tight2, double> makeE
 )
 {
     Stencil<Cylindrical, Tight2, double> s;
-    
+
     s.o  = ximesh.e(j.o);
     s.i  = ximesh.e(j.i); 
     s.j  = ximesh.e(j.j); 
@@ -1330,7 +1330,7 @@ inline Stencil<Cartesian, Tight2, double> makeE
 )
 {
     Stencil<Cartesian, Tight2, double> s;
-    
+
     s.o  = ximesh.e(j.o);
     s.i  = ximesh.e(j.i); 
     s.j  = ximesh.e(j.j); 
@@ -1353,7 +1353,7 @@ inline Stencil<Cylindrical, Wide, double> makeE
 )
 {
     Stencil<Cylindrical, Wide, double> s;
-    
+
     s.o  = ximesh.e(j.o);
 
     s.i  = ximesh.e(j.i); 
@@ -1377,7 +1377,7 @@ inline Stencil<Cartesian, Wide, double> makeE
 )
 {
     Stencil<Cartesian, Wide, double> s;
-    
+
     s.o  = ximesh.e(j.o);
     s.i  = ximesh.e(j.i); 
     s.j  = ximesh.e(j.j); 
@@ -1412,7 +1412,7 @@ inline Stencil<Cylindrical, Grad, double> makeE
 )
 {
     Stencil<Cylindrical, Grad, double> s;
-    
+
     s.o  = ximesh.e(j.o);
 
     s.i  = ximesh.e(j.i); 
@@ -1436,7 +1436,7 @@ inline Stencil<Cartesian, Grad, double> makeE
 )
 {
     Stencil<Cartesian, Grad, double> s;
-    
+
     s.o  = ximesh.e(j.o);
     s.i  = ximesh.e(j.i); 
     s.j  = ximesh.e(j.j); 
@@ -1464,7 +1464,7 @@ inline Stencil<Cylindrical, Symmetric, double> makeVol
 )
 {
     Stencil<Cylindrical, Symmetric, double> s;
-    
+
     s.o = ximesh.vol(j.o);
     s.i = ximesh.vol(j.i); 
     s.j = ximesh.vol(j.j); 
@@ -1482,7 +1482,7 @@ inline Stencil<Cartesian, Symmetric, double> makeVol
 )
 {
     Stencil<Cartesian, Symmetric, double> s;
-    
+
     s.o = ximesh.vol(j.o);
     s.i = ximesh.vol(j.i); 
     s.j = ximesh.vol(j.j); 
@@ -1502,7 +1502,7 @@ inline Stencil<Cylindrical, Tight, double> makeVol
 )
 {
     Stencil<Cylindrical, Tight, double> s;
-    
+
     s.o = ximesh.vol(j.o);
     s.i = ximesh.vol(j.i); 
     s.j = ximesh.vol(j.j); 
@@ -1519,7 +1519,7 @@ inline Stencil<Cartesian, Tight, double> makeVol
 )
 {
     Stencil<Cartesian, Tight, double> s;
-    
+
     s.o = ximesh.vol(j.o);
     s.i = ximesh.vol(j.i); 
     s.j = ximesh.vol(j.j); 
@@ -1537,7 +1537,7 @@ inline Stencil<Cylindrical, Tight2, double> makeVol
 )
 {
     Stencil<Cylindrical, Tight2, double> s;
-    
+
     s.o  = ximesh.vol(j.o);
     s.i  = ximesh.vol(j.i); 
     s.j  = ximesh.vol(j.j); 
@@ -1556,7 +1556,7 @@ inline Stencil<Cartesian, Tight2, double> makeVol
 )
 {
     Stencil<Cartesian, Tight2, double> s;
-    
+
     s.o  = ximesh.vol(j.o);
     s.i  = ximesh.vol(j.i); 
     s.j  = ximesh.vol(j.j); 
@@ -1579,7 +1579,7 @@ inline Stencil<Cylindrical, Wide, double> makeVol
 )
 {
     Stencil<Cylindrical, Wide, double> s;
-    
+
     s.o  = ximesh.vol(j.o);
 
     s.i  = ximesh.vol(j.i); 
@@ -1603,7 +1603,7 @@ inline Stencil<Cartesian, Wide, double> makeVol
 )
 {
     Stencil<Cartesian, Wide, double> s;
-    
+
     s.o  = ximesh.vol(j.o);
     s.i  = ximesh.vol(j.i); 
     s.j  = ximesh.vol(j.j); 
@@ -1638,7 +1638,7 @@ inline Stencil<Cylindrical, Grad, double> makeVol
 )
 {
     Stencil<Cylindrical, Grad, double> s;
-    
+
     s.o  = ximesh.vol(j.o);
 
     s.i  = ximesh.vol(j.i); 
@@ -1662,7 +1662,7 @@ inline Stencil<Cartesian, Grad, double> makeVol
 )
 {
     Stencil<Cartesian, Grad, double> s;
-    
+
     s.o  = ximesh.vol(j.o);
     s.i  = ximesh.vol(j.i); 
     s.j  = ximesh.vol(j.j); 
@@ -2090,12 +2090,12 @@ inline void addF(F& q, Stencil<Cartesian, Wide, int>    j,
     q[j.lj] += d.lj;
     q[j.lm] += d.lm;
     q[j.im] += d.im;
-                   
+
     q[j.ik] += d.ik;
     q[j.lk] += d.lk;
     q[j.ln] += d.ln;
     q[j.in] += d.in;
-                   
+
     q[j.jk] += d.jk;
     q[j.mk] += d.mk;
     q[j.mn] += d.mn;
@@ -2425,10 +2425,10 @@ inline const Stencil<Cartesian, Wide, double>
 
     log_<powmethod>(&x.ij, &x.ij);
     log_<powmethod>(&x.im, &x.im);
-                                
+
     log_<powmethod>(&x.ik, &x.ik);
     log_<powmethod>(&x.in, &x.in);
-                                
+
     log_<powmethod>(&x.jk, &x.jk);
     log_<powmethod>(&x.jn, &x.jn);
     return x;
@@ -2535,7 +2535,7 @@ struct MakeRSwarm<Symmetric, Cylindrical, XiMeshType> {
         hb[0] = - 0.5 * ( ximesh.vvoli(j.l, 0) + ximesh.vvoli(j.o, 0) );
         hf[1] =   0.5 * ( ximesh.vvoli(j.j, 1) + ximesh.vvoli(j.o, 1) );
         hb[1] = - 0.5 * ( ximesh.vvoli(j.m, 1) + ximesh.vvoli(j.o, 1) );
-        
+
 /*
         std::cout << ximesh[j.i][0] - ximesh[j.o][0] << " = " << hf[0] << std::endl;
         std::cout << ximesh[j.l][0] - ximesh[j.o][0] << " = " << hb[0] << std::endl;
@@ -2575,7 +2575,7 @@ struct MakeRSwarm<Symmetric, Cartesian, XiMeshType> {
         hb[1] = ximesh[j.m][1] - ximesh[j.o][1];
         hf[2] = ximesh[j.k][2] - ximesh[j.o][2];
         hb[2] = ximesh[j.n][2] - ximesh[j.o][2];
-        
+
 //        std::cout << "hf, hb = " << hf << ' ' << hb << std::endl;
 
 /*
@@ -2621,7 +2621,7 @@ struct MakeRSwarm<Tight, Cylindrical, XiMeshType> {
         s.x = dot(ax, hf - ax) / dot(hb, hf - hb);
 
         V2d sij = (ax - hb * s.x) / hf;
-        
+
         s.i  =  sij[0];
         s.j  =  sij[1];
 
@@ -2656,7 +2656,7 @@ struct MakeRSwarm<Tight, Cartesian, XiMeshType> {
         s.x = dot(ax, hf - ax) / dot(hb, hf - hb);
 
         V3d sijk = (ax - hb * s.x) / hf;
-        
+
         s.i  =  sijk[0];
         s.j  =  sijk[1];
         s.k  =  sijk[2];
@@ -2674,6 +2674,192 @@ Stencil<symmetry, volume, double> doMakeRSwarm(const typename SymmetryTrait<symm
                                              const XiMeshType<symmetry>& ximesh)
 {
     return MakeRSwarm<volume, symmetry, XiMeshType>().make(x, j, ximesh);
+}
+
+inline const Stencil<Cartesian, Symmetric, double>
+         makeInvDelta(Stencil<Cartesian, Symmetric, double> x,
+       const Stencil<Cartesian, Symmetric, double> y)
+{
+    x.o = 1./(x.o*y.o);
+
+    x.i = 1./(x.i*y.i);
+    x.l = 1./(x.l*y.l);
+    x.j = 1./(x.j*y.j);
+    x.m = 1./(x.m*y.m);
+    x.k = 1./(x.k*y.k);
+    x.n = 1./(x.n*y.n);
+
+    return x;
+}
+
+inline const Stencil<Cylindrical, Symmetric, double>
+         makeInvDelta(Stencil<Cylindrical, Symmetric, double> x,
+       const Stencil<Cylindrical, Symmetric, double> y)
+{
+    x.o = 1./(x.o*y.o);
+
+    x.i = 1./(x.i*y.i);
+    x.l = 1./(x.l*y.l);
+    x.j = 1./(x.j*y.j);
+    x.m = 1./(x.m*y.m);
+
+    return x;
+}
+
+inline const Stencil<Cartesian, Wide, double>
+         makeInvDelta(Stencil<Cartesian, Wide, double> x,
+       const Stencil<Cartesian, Wide, double> y)
+{
+    x.o = 1./(x.o*y.o);
+
+    x.i = 1./(x.i*y.i);
+    x.l = 1./(x.l*y.l);
+    x.j = 1./(x.j*y.j);
+    x.m = 1./(x.m*y.m);
+    x.k = 1./(x.k*y.k);
+    x.n = 1./(x.n*y.n);
+
+    x.ij = 1./(x.ij*y.ij);
+    x.lj = 1./(x.lj*y.lj);
+    x.lm = 1./(x.lm*y.lm);
+    x.im = 1./(x.im*y.im);
+
+    x.ik = 1./(x.ik*y.ik);
+    x.lk = 1./(x.lk*y.lk);
+    x.ln = 1./(x.ln*y.ln);
+    x.in = 1./(x.in*y.in);
+
+    x.jk = 1./(x.jk*y.jk);
+    x.mk = 1./(x.mk*y.mk);
+    x.mn = 1./(x.mn*y.mn);
+    x.jn = 1./(x.jn*y.jn);
+
+    return x;
+}
+
+inline const Stencil<Cylindrical, Wide, double>
+         makeInvDelta(Stencil<Cylindrical, Wide, double> x,
+       const Stencil<Cylindrical, Wide, double> y)
+{
+    x.o = 1./(x.o*y.o);
+
+    x.i = 1./(x.i*y.i);
+    x.l = 1./(x.l*y.l);
+    x.j = 1./(x.j*y.j);
+    x.m = 1./(x.m*y.m);
+
+    x.ij = 1./(x.ij*y.ij);
+    x.lj = 1./(x.lj*y.lj);
+    x.lm = 1./(x.lm*y.lm);
+    x.im = 1./(x.im*y.im);
+
+    return x;
+}
+
+inline const Stencil<Cartesian, Tight, double>
+         makeInvDelta(Stencil<Cartesian, Tight, double> x,
+       const Stencil<Cartesian, Tight, double> y)
+{
+    x.o = 1./(x.o*y.o);
+    x.x = 1./(x.x*y.x);
+
+    x.i = 1./(x.i*y.i);
+    x.j = 1./(x.j*y.j);
+    x.k = 1./(x.k*y.k);
+
+    return x;
+}
+
+inline const Stencil<Cylindrical, Tight, double>
+         makeInvDelta(Stencil<Cylindrical, Tight, double> x,
+       const Stencil<Cylindrical, Tight, double> y)
+{
+    x.o = 1./(x.o*y.o);
+    x.x = 1./(x.x*y.x);
+
+    x.i = 1./(x.i*y.i);
+    x.j = 1./(x.j*y.j);
+
+    return x;
+}
+
+inline const Stencil<Cartesian, Tight2, double>
+         makeInvDelta(Stencil<Cartesian, Tight2, double> x,
+       const Stencil<Cartesian, Tight2, double> y)
+{
+    x.o = 1./(x.o*y.o);
+
+    x.i = 1./(x.i*y.i);
+    x.l = 1./(x.l*y.l);
+    x.j = 1./(x.j*y.j);
+    x.m = 1./(x.m*y.m);
+    x.k = 1./(x.k*y.k);
+    x.n = 1./(x.n*y.n);
+
+    x.ij = 1./(x.ij*y.ij);
+    x.ik = 1./(x.ik*y.ik);
+    x.jk = 1./(x.jk*y.jk);
+
+    return x;
+}
+
+inline const Stencil<Cylindrical, Tight2, double>
+         makeInvDelta(Stencil<Cylindrical, Tight2, double> x,
+       const Stencil<Cylindrical, Tight2, double> y)
+{
+    x.o = 1./(x.o*y.o);
+
+    x.i = 1./(x.i*y.i);
+    x.l = 1./(x.l*y.l);
+    x.j = 1./(x.j*y.j);
+    x.m = 1./(x.m*y.m);
+
+    x.ij = 1./(x.ij*y.ij);
+
+    return x;
+}
+
+inline const Stencil<Cartesian, Grad, double>
+         makeInvDelta(Stencil<Cartesian, Grad, double> x,
+       const Stencil<Cartesian, Grad, double> y)
+{
+    x.o = 1./(x.o*y.o);
+
+    x.i = 1./(x.i*y.i);
+    x.l = 1./(x.l*y.l);
+    x.j = 1./(x.j*y.j);
+    x.m = 1./(x.m*y.m);
+    x.k = 1./(x.k*y.k);
+    x.n = 1./(x.n*y.n);
+
+    x.ij = 1./(x.ij*y.ij);
+    x.ik = 1./(x.ik*y.ik);
+    x.jk = 1./(x.jk*y.jk);
+
+    x.ii = 1./(x.ii*y.ii);
+    x.jj = 1./(x.jj*y.jj);
+    x.kk = 1./(x.kk*y.kk);
+
+    return x;
+}
+
+inline const Stencil<Cylindrical, Grad, double>
+         makeInvDelta(Stencil<Cylindrical, Grad, double> x,
+       const Stencil<Cylindrical, Grad, double> y)
+{
+    x.o = 1./(x.o*y.o);
+
+    x.i = 1./(x.i*y.i);
+    x.l = 1./(x.l*y.l);
+    x.j = 1./(x.j*y.j);
+    x.m = 1./(x.m*y.m);
+
+    x.ij = 1./(x.ij*y.ij);
+
+    x.ii = 1./(x.ii*y.ii);
+    x.jj = 1./(x.jj*y.jj);
+
+    return x;
 }
 
 

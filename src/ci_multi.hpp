@@ -291,10 +291,10 @@ double exp<FastSSE>(const double g1, const double g2) {
     return x.d[0] * x.d[1];
 }
 
-template <PowMethod powmethod, typename DF, class Nodes>
-void ciIterMultiCont(DF& f, const Nodes& nodes)
+template <PowMethod powmethod, typename DF, class Nodes, class XiMeshType>
+void ciIterMultiCont(DF& f, const Nodes& nodes, const XiMeshType& ximesh)
 {
-    int i1 = 0, i2 = 0;
+    int i1 = 0, i2 = 0, i3 = 0;
     for (typename Nodes::const_iterator p = nodes.begin(); p != nodes.end(); ++p) {
         typename Nodes::const_reference n = *p;
         typedef typename Nodes::value_type Node;
@@ -414,15 +414,39 @@ void ciIterMultiCont(DF& f, const Nodes& nodes)
             (f[n.i1] < 0)           ||
             (f[n.i2] < 0)           )
         {
-            fIs(f, n.j1, f1);
-            fIs(f, n.j2, f2);
-            f[n.i1] = fi1;
-            f[n.i2] = fi2;
+            /* If a power interpolation is bad, try a symmetric interpolation */
+            const Sd w1 = makeVol(n.j1, ximesh);
+            const Sd w2 = makeVol(n.j2, ximesh);
+            const Sd f1_ = div(f1, w1);
+            const Sd f2_ = div(f2, w2);
+            const Sd invDelta = makeInvDelta(f1_, f2_);
+            const double g_a = interpF(invDelta, r1);
+            const double g_b = interpF(invDelta, r2);
+            const double ww = ximesh.vol(n.i1) * ximesh.vol(n.i2);
+            const double d_a = -n.c*ww/g_a  - d;
+            const double d_b = -n.c*ww/g_b  - d;
+
+            addF(f, n.j1, r1*d_a);
+            addF(f, n.j2, r2*d_b);
+            f[n.i1] -= d_a;
+            f[n.i2] -= d_b;
+            if ( lessZero(fAt(f, n.j1)) ||
+                 lessZero(fAt(f, n.j2)) ||
+                (f[n.i1] < 0)           ||
+                (f[n.i2] < 0)           )
+            {
+                /* If a symmetric interpolation is bad too, then do nothing */
+                fIs(f, n.j1, f1);
+                fIs(f, n.j2, f2);
+                f[n.i1] = fi1;
+                f[n.i2] = fi2;
+                ++i3;
+            }
             ++i2;
         }
         ++i1;
     }
-//    std::cout << "i1, i2 = " << i1 << ' ' << i2 << ' ' << (i2 + 0.0) / i1 << std::endl;
+    std::cout << "i1, i2, i3 = " << i1 << ' ' << i2 << ' ' << i3 << ' ' << (i2 + 0.0) / i1 << ' ' << (i3 + 0.0) / i1 << std::endl;
 }
 
 #endif
