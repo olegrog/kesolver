@@ -332,8 +332,6 @@ Gas* gasSymmetry(const PropertyTree& tree)
             throw std::invalid_argument("Unknown mix volume type");
     }
     else if (type == "Rect") {
-        typedef GasTemplate<symmetry, XiMeshRect, ColliderRect<symmetry> > GasType;
-
         typedef typename SymmetryTrait<symmetry>::VVd VVd;
         std::pair<VVd, VVd> vpair = readVV<symmetry>(tree, rad, cut, v);
         VVd vv(vpair.first), vvol(vpair.second);
