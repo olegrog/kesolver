@@ -142,7 +142,7 @@ std::ostream& operator<<(std::ostream& to, const Stencil<Cylindrical, Wide, T>& 
 template <class T> inline
 std::ostream& operator<<(std::ostream& to, const Stencil<Cartesian, Tight, T>& s) {
 	to << "[[\n"
-       << s.o  << s.x << '\n' 
+       << s.o  << ' ' << s.x << '\n'
        << s.i  << ' ' << s.j  << ' ' << s.k << '\n'
        << "]]\n";
 	return to;
@@ -150,7 +150,7 @@ std::ostream& operator<<(std::ostream& to, const Stencil<Cartesian, Tight, T>& s
 
 template <class T> inline
 std::ostream& operator<<(std::ostream& to, const Stencil<Cylindrical, Tight, T>& s) {
-	to << s.o  << ' ' << s.x << '\n' 
+	to << s.o  << ' ' << s.x << '\n'
        << s.i  << ' ' << s.j << '\n'
        << std::endl;
 	return to;

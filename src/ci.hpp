@@ -484,6 +484,9 @@ inline bool iterOne(DF& f, const Node& n) {
 
 template <typename DF, typename Node>
 inline bool iterTwo(DF& f, const Node& n, double d) {
+    if (d != d) {
+        return false;
+    }
     double dl = (1. - n.r) * d;
     double dm = n.r * d;
     double g1 = f[n.i1l];

@@ -408,7 +408,7 @@ double ciIterMultiCont(DF& f, const Nodes& nodes, const XiMeshType& ximesh)
         addF(f, n.j2, d2);
         f[n.i1] -= d;
         f[n.i2] -= d;
-        
+
         if ( lessZero(fAt(f, n.j1)) ||
              lessZero(fAt(f, n.j2)) ||
             (f[n.i1] < 0)           ||
@@ -433,7 +433,9 @@ double ciIterMultiCont(DF& f, const Nodes& nodes, const XiMeshType& ximesh)
             if ( lessZero(fAt(f, n.j1)) ||
                  lessZero(fAt(f, n.j2)) ||
                 (f[n.i1] < 0)           ||
-                (f[n.i2] < 0)           )
+                (f[n.i2] < 0)           ||
+                d_a != d_a              ||
+                d_b != d_b              )
             {
                 /* If a symmetric interpolation is bad too, then do nothing */
                 fIs(f, n.j1, f1);
