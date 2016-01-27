@@ -56,8 +56,8 @@ debug : CXXFLAGS += -DDEBUG -O0
 debug : kes
 
 clean :
-	find . -iname "*.[od]" -exec rm '{}' ';'
-	rm kes kes-mpi
+	find . -iname "*.[od]*" -exec rm -r {} \;
+	rm -f kes kes-mpi
 
 kes : $(OBJ)
 	$(CXX) -o kes $(OBJ) $(CXXFLAGS) $(LIBS)
