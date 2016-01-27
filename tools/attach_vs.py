@@ -9,7 +9,7 @@ import numpy as np
 
 from base64 import b64encode
 
-def hermite(N):
+def hermite(cut, N):
     H_xi, H_h = np.polynomial.hermite.hermgauss(2*N)
     H_h /= np.exp(-H_xi**2)
     C = (2*cut) / np.sum(H_h)
@@ -25,7 +25,7 @@ def i2h(i, q, cut, N):
     nonuniform = lambda i: h1(q, cut, N)*q**(j(i)-1)
     uniform = lambda i: cut/N + i*0
     return {
-        0: hermite(N)[1],       # hermite grid
+        0: hermite(cut, N)[1],  # hermite grid
         -1: uniform             # uniform grid
     }.get(q, nonuniform)(i)     # exp refinement
 
@@ -36,7 +36,7 @@ def i2xi(i, q, cut, N):
     nonuniform = lambda i: sgn(i)*h1(q, cut, N) * (j_y(i)-.5 if q==1 else (q**j_y(i)+q**(j_y(i)-1)-2)/(q-1)/2)
     uniform = lambda i: j_x(i)*cut/N
     return {
-        0: hermite(N)[0],       # hermite grid
+        0: hermite(cut, N)[0],  # hermite grid
         -1: uniform             # uniform grid
     }.get(q, nonuniform)(i)     # exp refinement
 
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     rad = gas['rad']
     cut = gas['cut']
     qi = map(float, gas.get("q", "( 0. 0. 0. )")[1:-1].split())
-    Ni = map(int, 2*gas.get("N", "( 0 0 0 )")[1:-1].split())
+    Ni = map(int, gas.get("N_R", "( 0 0 0 )")[1:-1].split())
     if np.dot(Ni, Ni) == 0:
         print "No velocity grid has been attached."
     else:
@@ -70,6 +70,7 @@ if __name__ == "__main__":
         for (i, q) in enumerate(qi):
             idx = np.arange(2*Ni[i])
             xi[i], h[i] = extend_grid(i2xi(idx,q,cut,Ni[i]), i2h(idx,q,cut,Ni[i]), cut, rad)
+            # sqrt(2) Tcheremissine --> Sone
             print (xi[i])/np.sqrt(2), h[i]/np.sqrt(2)
 
         # output data
