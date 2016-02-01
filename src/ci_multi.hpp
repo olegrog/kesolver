@@ -12,11 +12,12 @@ struct CollisionNodeMulti {
     typedef Stencil<symmetry, volume, double> Xd;
     int i1, i2;
     Si  j1, j2;
-    Xd  x1, x2;
+    Xd  x1, x2;     // projection weights
+    Xd  w1, w2;     // interpolation weights
     double c, a;
 };
 
-template <Volume volume, Symmetry symmetry> 
+template <Volume volume, Symmetry symmetry>
 Stencil<symmetry, volume, double> createRSwarm(const typename SymmetryTrait<symmetry>::Vd x,
                                                const Stencil<symmetry, volume, int> j,
                                                const XiMeshMix<symmetry>& mesh)
@@ -24,12 +25,73 @@ Stencil<symmetry, volume, double> createRSwarm(const typename SymmetryTrait<symm
     return makeRSwarm<volume>(x);
 }
 
-template <Volume volume, Symmetry symmetry> 
+template <Volume volume, Symmetry symmetry>
+Stencil<symmetry, volume, double> createWSwarm(const typename SymmetryTrait<symmetry>::Vd x,
+                                               const Stencil<symmetry, volume, int> j,
+                                               const XiMeshMix<symmetry>& mesh)
+{
+    return makeRSwarm<volume>(x);
+}
+
+template <Volume volume, Symmetry symmetry>
 Stencil<symmetry, volume, double> createRSwarm(const typename SymmetryTrait<symmetry>::Vd x,
                                                const Stencil<symmetry, volume, int> j,
                                                const XiMeshRect<symmetry>& mesh)
 {
     return doMakeRSwarm<volume>(x, j, mesh);
+}
+
+template <Volume volume, Symmetry symmetry, template <Symmetry> class XiMeshType>
+struct MakeWSwarm;
+
+template <Volume volume, template <Symmetry> class XiMeshType>
+struct MakeWSwarm<volume, Cylindrical, XiMeshType> {
+    static const Symmetry symmetry = Cylindrical;
+    const Stencil<symmetry, volume, double> operator() (
+        const typename SymmetryTrait<symmetry>::Vd x,
+        const Stencil<symmetry, volume, int> j,
+        const XiMeshType<symmetry>& ximesh) const
+    {
+        Stencil<symmetry, volume, double> s = {};
+        double h1 = 0.5 * ( ximesh.vvoli(j.i, 0) + ximesh.vvoli(j.o, 0) );
+        double h2 = 0.5 * ( ximesh.vvoli(j.j, 1) + ximesh.vvoli(j.o, 1) );
+        V2d ax = abs(x);
+
+        s.i = ax[0]/h1;
+        s.j = ax[1]/h2;
+        s.o = 1 - s.i - s.j;
+        return s;
+    }
+};
+
+template <Volume volume, template <Symmetry> class XiMeshType>
+struct MakeWSwarm<volume, Cartesian, XiMeshType> {
+    static const Symmetry symmetry = Cartesian;
+    const Stencil<symmetry, volume, double> operator() (
+        const typename SymmetryTrait<symmetry>::Vd x,
+        const Stencil<symmetry, volume, int> j,
+        const XiMeshType<symmetry>& ximesh) const
+    {
+        Stencil<symmetry, volume, double> s = {};
+        double h1 = 0.5 * ( ximesh.vvoli(j.i, 0) + ximesh.vvoli(j.o, 0) );
+        double h2 = 0.5 * ( ximesh.vvoli(j.j, 1) + ximesh.vvoli(j.o, 1) );
+        double h3 = 0.5 * ( ximesh.vvoli(j.k, 2) + ximesh.vvoli(j.o, 2) );
+        V3d ax = abs(x);
+
+        s.i = ax[0]/h1;
+        s.j = ax[1]/h2;
+        s.k = ax[2]/h3;
+        s.o = 1 - s.i - s.j - s.k;
+        return s;
+    }
+};
+
+template <Volume volume, Symmetry symmetry, template <Symmetry> class XiMeshType>
+Stencil<symmetry, volume, double> createWSwarm(const typename SymmetryTrait<symmetry>::Vd x,
+                                               const Stencil<symmetry, volume, int> j,
+                                               const XiMeshType<symmetry>& ximesh)
+{
+    return MakeWSwarm<volume, symmetry, XiMeshType>()(x, j, ximesh);
 }
 
 template <Volume volume, template <Symmetry symmetry> class XiMeshType>
@@ -43,10 +105,14 @@ makeNode(const int i1 , const int i2,
     CollisionNodeMulti<Cartesian, volume> node;
     Stencil<Cartesian, volume, double> r1 = createRSwarm<volume>(x1, j1, ximesh);
     Stencil<Cartesian, volume, double> r2 = createRSwarm<volume>(x2, j2, ximesh);
+    Stencil<Cartesian, volume, double> w1 = createWSwarm<volume>(x1, j1, ximesh);
+    Stencil<Cartesian, volume, double> w2 = createWSwarm<volume>(x2, j2, ximesh);
     node.a  = ximesh.vol(i1) * ximesh.vol(i2) / 
               (interpVol(j1, r1, ximesh) * interpVol(j2, r2, ximesh));
     node.x1 = r1;
     node.x2 = r2;
+    node.w1 = w1;
+    node.w2 = w2;
     return node;
 }
 
@@ -258,7 +324,6 @@ CollisionType calcNode(const Point& p,
 
 template <typename CollisionNodeType>
 inline double aff(const double ff, const CollisionNodeType n, SymmetryTrait<Cartesian>) {
-//    std::cout << "n.a = " << n.a << std::endl;
     return n.a * ff;
 }
 
@@ -294,7 +359,8 @@ double exp<FastSSE>(const double g1, const double g2) {
 template <PowMethod powmethod, typename DF, class Nodes, class XiMeshType>
 double ciIterMultiCont(DF& f, const Nodes& nodes, const XiMeshType& ximesh)
 {
-    int i1 = 0, i2 = 0, i3 = 0;
+    int i1 = 0, i2 = 0;
+    double exclusion = 0;
     for (typename Nodes::const_iterator p = nodes.begin(); p != nodes.end(); ++p) {
         typename Nodes::const_reference n = *p;
         typedef typename Nodes::value_type Node;
@@ -311,8 +377,10 @@ double ciIterMultiCont(DF& f, const Nodes& nodes, const XiMeshType& ximesh)
 //        std::cout << "f1 = " << f1 << std::endl;
 //        std::cout << "f2 = " << f2 << std::endl;
 
-        const Sd r1 = n.x1; 
-        const Sd r2 = n.x2; 
+        const Sd r1 = n.x1;
+        const Sd r2 = n.x2;
+        const Sd w1 = n.w1;
+        const Sd w2 = n.w2;
 
 //        const double e = interpF(n.e1, r1) + interpF(n.e2, r2) - n.ei1 - n.ei2;
 //        std::cout << "e = " << e << std::endl;
@@ -352,7 +420,7 @@ double ciIterMultiCont(DF& f, const Nodes& nodes, const XiMeshType& ximesh)
 */
         const double ff = fi1 * fi2;
 
-        const double d = ( - ff1 + ff ) * n.c; 	
+        const double d = ( - ff1 + ff ) * n.c;
 
 /*
         const Sd y1 = div(f1, n.v1); 
@@ -414,42 +482,40 @@ double ciIterMultiCont(DF& f, const Nodes& nodes, const XiMeshType& ximesh)
             (f[n.i1] < 0)           ||
             (f[n.i2] < 0)           )
         {
-            /* If a power interpolation is bad, try a symmetric interpolation */
-            const Sd w1 = makeVol(n.j1, ximesh);
-            const Sd w2 = makeVol(n.j2, ximesh);
-            const Sd f1_ = div(f1, w1);
-            const Sd f2_ = div(f2, w2);
-            const Sd invDelta = makeInvDelta(f1_, f2_);
-            const double g_a = interpF(invDelta, r1);
-            const double g_b = interpF(invDelta, r2);
-            const double ww = ximesh.vol(n.i1) * ximesh.vol(n.i2);
-            const double d_a = -n.c*ww/g_a  - d;
-            const double d_b = -n.c*ww/g_b  - d;
+            /* If this interpolation is bad, then do nothing */
+            fIs(f, n.j1, f1);
+            fIs(f, n.j2, f2);
+            f[n.i1] = fi1;
+            f[n.i2] = fi2;
+            exclusion += std::fabs(d);
+/*
+            const double g1_ = interpF(logf1, r1);
+            const double g2_ = interpF(logf2, r2);
+            const double ff1_ = aff<Node::symmetry>(exp<powmethod>(g1_, g2_), n);
+            d = ( - ff1_ + ff ) * n.c - d;
 
-            addF(f, n.j1, r1*d_a);
-            addF(f, n.j2, r2*d_b);
-            f[n.i1] -= d_a;
-            f[n.i2] -= d_b;
-            if ( lessZero(fAt(f, n.j1)) ||
-                 lessZero(fAt(f, n.j2)) ||
-                (f[n.i1] < 0)           ||
-                (f[n.i2] < 0)           ||
-                d_a != d_a              ||
-                d_b != d_b              )
+            if (d > 1e-8)
             {
-                /* If a symmetric interpolation is bad too, then do nothing */
-                fIs(f, n.j1, f1);
-                fIs(f, n.j2, f2);
-                f[n.i1] = fi1;
-                f[n.i2] = fi2;
-                ++i3;
+                std::cerr << "d: " << d << std::endl;
+                std::cerr << "exclusion: " << f[n.i1] << ' ' << f[n.i2] << std::endl;
+                std::cerr << "exclusion_proj: " << fAt(f, n.j1) << ' ' << fAt(f, n.j2);
+                std::cerr << "r_coeffs: " << r1 << ' ' << r2;
+                std::cerr << "w_coeffs: " << n.w1 << ' ' << n.w2;
+                std::cerr << "before_proj: " << f1 << ' ' << f2;
+                std::cerr << "before: " << fi1 << ' ' << fi2 << std::endl;
+                std::cerr << "(ff, ff1_pow/my)*n.c: " << ff*n.c << ' ' << ff1_*n.c << ' ' << ff1*n.c << std::endl;
+                std::cerr << "f_alpha', f_beta' (Power): " << std::exp2(g1_) << ' ' << std::exp2(g2_) << std::endl;
+                std::cerr << "f_alpha', f_beta'    (My): " << std::exp2(g1) << ' ' << std::exp2(g2) << std::endl;
+                std::cerr << "d_pow/my: " << (ff-ff1_)*n.c << ' ' << (ff-ff1)*n.c << std::endl << std::endl;
             }
+*/
             ++i2;
         }
         ++i1;
     }
-    //std::cout << "i1, i2, i3 = " << i1 << ' ' << i2 << ' ' << i3 << ' ' << (i2 + 0.0) / i1 << ' ' << (i3 + 0.0) / i1 << std::endl;
-    return static_cast<double>(i3) / nodes.size();
+    //std::cout << "i1, i2 = " << i1 << ' ' << i2 << ' ' << (i2 + 0.0) / i1 << std::endl;
+    //return static_cast<double>(i2) / nodes.size();
+    return exclusion;
 }
 
 #endif
