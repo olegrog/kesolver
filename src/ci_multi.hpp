@@ -487,14 +487,18 @@ double ciIterMultiCont(DF& f, const Nodes& nodes, const XiMeshType& ximesh)
             fIs(f, n.j2, f2);
             f[n.i1] = fi1;
             f[n.i2] = fi2;
+
+            const double ff1_ = f1.o * f2.o;
+            const double d = (ff-ff1_) * n.c;
             exclusion += std::fabs(d);
+
 /*
             const double g1_ = interpF(logf1, r1);
             const double g2_ = interpF(logf2, r2);
             const double ff1_ = aff<Node::symmetry>(exp<powmethod>(g1_, g2_), n);
             d = ( - ff1_ + ff ) * n.c - d;
 
-            if (d > 1e-8)
+            if (std::fabs(d) > 1e+8)
             {
                 std::cerr << "d: " << d << std::endl;
                 std::cerr << "exclusion: " << f[n.i1] << ' ' << f[n.i2] << std::endl;
@@ -513,6 +517,7 @@ double ciIterMultiCont(DF& f, const Nodes& nodes, const XiMeshType& ximesh)
         }
         ++i1;
     }
+    //std::cout << "i1, i2 = " << i1 << ' ' << i2 << ' ' << exclusion << std::endl;
     //std::cout << "i1, i2 = " << i1 << ' ' << i2 << ' ' << (i2 + 0.0) / i1 << std::endl;
     //return static_cast<double>(i2) / nodes.size();
     return exclusion;
