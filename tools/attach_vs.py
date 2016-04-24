@@ -8,16 +8,49 @@ import json
 import numpy as np
 
 from base64 import b64encode
+from collections import namedtuple
+
+Grid = namedtuple('Grid', ['i2h','i2xi'])
+
+grids = {
+    'uniform': Grid(
+        i2h =  lambda q, cut, N: cut/N + idx(N)*0,
+        i2xi = lambda q, cut, N: idx(N)*cut/N
+    ),
+    'geometric': Grid(
+        i2h =  lambda q, cut, N: h1(q, cut, N) * symm_h(q**np.arange(N)),
+        i2xi = lambda q, cut, N: h1(q, cut, N) * (1 if q==1 else semi_xi((q**np.arange(N)-1)/(q-1)))
+    ),
+    'hermite': Grid(
+        i2h =  lambda q, cut, N: hermite(cut, N)[0],
+        i2xi = lambda q, cut, N: hermite(cut, N)[1]
+    ),
+    'quadratic': Grid(
+        i2h =  lambda q, cut, N: quadratic(q, cut, N)[0],
+        i2xi = lambda q, cut, N: quadratic(q, cut, N)[1]
+    )
+}
 
 def hermite(cut, N):
     H_xi, H_h = np.polynomial.hermite.hermgauss(2*N)
     H_h /= np.exp(-H_xi**2)
-    C = (2*cut) / np.sum(H_h)
+    C = 2*cut / np.sum(H_h)
     H_xi *= C
     H_h *= C
-    return lambda i: H_xi[i], lambda i: H_h[i]
+    return H_h, H_xi
 
+def quadratic(q, cut, N):
+    p=2
+    A = (1.+p)/N**(1+p)*(cut-N*q)
+    h = q + A*np.arange(N)**p
+    X = np.append(0, np.cumsum(h))
+    return symm_h(h), symm_xi(X)
+
+symm_h = lambda x: np.hstack((x[::-1], x))
+semi_sum = lambda x: .5*(x[:-1] + x[1:])
+symm_xi = lambda x: np.hstack((-semi_sum(x)[::-1], semi_sum(x)))
 h1 = lambda q, cut, N: cut/N if q==1 else cut*(q-1)/(q**N-1)
+idx = lambda N: np.arange(2*N) - N + .5
 vecToStr = lambda l: '(' + ' '.join( map(str, l) ) + ')'
 
 def i2h(i, q, cut, N):
@@ -50,33 +83,44 @@ def extend_grid(xi, h, cut, N):
     else:
         return xi, h
 
+def make_vector(x):
+    if len(x) == 1:
+        x = [ x[0], x[0], x[0] ]
+    return x
+    
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     
     with open(sys.argv[1], 'r') as f:
         data = json.load(f)
 
     # input data
     gas = data['gas']
-    rad = gas['rad']
     cut = gas['cut']
-    qi = map(float, gas.get("q", "( 0. 0. 0. )")[1:-1].split())
-    Ni = map(int, gas.get("N_R", "( 0 0 0 )")[1:-1].split())
-    if np.dot(Ni, Ni) == 0:
-        print "No velocity grid has been attached."
+    grid = make_vector(gas.get('nonuniform', '( uniform )')[1:-1].split())
+    q = make_vector(map(float, gas.get('q', '( 0. 0. 0. )')[1:-1].split()))
+    N = make_vector(map(int, gas.get('N_R', '( 0 0 0 )')[1:-1].split()))
+    rad = max(gas['rad'], max(N))
+    if np.dot(N, N) == 0:
+        print 'No velocity grid has been attached.'
     else:
         h, xi = np.ndarray((3,2*rad)), np.ndarray((3,2*rad))
 
-        for (i, q) in enumerate(qi):
-            idx = np.arange(2*Ni[i])
-            xi[i], h[i] = extend_grid(i2xi(idx,q,cut,Ni[i]), i2h(idx,q,cut,Ni[i]), cut, rad)
+        for i in xrange(3):
+            xi[i], h[i] = extend_grid(
+                grids[grid[i]].i2xi(q[i], cut, N[i]),
+                grids[grid[i]].i2h (q[i], cut, N[i]),
+                cut, rad)
             # sqrt(2) Tcheremissine --> Sone
-            print (xi[i])/np.sqrt(2), h[i]/np.sqrt(2)
+            print '--- Axis %s' % chr(ord('X')+i)
+            print 'xi =', xi[i]/np.sqrt(2)
+            print 'h =', h[i]/np.sqrt(2)
 
         # output data
         gas['v'] = vecToStr([0,0,0])
         gas['vs'] = b64encode(xi.flatten())
         gas['vvs'] = b64encode(h.flatten())
+        gas['rad'] = rad
 
     # open resulting .kep file and dump the modified data 
     with open(sys.argv[2], 'w') as f:
