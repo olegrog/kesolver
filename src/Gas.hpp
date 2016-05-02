@@ -15,6 +15,7 @@ class Gas {
         virtual size_t size() const = 0;
 
         virtual const std::string macro(const DistributionFunction& f) const = 0;
+        virtual double density(const DistributionFunction& f) const = 0;
 
         virtual const DistributionFunction maxwell(const PropertyTree& tree) const = 0;
         virtual const DistributionFunction grad13(const PropertyTree& tree) const = 0;
@@ -44,6 +45,10 @@ class GasTemplate : public Gas {
 
         size_t size() const {
             return ximesh.size();
+        }
+
+        double density(const DistributionFunction& f) const {
+            return ::macro(f, ximesh).n;
         }
 
         const std::string macro(const DistributionFunction& f) const {

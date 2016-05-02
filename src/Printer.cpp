@@ -40,7 +40,8 @@ void Printer::saveMacroParams(int i,
     for (unsigned int j = 0; j < mesh.getMyCells().size(); j++)
         ss << mesh.getMyCellIndexes()[j] << ' ' 
            << gas.macro(mesh.getMyCells()[j]->f().f()) << ' '
-           << mesh.getMyCells()[j]->getExcludedPoints() << std::endl;
+           << mesh.getMyCells()[j]->getExcludedPoints()/gas.density(mesh.getMyCells()[j]->f().f())
+           << std::endl;
 
     char macroFileName[256]; 
     sprintf(macroFileName, (dirname + filename).c_str(), i);
