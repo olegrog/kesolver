@@ -25,6 +25,8 @@ class CellBase {
         void setExcludedPoints(double points) { excluded_points = points; }
         double getExcludedPoints() const { return excluded_points; }
 
+        CellBase() : excluded_points(0) {}
+
         // TOREMOVE:
         virtual SpeedFunction& f() = 0;
 
