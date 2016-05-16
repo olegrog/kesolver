@@ -19,7 +19,7 @@ kes2foam_type = {
     'vector': {
         'empty': 'empty',
         'mirror': 'symmetryPlane',
-        'diffusion': 'slip'
+        'diffusion': 'extrapolatedSlipGradient' #'slip'
     },
 }
 kes2foam_type2 = {
