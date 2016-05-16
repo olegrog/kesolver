@@ -3,8 +3,7 @@
 # rely on vector `q` and `N` in section `gas`
 # Usage: ./attach_vs <kep-file> <new-kep-file>
 
-import sys
-import json
+import sys, json
 import numpy as np
 
 from base64 import b64encode
@@ -19,7 +18,7 @@ grids = {
     ),
     'geometric': Grid(
         i2h =  lambda q, cut, N: h1(q, cut, N) * symm_h(q**np.arange(N)),
-        i2xi = lambda q, cut, N: h1(q, cut, N) * (1 if q==1 else semi_xi((q**np.arange(N)-1)/(q-1)))
+        i2xi = lambda q, cut, N: h1(q, cut, N) * (1 if q==1 else symm_xi((q**np.arange(N+1)-1)/(q-1)))
     ),
     'hermite': Grid(
         i2h =  lambda q, cut, N: hermite(cut, N)[0],
