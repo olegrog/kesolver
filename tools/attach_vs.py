@@ -40,7 +40,9 @@ def hermite(cut, N):
 
 def quadratic(q, cut, N):
     p=2
-    A = (1.+p)/N**(1+p)*(cut-N*q)
+    if cut-N*q < 0:
+       raise NameError('q = %g is too big' % q)
+    A = (cut-N*q) / np.sum(np.arange(N)**p)
     h = q + A*np.arange(N)**p
     X = np.append(0, np.cumsum(h))
     return symm_h(h), symm_xi(X)
@@ -51,26 +53,6 @@ symm_xi = lambda x: np.hstack((-semi_sum(x)[::-1], semi_sum(x)))
 h1 = lambda q, cut, N: cut/N if q==1 else cut*(q-1)/(q**N-1)
 idx = lambda N: np.arange(2*N) - N + .5
 vecToStr = lambda l: '(' + ' '.join( map(str, l) ) + ')'
-
-def i2h(i, q, cut, N):
-    j = lambda i: abs(i-N+.5)+.5
-    nonuniform = lambda i: h1(q, cut, N)*q**(j(i)-1)
-    uniform = lambda i: cut/N + i*0
-    return {
-        0: hermite(cut, N)[1],  # hermite grid
-        -1: uniform             # uniform grid
-    }.get(q, nonuniform)(i)     # exp refinement
-
-def i2xi(i, q, cut, N):
-    j_y = lambda i: abs(i-N+.5)+.5
-    j_x = lambda i: i-N+.5
-    sgn = lambda i: np.sign(j_x(i))
-    nonuniform = lambda i: sgn(i)*h1(q, cut, N) * (j_y(i)-.5 if q==1 else (q**j_y(i)+q**(j_y(i)-1)-2)/(q-1)/2)
-    uniform = lambda i: j_x(i)*cut/N
-    return {
-        0: hermite(cut, N)[0],  # hermite grid
-        -1: uniform             # uniform grid
-    }.get(q, nonuniform)(i)     # exp refinement
 
 def extend_grid(xi, h, cut, N):
     idx = (N-xi.size/2)
