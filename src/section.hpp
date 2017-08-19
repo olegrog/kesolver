@@ -26,8 +26,16 @@ class HSSection : public SimpleSection {
             return ker(g, th) * sqr(ds[i1] + ds[i2]) / 4;
         }
     private:
-        double ker(const double g, const double th) const { return 0.25; }
+        virtual double ker(const double g, const double th) const { return 0.25; }
         std::vector<double> ds;
+};
+
+class VHSSection : public HSSection {
+    public:
+        VHSSection(const std::vector<double>& ds, double omega) : HSSection(ds), omega(omega) {}
+    private:
+        virtual double ker(const double g, const double th) const { return 0.25*std::pow(g, .5-omega); }
+        double omega;
 };
 
 class LJSection : public SimpleSection {

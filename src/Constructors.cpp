@@ -445,6 +445,18 @@ Integral IntegralConstructor(const PropertyTree& tree)
             }
             section = new HSSection(ds);
             std::cout << "HSSection" << std::endl;
+        }
+        else if (str == "VHS") {
+            std::vector<double> ds;
+            std::istringstream ss(tree["ds"].asString());
+            double d;
+            while (ss >> d) {
+                ds.push_back(d);
+                std::cout << "d = " << d << std::endl;
+            }
+            double omega = tree["omega"].asDouble();
+            section = new VHSSection(ds, omega);
+            std::cout << "VHSSection" << std::endl;
 
         }
         else if (str == "LJ") {
