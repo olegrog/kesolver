@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, os, json, errno, re
+import sys, os, json, errno, re, argparse
 import out2
 from kepy.io import readNodesElems
 from collections import namedtuple
@@ -14,28 +14,32 @@ kes2foam_type = {
     'scalar': {
         'empty': 'empty',
         'mirror': 'symmetryPlane',
+        'maxwell': 'zeroGradient',
         'diffusion': 'extrapolatedGradient' # or use zeroGradient
     },
     'vector': {
         'empty': 'empty',
         'mirror': 'symmetryPlane',
+        'maxwell': 'zeroGradient',
         'diffusion': 'extrapolatedSlipGradient' #'slip'
     },
 }
 kes2foam_type2 = {
     'empty': 'empty',
     'mirror': 'symmetryPlane',
+    'maxwell': 'patch',
     'diffusion': 'wall'
 }
 
-Field = namedtuple('Field', ['foam_name', 'kes_name', 'gtype', 'dimensions', 'pos'])
+# NB: scale=1/np.sqrt(2) Tcheremissine --> Sone
+Field = namedtuple('Field', ['foam_name', 'kes_name', 'gtype', 'dimensions', 'pos', 'scale'])
 fields = [
-    Field('rho', '', 'scalar', [1,-3,0,0,0,0,0], 0),
-    Field('U',  'u', 'vector', [0,1,-1,0,0,0,0], 1),
-    Field('T',  'T', 'scalar', [0,0,0,1,0,0,0],  4),
-    Field('ExcludedPoints',  '', 'scalar', [0,0,0,0,0,0,0], 15)
+    Field('rho', '', 'scalar', [1,-3,0,0,0,0,0], 0, 1),
+    Field('U',  'u', 'vector', [0,1,-1,0,0,0,0], 1, 2**-.5),
+    Field('T',  'T', 'scalar', [0,0,0,1,0,0,0],  4, 1),
+    Field('ExcludedPoints',  '', 'scalar', [0,0,0,0,0,0,0], 15, 1)
 ]
-aux_fields = [ 'p' ]
+aux_fields = [ 'p', 'Ma' ]
 
 def mkdir_p(path):
     try:
@@ -78,8 +82,8 @@ class Nonuniform_list:
         self.out = out
     def __enter__(self):
         return self
-    def dump_data(self, data, fmt):
-        np.savetxt(self.out, np.transpose(data), fmt=fmt)
+    def dump_data(self, data, fmt, scale=1):
+        np.savetxt(self.out, np.transpose(data)*scale, fmt=fmt)
     def __exit__(self, type, value, traceback):
         self.out.write(')\n;\n')
 
@@ -116,7 +120,7 @@ class Dict:
 def print_internal_field(out, field, data):
     p = geom_params[field.gtype]
     with Nonuniform_list(out, 'internalField', field.gtype, len(data[0])) as nl:
-        nl.dump_data(data[field.pos:field.pos+p['shift']], p['fmt'])
+        nl.dump_data(data[field.pos:field.pos+p['shift']], p['fmt'], field.scale)
 
 def print_boundary_field(out, field, facets, bc):
     with Dict(out, 'boundaryField') as bfield:
@@ -130,7 +134,7 @@ def print_boundary_field(out, field, facets, bc):
                     patch_facets = filter(lambda f: f.phys_index.split(':')[0] == patch, facets)
                     values = map(lambda f: bc[f.phys_index][field.kes_name], patch_facets)
                     with pfield.nlist('value', field.gtype, len(patch_facets)) as nl:
-                        nl.dump_data(values, '%s')
+                        nl.dump_data(values, '%s', field.scale)
                 if foam_type == 'extrapolatedGradient':
                     pfield.print_dict({ 'value': '$internalField' })
 
@@ -145,9 +149,15 @@ def print_field(field, time, data, facets, bc):
 ### Start of instructions ###
 #############################
 
-_, case = sys.argv
-nodes, cells, facets = readNodesElems('%s.kei' % case)
-with open('%s.kei' % case, 'r') as f:
+parser = argparse.ArgumentParser(description='Create OpenFOAM environment')
+parser.add_argument('case', help='name of the case')
+parser.add_argument('--kn', type=float, default=1, help='Knudsen number for transform (x,y)-coords')
+parser.add_argument('--calc-mean', action='store_true', help='calculate mean values')
+parser.add_argument('--window', type=float, default=.05, help='use this part of timesteps to calculate mean')
+args = parser.parse_args()
+
+nodes, cells, facets = readNodesElems('%s.kei' % args.case)
+with open('%s.kei' % args.case, 'r') as f:
     kei = json.load(f)
 bc = kei['boundary_conditions']
 bc['defaultFaces'] = { 'type': 'empty' }
@@ -165,23 +175,24 @@ if mkdir_p('system'):
             'writePrecision':   7,
             'writeFormat':      'ascii'
         })
-        with Dict(f, 'functions') as funs:
-            with funs.child('fieldAverage') as fa:
-                fa.print_dict({
-                    'type':                 'fieldAverage',
-                    'functionObjectLibs':   '( "libfieldFunctionObjects.so" )',
-                    'enabled':              'true',
-                    'outputControl':        'timeStep'
-                })
-                with fa.list('fields') as fs:
-                    for name in map(lambda f: f.foam_name, fields) + aux_fields:
-                        with fs.append(name) as f:
-                            f.print_dict({
-                                'mean':         'on',
-                                'prime2Mean':   'on',
-                                'base':         'iteration',
-                                'window':       0.15*(kei['num_steps'] - 1)/kei['printer']['savemacro']
-                            })
+        if args.calc_mean:
+            with Dict(f, 'functions') as funs:
+                with funs.child('fieldAverage') as fa:
+                    fa.print_dict({
+                        'type':                 'fieldAverage',
+                        'functionObjectLibs':   '( "libfieldFunctionObjects.so" )',
+                        'enabled':              'true',
+                        'outputControl':        'timeStep'
+                    })
+                    with fa.list('fields') as fs:
+                        for name in map(lambda f: f.foam_name, fields) + aux_fields:
+                            with fs.append(name) as f:
+                                f.print_dict({
+                                    'mean':         'on',
+                                    'prime2Mean':   'on',
+                                    'base':         'iteration',
+                                    'window':       args.window*(kei['num_steps'] - 1)/kei['printer']['savemacro']
+                                })
     with open('system/fvSchemes', 'w') as f:
         print_header(f, 'dictionary', 'system', 'fvSchemes')
         with Dict(f, 'interpolationSchemes') as field:
@@ -196,7 +207,9 @@ if mkdir_p('system'):
         print_header(f, 'dictionary', 'system', 'fvSolution')
 
 if mkdir_p('constant'):
-    os.system('gmshToFoam %s.msh > /dev/null' % case)
+    os.system('{prog} {case}.msh > log.{prog}'.format(prog='gmshToFoam', case=args.case))
+    if args.kn != 1:
+        os.system('{prog} -scale "({kn} {kn} {kn})" > log.{prog}'.format(prog='transformPoints', kn=args.kn))
     lines = []
     cb, rb = 0, 0
     with open('constant/polyMesh/boundary') as f:
