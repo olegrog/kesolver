@@ -32,10 +32,14 @@ class HSSection : public SimpleSection {
 
 class VHSSection : public HSSection {
     public:
-        VHSSection(const std::vector<double>& ds, double omega) : HSSection(ds), omega(omega) {}
+        VHSSection(const std::vector<double>& ds, double omega) :
+            HSSection(ds), nu(omega-.5), gamma(std::tgamma(2.5-omega)) {}
     private:
-        virtual double ker(const double g, const double th) const { return 0.25*std::pow(g, .5-omega); }
-        double omega;
+        virtual double ker(const double g, const double th) const {
+            return 0.25/gamma*std::pow(g/2, -2*nu);
+        }
+        double nu;
+        double gamma;
 };
 
 class LJSection : public SimpleSection {
