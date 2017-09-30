@@ -25,7 +25,7 @@ class Maxwell {
 };
 
 
-template <typename F, Symmetry symmetry, template <Symmetry symmetry> class XiMeshType>
+template <typename F, Symmetry symmetry, template <Symmetry> class XiMeshType>
 void setMaxwellSimple(F& f, const typename XiMeshType<symmetry>::Vm v, const double temp,
                 const XiMeshType<symmetry>& mesh)
 {
@@ -41,7 +41,7 @@ void setMaxwell(F& f, const typename XiMesh<symmetry>::Vm v, const double temp,
     setMaxwellSimple(f, v, temp, mesh);
 }
 
-template <typename F, Symmetry symmetry, template <Symmetry symmetry> class XiMeshType>
+template <typename F, Symmetry symmetry, template <Symmetry> class XiMeshType>
 void setMaxwellMixture(F& f, const typename XiMeshType<symmetry>::Vm v, const double temp,
                 const XiMeshType<symmetry>& mesh)
 {

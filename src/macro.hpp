@@ -1,7 +1,7 @@
 #ifndef _MACRO_HPP_
 #define _MACRO_HPP_
 
-#include <tr1/tuple>
+#include <tuple>
 #include <string>
 
 #include "ximesh.hpp"
@@ -76,7 +76,7 @@ struct MacroMixture {
     template <typename F, template <Symmetry > class XiMeshType>
     MacroMixture(const F& f, const XiMeshType<symmetry>& mesh)
     {
-        std::tr1::tie(n, v, temp, t, q, p, h) = macro(f, mesh, 0, mesh.size());
+        std::tie(n, v, temp, t, q, p, h) = macro(f, mesh, 0, mesh.size());
 
         macros.reserve(mesh.xiMeshes().size());
         for (size_t j = 0; j < mesh.xiMeshes().size(); ++j) {
@@ -85,7 +85,7 @@ struct MacroMixture {
             Vd t;
             Vm q, p;
             double h;
-            std::tr1::tie(n, v, temp, t, q, p, h) = macro(f, mesh,
+            std::tie(n, v, temp, t, q, p, h) = macro(f, mesh,
                                          mesh.offset(j), mesh.offset(j+1));
             macros.push_back(MacroSimple<symmetry>(n, v, temp, t, q, p, h));
         }
@@ -94,7 +94,7 @@ struct MacroMixture {
     private:
         
         template <typename F, template <Symmetry > class XiMeshType>
-        std::tr1::tuple<double, Vm, double, Vd, Vm, Vm, double> macro(const F&  f,
+        std::tuple<double, Vm, double, Vd, Vm, Vm, double> macro(const F&  f,
                                              const XiMeshType<symmetry>& mesh,
                                              const int i1, const int i2)
         {
@@ -123,7 +123,7 @@ struct MacroMixture {
             p -= m * tr(u);
             p *= mesh.vol();
             h *= mesh.vol();
-            return std::tr1::make_tuple(n, v, temp, t, q, p, h);
+            return std::make_tuple(n, v, temp, t, q, p, h);
         }
 
 };

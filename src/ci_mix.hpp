@@ -24,7 +24,7 @@ inline std::ostream& operator<<(std::ostream& to, TimeScheme timescheme) {
 }
 
 template<Symmetry symmetry>
-std::tr1::tuple<V3d, double, V3d, V3d, V3d, V3d>
+std::tuple<V3d, double, V3d, V3d, V3d, V3d>
 calcNodeCollide(const int i1, const int i2,
                 const V3d v, const V3d w,
                 const V3d n,
@@ -33,7 +33,7 @@ calcNodeCollide(const int i1, const int i2,
     return calcNodeCollideMixture(i1, i2, v, w, n, ximesh);
 }
 
-inline std::tr1::tuple<XiMeshMix<Cartesian>::Vi,
+inline std::tuple<XiMeshMix<Cartesian>::Vi,
                   XiMeshMix<Cartesian>::Vi,
                   XiMeshMix<Cartesian>::Vd,
                   XiMeshMix<Cartesian>::Vd>
@@ -45,10 +45,10 @@ inline std::tr1::tuple<XiMeshMix<Cartesian>::Vi,
             ximesh.xi2i(XiMeshMix<Cartesian>::Vx(v2, ximesh.i2ci(i1)));
     const XiMeshMix<Cartesian>::Vi wj =
             ximesh.xi2i(XiMeshMix<Cartesian>::Vx(w2, ximesh.i2ci(i2)));
-    return std::tr1::make_tuple(vj, wj, v2, w2);
+    return std::make_tuple(vj, wj, v2, w2);
 }
 
-inline std::tr1::tuple<XiMeshMix<Cylindrical>::Vi,
+inline std::tuple<XiMeshMix<Cylindrical>::Vi,
                   XiMeshMix<Cylindrical>::Vi,
                   XiMeshMix<Cylindrical>::Vd,
                   XiMeshMix<Cylindrical>::Vd>
@@ -62,7 +62,7 @@ inline std::tr1::tuple<XiMeshMix<Cylindrical>::Vi,
             ximesh.xi2i(XiMeshMix<Cylindrical>::Vx(v1, ximesh.i2ci(i1)) );
     const XiMeshMix<Cylindrical>::Vi wj = 
             ximesh.xi2i(XiMeshMix<Cylindrical>::Vx(w1, ximesh.i2ci(i2)) );
-    return std::tr1::make_tuple(vj, wj, v1, w1);
+    return std::make_tuple(vj, wj, v1, w1);
 }
 
 template <Symmetry symmetry>

@@ -201,7 +201,7 @@ stencilMulti(typename XiMeshRect<symmetry>::Vi vj, const XiMeshRect<symmetry>& )
 }
 
 template <Volume volume, Symmetry symmetry, template <Symmetry> class XiMeshType>
-std::tr1::tuple< bool, typename CollisionNodeMulti<symmetry, volume>::Si, 
+std::tuple< bool, typename CollisionNodeMulti<symmetry, volume>::Si, 
                   typename XiMeshType<symmetry>::Vd >
 searchMulti(typename XiMeshType<symmetry>::Vd v1, typename XiMeshType<symmetry>::Vi vj,
           const XiMeshType<symmetry>& ximesh)
@@ -230,9 +230,9 @@ searchMulti(typename XiMeshType<symmetry>::Vd v1, typename XiMeshType<symmetry>:
                 }
             }
         }
-        return std::tr1::make_tuple(b, j1, x1);
+        return std::make_tuple(b, j1, x1);
     }
-    return std::tr1::make_tuple(true, j1, x1);
+    return std::make_tuple(true, j1, x1);
 }
 
 template <Symmetry symmetry> 
@@ -268,19 +268,19 @@ CollisionType calcNode(const Point& p,
     int i1, i2;
     Vi vi, wi;
     V3d v, w, n;
-    std::tr1::tie(i1, i2, vi, wi, v, w, n) = calcNodeBefore(p, ximesh);
+    std::tie(i1, i2, vi, wi, v, w, n) = calcNodeBefore(p, ximesh);
 
 //    std::cout << "v, w = " << v << ' ' << w << std::endl;
 
     double g;
     V3d    u, o, nn, v2, w2;
-    std::tr1::tie(u, g, o, nn, v2, w2) = calcNodeCollide(i1, i2, v, w, n, ximesh);
+    std::tie(u, g, o, nn, v2, w2) = calcNodeCollide(i1, i2, v, w, n, ximesh);
 
 //    std::cout << "u, g = " << u << ' ' << g << std::endl;
 
     Vi vj, wj;
     Vd v1, w1;
-    std::tr1::tie(vj, wj, v1, w1) = calcNodeAfter(i1, i2, v2, w2, ximesh);
+    std::tie(vj, wj, v1, w1) = calcNodeAfter(i1, i2, v2, w2, ximesh);
 
 //    std::cout << "v1, w1 = " << v1 << ' ' << w1 << std::endl;
 
@@ -298,9 +298,9 @@ CollisionType calcNode(const Point& p,
     typename Node::Si j1, j2;
     Vd x1, x2;
     bool b;
-    std::tr1::tie(b, j1, x1) = searchMulti<volume>(v1, vj, ximesh);
+    std::tie(b, j1, x1) = searchMulti<volume>(v1, vj, ximesh);
     if (not b) return BadSearch;
-    std::tr1::tie(b, j2, x2) = searchMulti<volume>(w1, wj, ximesh);
+    std::tie(b, j2, x2) = searchMulti<volume>(w1, wj, ximesh);
     if (not b) return BadSearch;
 
 //    std::cout << "j1, j2 = " << j1 << ' ' << j2 << std::endl;
@@ -379,9 +379,10 @@ double ciIterMultiCont(DF& f, const Nodes& nodes, const XiMeshType& ximesh)
 
         const Sd r1 = n.x1;
         const Sd r2 = n.x2;
+        /*
         const Sd w1 = n.w1;
         const Sd w2 = n.w2;
-
+        */
 //        const double e = interpF(n.e1, r1) + interpF(n.e2, r2) - n.ei1 - n.ei2;
 //        std::cout << "e = " << e << std::endl;
 

@@ -27,7 +27,7 @@ class Grad13 {
 };
 
 
-template <typename F, Symmetry symmetry, template <Symmetry symmetry> class XiMeshType>
+template <typename F, Symmetry symmetry, template <Symmetry> class XiMeshType>
 void setGrad13Simple(
         F& f,
         const typename XiMeshType<symmetry>::Vm v,
@@ -79,7 +79,7 @@ void setGrad13(
     setGrad13Simple(f, v, temp, n, t, p, q, mesh);
 }
 
-template <typename F, Symmetry symmetry, template <Symmetry symmetry> class XiMesh>
+template <typename F, Symmetry symmetry, template <Symmetry> class XiMesh>
 void setGrad13Mixture(
         F& f,
         const typename XiMesh<symmetry>::Vm v,
