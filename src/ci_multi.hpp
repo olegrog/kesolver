@@ -276,6 +276,9 @@ CollisionType calcNode(const Point& p,
     V3d    u, o, nn, v2, w2;
     std::tie(u, g, o, nn, v2, w2) = calcNodeCollide(i1, i2, v, w, n, ximesh);
 
+    if (g == 0)
+        return SameXi;
+
 //    std::cout << "u, g = " << u << ' ' << g << std::endl;
 
     Vi vj, wj;
