@@ -81,7 +81,14 @@ if __name__ == '__main__':
     grid = make_vector(gas.get('nonuniform', '( uniform )')[1:-1].split())
     q = make_vector(map(float, gas.get('q', '( 0. 0. 0. )')[1:-1].split()))
     N = make_vector(map(int, gas.get('N_R', '( 0 0 0 )')[1:-1].split()))
-    rad = max(gas['rad'], max(N))
+    rad, xi0 = max(N), make_vector([0.])
+    if 'rad' in gas:
+        rad = max(gas['rad'], rad)
+    if 'v' in gas:
+        xi0 = make_vector(map(float, gas.get('v', '(0. 0. 0.)')[1:-1].split()))
+    else:
+        gas['v'] = vecToStr(xi0)
+
     if np.dot(N, N) == 0:
         print 'No velocity grid has been attached.'
     else:
@@ -89,7 +96,7 @@ if __name__ == '__main__':
 
         for i in xrange(3):
             xi[i], h[i] = extend_grid(
-                grids[grid[i]].i2xi(q[i], cut, N[i]),
+                grids[grid[i]].i2xi(q[i], cut, N[i]) + xi0[i],
                 grids[grid[i]].i2h (q[i], cut, N[i]),
                 cut, rad)
             # sqrt(2) Tcheremissine --> Sone
@@ -98,7 +105,6 @@ if __name__ == '__main__':
             print 'h =', h[i]/np.sqrt(2)
 
         # output data
-        gas['v'] = vecToStr([0,0,0])
         gas['vs'] = b64encode(xi.flatten())
         gas['vvs'] = b64encode(h.flatten())
         gas['rad'] = rad
