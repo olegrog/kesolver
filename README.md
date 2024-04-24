@@ -1,3 +1,5 @@
+[![status](https://github.com/olegrog/kesolver/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/olegrog/kesolver/actions/workflows/ubuntu.yml)
+
 Kinetic Equation Solver (kesolver) is a solver of the Boltzmann equation
 using the conservative projection method and its further extensions.
 

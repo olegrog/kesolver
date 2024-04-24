@@ -1,0 +1,25 @@
+name: Ubuntu CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: dependencies
+      run: |
+        cd JsonCpp
+        wget https://downloads.sourceforge.net/project/jsoncpp/jsoncpp/0.6.0-rc2/jsoncpp-src-0.6.0-rc2.tar.gz
+        ./extract.sh jsoncpp-src-0.6.0-rc2.tar.gz
+        make -j
+    - name: build
+      run: |
+        cd src
+        make -j kes
