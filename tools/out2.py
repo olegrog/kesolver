@@ -24,11 +24,11 @@ def isNumber(s):
         return False
 
 def readMacros(filename, size):
-    with open(filename, "rb") as f:
-        numbers = (filter(isNumber, line.split()) for line in f.readlines())
+    with open(filename, "r") as f:
+        numbers = (list(filter(isNumber, line.split())) for line in f.readlines())
         data = [ (int(line[0]), map(float, line[1:])) for line in numbers ]
-        _, data = zip(*sorted(data, key = lambda pair: pair[0]))
-        data = zip(*data)
+        _, data = list(zip(*sorted(data, key = lambda pair: pair[0])))
+        data = list(zip(*data))
     return data
 
 def splitFacetsToVerges(facets):
@@ -36,7 +36,7 @@ def splitFacetsToVerges(facets):
     for facet in facets:
         n = lambda i: facet.nodes[i]
         verges = [ sortPair( (n(i), n(j)) ) for i, j in verges_dic[facet.type] ]
-        for v1, v2 in listToPairs(verges):        
+        for v1, v2 in listToPairs(verges):
             if v1 in vdic:
                 if not v2 in vdic[v1]:
                     vdic[v1].append(v2)
@@ -105,13 +105,13 @@ def cellCrossPlane(cell, nodes, O, u, v):
 def intersect(O, u, cell, nodes):
     line = []
     for facet in facets_dic[cell.type]:
-        a3 = lineCrossFacet(O, u, nodes[cell.nodes[facet[0]]], 
-                                  nodes[cell.nodes[facet[1]]], 
+        a3 = lineCrossFacet(O, u, nodes[cell.nodes[facet[0]]],
+                                  nodes[cell.nodes[facet[1]]],
                                   nodes[cell.nodes[facet[-1]]])
         if a3:
-            line.append(a3)     
+            line.append(a3)
     if line:
-        return center(line) 
+        return center(line)
 
 def vergeCrossPlane(p1, p2, O, u, v):
     result = lineCrossPlane(p1 - O, p2 - O, u, v)
@@ -139,7 +139,7 @@ def vergesCrossPlane(vdic, nodes, O, u, v):
 
 def vergesToLines(vdic):
     while vdic.keys():
-        first = fst(vdic.keys()) 
+        first = fst(vdic.keys())
         pred = first
         line = [fst(vdic[pred])]
         curr = fst(snd(vdic[pred]))
@@ -150,7 +150,7 @@ def vergesToLines(vdic):
             del vdic[curr]
             if v1 != pred:
                 nxt = v1
-            else: 
+            else:
                 nxt = v2
             pred = curr
             curr = nxt
@@ -158,15 +158,15 @@ def vergesToLines(vdic):
 
 def inCell(cell, nodes, p):
     for facet in facets_dic[cell.type]:
-        g = gamma( nodes[cell.nodes[facet[0]]]  - p, 
-                   nodes[cell.nodes[facet[1]]]  - p, 
+        g = gamma( nodes[cell.nodes[facet[0]]]  - p,
+                   nodes[cell.nodes[facet[1]]]  - p,
                    nodes[cell.nodes[facet[-1]]] - p )
         if g > 0:
             return False
     return True
 
 def angle(x, y):
-    a = math.acos( numpy.dot(x, y) / 
+    a = math.acos( numpy.dot(x, y) /
             math.sqrt( numpy.dot(x, x) * numpy.dot(y, y) ) )
     if (numpy.cross(x, y) >= 0):
         return a
@@ -191,18 +191,18 @@ def inTr(x, tr, points):
     v0 = points[tr[0]] - x
     v1 = points[tr[1]] - x
     v2 = points[tr[2]] - x
-    g1 = rot2(v0, v1) 
-    g2 = rot2(v1, v2) 
-    g3 = rot2(v2, v0) 
+    g1 = rot2(v0, v1)
+    g2 = rot2(v1, v2)
+    g3 = rot2(v2, v0)
     return (g1 * g2 >= 0 ) and (g1 * g3 >= 0)
-        
+
 def l2Min(cell, nodes):
     return min( [ sqr(nodes[i]-nodes[j]) for i,j in listToPairs(cell.nodes) ] )
-    
+
 def lMin(cells, nodes):
     l2_min = min( [l2Min(cell, nodes) for cell in cells] )
     return math.sqrt(l2_min)
- 
+
 def rect(points):
     xs, ys = zip(*points)
     return (min(xs), min(ys)), (max(xs), max(ys))
@@ -217,19 +217,19 @@ def addCellToCover(cover, si, sj, step, cell, cell_i, nodes, O, u, v):
     if ps:
         p1, p2 = rect(ps)
         i1, i2 = rectI(p1, p2, step)
-#       print ps
-#       print p1, p2
-#       print i1, i2
+#       print(ps)
+#       print(p1, p2)
+#       print(i1, i2)
         for i, j in between(i1, i2):
-#           print i, j, cell_i
+#           print(i, j, cell_i)
             p = O + toI(i, step) * u + toI(j, step) * v
             if inCell(cell, nodes, p):
                 cover[i-si][j-sj].append(cell_i)
 
 def projToPlane(c, u, v):
-    return numpy.array( ( numpy.dot(c, u) / numpy.dot(u, u), 
+    return numpy.array( ( numpy.dot(c, u) / numpy.dot(u, u),
                           numpy.dot(c, v) / numpy.dot(v, v) ) )
-   
+
 def projPointToLine(p, p1, p2):
     s1 = p1 - p
     s2 = p2 - p1
@@ -237,7 +237,7 @@ def projPointToLine(p, p1, p2):
 
 def lineToIs(p1, p2, step, cover, si, sj):
     q1, q2 = rect([p1, p2])
-    print q1, q2
+    print(q1, q2)
     p1, p2 = numpy.array(p1), numpy.array(p2)
     i1, i2 = rectI(q1, q2, step)
     reserve, rs = [], []
@@ -267,7 +267,7 @@ def addLineToCover(p1, p2, step, cover, X, Y, si, sj, cell_i):
         cover[i][j] = [cell_i]
         X[i][j], Y[i][j] = p
 
-tetrahedron_facets = [ [0, 1, 2], [0, 2, 3], [0, 3, 1], [1, 3, 2] ] 
+tetrahedron_facets = [ [0, 1, 2], [0, 2, 3], [0, 3, 1], [1, 3, 2] ]
 prism_facets       = [ [0, 1, 2], [3, 5, 4],
                        [0, 2, 5], [5, 3, 0],
                        [2, 1, 4], [4, 5, 2],
@@ -281,8 +281,8 @@ hexahedron_facets  = [ [0, 1, 2], [2, 3, 0],
 facets_dic = {4: tetrahedron_facets, 5: hexahedron_facets, 6: prism_facets}
 
 tetrahedron_verges = [ (0, 1), (1, 2), (2, 0), (3, 0), (3, 1), (3, 2) ]
-prism_verges       = [ (0, 1), (1, 2), (2, 0), 
-                       (3, 4), (4, 5), (5, 3), 
+prism_verges       = [ (0, 1), (1, 2), (2, 0),
+                       (3, 4), (4, 5), (5, 3),
                        (0, 3), (1, 4), (2, 5) ]
 hexahedron_verges  = [ (0, 1), (1, 2), (2, 3), (3, 0),
                        (4, 5), (5, 6), (6, 7), (7, 4),
@@ -295,7 +295,7 @@ verges_dic = { 4: tetrahedron_verges, 5: hexahedron_verges, 6: prism_verges,
 def gamma(c, u, v):
     a = numpy.array( [ c, u, v ] )
     return numpy.linalg.det(a)
- 
+
 def center(ps):
     return sum(ps) / len(ps)
 
@@ -355,18 +355,18 @@ def toG(y, step):
 def pointsCross(points):
     a = numpy.array( [  points[1] - points[0],
                         points[2] - points[0],
-                        points[3] - points[0] ] );  
+                        points[3] - points[0] ] );
     return numpy.linalg.det(a) / 6
 
 def tetrahedronVolume(elm, points):
     ps = [points[i] for i in elm.nodes]
-    return pointsCross(ps) / 6.    
+    return pointsCross(ps) / 6.
 
 def prismVolume(elm, points):
     ps = [points[i] for i in elm.nodes]
     return pointsCross([ps[0], ps[1], ps[2], ps[3]]) + \
            pointsCross([ps[1], ps[3], ps[4], ps[5]]) + \
-           pointsCross([ps[1], ps[2], ps[3], ps[5]])  
+           pointsCross([ps[1], ps[2], ps[3], ps[5]])
 
 def hexahedronVolume(elm, points):
     ps = [points[i] for i in elm.nodes]
@@ -433,7 +433,7 @@ def my_interp(x, y, z, xs, ys):
 def readF(filename, length, gr, ms, rads, dvs):
 
     def make_xr(rad, dv):
-        dim = (2*rad, rad) 
+        dim = (2*rad, rad)
         x = numpy.fromfunction(lambda i, j: i - rad + 0.5, dim)
         r = numpy.fromfunction(lambda i, j: j       + 0.5, dim)
         x *= dv
@@ -450,7 +450,7 @@ def readF(filename, length, gr, ms, rads, dvs):
         f[x*x + r*r < rad*rad*dv*dv] = numpy.array(a)
 
         n  = numpy.sum(f / r)
-        vx = numpy.sum(f / r * x) / n 
+        vx = numpy.sum(f / r * x) / n
         tx = numpy.sum(f / r * (x - vx)**2) / n
         tr = numpy.sum(f / r * r**2) / n
 
@@ -474,11 +474,11 @@ def readF(filename, length, gr, ms, rads, dvs):
     l = []
     qr = []
 
-    with open(filename, "rb") as fd:
+    with open(filename, "r") as fd:
         for i in range(length):
             data = fd.read(4+4)
             i, size = struct.unpack('=ii', data)
-            print i, size, rads
+            print(i, size, rads)
 
             fs = [make_xrf(fd, rad, x, r, dv) for rad, x, r, dv in zip(rads, xs, rs, dvs)]
 
@@ -498,14 +498,14 @@ def isXmlStart(key, line):
 def isXmlEnd(key, line):
     return re.search(r"</" + key + r">$", line)
 def getXmlValue(s, key):
-    print s, key
+    print(s, key)
     return re.search(key + r"\s*=\s*\"([^\"]+)\"", s).groups()[0]
 
 def readRadsMassesDvs(filename):
     rads = []
     masses = []
     dvs = []
-    with open(filename, "rb") as fd:
+    with open(filename, "r") as fd:
         line = " "
         while line:
             line = fd.readline()
@@ -522,18 +522,18 @@ def readRadsMassesDvs(filename):
                     adds = map(float, str.split())
                 except AttributeError:
                     adds = [0. for m in masses]
-                print "adds = ", adds
+                print("adds = ", adds)
                 try:
                     v0 = float(getXmlValue(line, "v"))
                 except AttributeError:
                     v0 = 0
                 rads = [rad for m in masses]
-                dvs = [(cut / math.sqrt(m) + a) / r for r, m, a in zip(rads, masses, adds)] 
+                dvs = [(cut / math.sqrt(m) + a) / r for r, m, a in zip(rads, masses, adds)]
                 break
     return rads, masses, dvs, v0
 
 def makeXR(rad):
-    dim = (2*rad, rad) 
+    dim = (2*rad, rad)
     x = numpy.fromfunction(lambda i, j: i - rad + 0.5, dim)
     r = numpy.fromfunction(lambda i, j: j       + 0.5, dim)
     return x, r
@@ -543,7 +543,7 @@ def readFunc(fd, x, r, rad):
 
     a = array.array('d')
     size = numpy.sum(x*x + r*r < rad*rad)
-    print "size = ", size
+    print("size = ", size)
     a.fromfile(fd, size)
 
     f[x*x + r*r < rad*rad] = numpy.array(a)
@@ -562,7 +562,7 @@ def calcGG(x1, x2, r1, r2, g):
 
     gg = my_interp(gamma_glob, delta_glob, G_glob, gammas, deltas) * numpy.sqrt(xisqr.flatten())
     return gg
- 
+
 def calcQr(x1, x2, r1, r2, f1, f2, g):
     ff = numpy.outer(f1, f2).flatten()
     return numpy.sum(ff * calcGG(x1, x2, r1, r2, g))
