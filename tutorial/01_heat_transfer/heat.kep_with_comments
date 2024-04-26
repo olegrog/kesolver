@@ -1,0 +1,46 @@
+{
+    "boundary_conditions": {
+        "left": {                   // Word "left" is specified in heat.geo
+            "T": "0.9",             // Temperature of the wall
+            "type": "diffusion",    // Diffuse reflection BC
+            "u": "0."               // Velocity of the wall
+        },
+        "right": {
+            "T": "1.1",
+            "type": "diffusion",
+            "u": "0."
+        }
+    },
+    "curnt_limit": 1.0,             // Courant number
+    "gas": {                        // Properties of the velocity grid
+        "cut": 6,                   // The grid is cut by sphere of radius 6*sqrt(RT)
+        "rad": 10,                  // The number of nodes along the radius
+        "symmetry": "Cartesian",    // Cartesian velocity grid is used
+        "type": "Simple"            // Uniform grid
+    },
+    "initial_conditions": {
+        "volume": {                 // Word "volume" is specified in heat.geo
+            "type": "maxwell",      // Maxwellian is used for IC
+            "T": "1.",              // Temperature
+            "n": "1.",              // Density
+            "u": "0."               // Velocity (it is a scalar due to cylindrical symmetry)
+        }
+    },
+    "integral": {                   // Properties of the collisional integral
+        "enable": true,
+        "order": 1,                 // Order of accurary used in scheme
+        "power": 50000              // Number of points if a Korobov grid
+    },
+    "num_steps": 201,               // Total number of time iterations
+    "printer": {                    // Properties of the output
+        "dir": "result/",           // Directory to save results
+        "file": "m%d.txt",          // Pattern for file names used in printf
+        "savemacro": 10,            // Save macroscopic variables every 10 time steps
+        "savefunc": true,           // Dump a distribution function as well (useful for restart)
+        "savefuncfreq": 100,        // Dump a distribution function every 100 time steps
+        "savefuncfilename": "f%d.bin" // Pattern for file names for dumping the distribution function
+    },
+    "transfer": {                   // Properties of the left part of the Boltzmann equation
+        "order": 2                  // Order of accuracy used for physical space discretization
+    }
+}

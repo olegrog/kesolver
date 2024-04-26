@@ -17,7 +17,8 @@ See instructions [here](JsonCpp/README.md).
 Optionally:
 
 1. An MPI wrapper for the C++ compiler.
-2. [GMSH](https://gmsh.info/) for mesh generation.
+2. [Gmsh](https://gmsh.info/) for mesh generation.
+3. [ParaView](https://www.paraview.org/) for data visualization.
 
 ## Building
 
@@ -48,3 +49,4 @@ A parallel version can be run as follows:
 mpirun ./kes-mpi config.kei
 ```
 
+Examples of configuration files can be found in [tutorials](tutorial).
